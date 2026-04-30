@@ -1,0 +1,2100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tech Skills for LLM — Beginner to Expert Interactive</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fira+Code:wght@400;500;600&display=swap');
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{--bg:#0a0a14;--bg2:#12121f;--bg3:#1a1a2e;--bg4:#16213e;--accent:#00b4d8;--green:#06d6a0;--red:#e94560;--yellow:#ffd166;--purple:#a855f7;--orange:#f97316;--text:#e8e8f0;--dim:#6b7294;--code-bg:#0d1117;}
+body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);overflow:hidden;height:100vh;}
+.topbar{height:52px;background:var(--bg2);display:flex;align-items:center;padding:0 10px;border-bottom:1px solid rgba(255,255,255,0.05);gap:4px;z-index:100;overflow-x:auto;}
+.topbar .logo{font-weight:900;font-size:14px;background:linear-gradient(135deg,var(--accent),var(--purple));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;margin-right:8px;white-space:nowrap;}
+.tab{padding:4px 8px;border-radius:7px;font-size:10px;font-weight:700;cursor:pointer;transition:all .3s;color:var(--dim);white-space:nowrap;border:1px solid transparent;}
+.tab:hover{color:var(--text);background:var(--bg3);}
+.tab.active{background:var(--accent);color:#000;border-color:var(--accent);}
+.tab.l2{border-left:2px solid var(--purple);}
+.tab.l2.active{background:var(--purple);color:#fff;}
+.tab.l3{border-left:2px solid var(--orange);}
+.tab.l3.active{background:var(--orange);color:#000;}
+.sep{color:var(--dim);font-size:10px;padding:0 2px;user-select:none;}
+.sc{margin-left:auto;font-size:11px;font-weight:700;color:var(--yellow);white-space:nowrap;}
+.main{display:flex;height:calc(100vh - 52px);}
+.cp{width:46%;background:var(--code-bg);border-right:1px solid rgba(255,255,255,0.05);display:flex;flex-direction:column;}
+.ch{padding:8px 14px;background:var(--bg2);border-bottom:1px solid rgba(255,255,255,0.05);display:flex;align-items:center;gap:8px;}
+.ch .fn{font-family:'Fira Code',monospace;font-size:11px;color:var(--accent);font-weight:600;}
+.ch .fd{font-size:10px;color:var(--dim);}
+.cs{flex:1;overflow-y:auto;}
+.cc{font-family:'Fira Code',monospace;font-size:11px;line-height:1.8;padding:8px 0;}
+.cl{display:flex;padding:0 8px 0 0;min-height:18px;}
+.cl:hover{background:rgba(255,255,255,0.02);}
+.ln{min-width:32px;text-align:right;padding-right:8px;color:var(--dim);user-select:none;font-size:9px;}
+.lt{white-space:pre;flex:1;}
+.kw{color:#ff79c6;}.str{color:#f1fa8c;}.cm{color:#6272a4;font-style:italic;}.fn2{color:#50fa7b;}.num{color:#bd93f9;}.dec{color:#ffb86c;}
+.gp{width:54%;display:flex;flex-direction:column;}
+.gh{padding:10px 16px;background:var(--bg2);border-bottom:1px solid rgba(255,255,255,0.05);}
+.gh h2{font-size:16px;font-weight:800;}
+.gh p{font-size:10px;color:var(--dim);margin-top:2px;}
+.gs{flex:1;overflow-y:auto;padding:16px;}
+.s{margin-bottom:20px;}
+.s h3{font-size:14px;font-weight:800;margin-bottom:6px;display:flex;align-items:center;gap:6px;}
+.s p,.s li{font-size:12px;line-height:1.6;}
+.eb{background:var(--bg3);border-radius:10px;padding:10px 14px;margin:6px 0;border-left:4px solid var(--accent);font-size:12px;line-height:1.6;}
+.eb.g{border-left-color:var(--green);}.eb.y{border-left-color:var(--yellow);}.eb.r{border-left-color:var(--red);}.eb.p{border-left-color:var(--purple);}.eb.o{border-left-color:var(--orange);}
+.qb{background:var(--bg3);border-radius:10px;padding:12px;margin:8px 0;border:2px solid var(--bg4);}
+.qb.ok{border-color:var(--green);background:rgba(6,214,160,0.05);}.qb.no{border-color:var(--red);background:rgba(233,69,96,0.05);}
+.qt{font-size:12px;font-weight:800;margin-bottom:6px;}
+.qo{display:flex;flex-direction:column;gap:4px;}
+.qp{padding:6px 10px;border-radius:7px;background:var(--bg4);cursor:pointer;font-size:11px;font-weight:600;transition:all .2s;border:2px solid transparent;}
+.qp:hover{border-color:var(--accent);}
+.qp.sc2{background:rgba(6,214,160,0.15);border-color:var(--green);color:var(--green);}
+.qp.sw{background:rgba(233,69,96,0.15);border-color:var(--red);color:var(--red);}
+.qp.dis{pointer-events:none;opacity:0.6;}.qp.shc{border-color:var(--green);opacity:1!important;}
+.qf{margin-top:5px;padding:5px 8px;border-radius:5px;font-size:10px;font-weight:600;display:none;}
+.qf.sh{display:block;}.qf.ok{background:rgba(6,214,160,0.1);color:var(--green);}.qf.no{background:rgba(233,69,96,0.1);color:var(--red);}
+.ia{background:var(--bg3);border-radius:10px;padding:12px;margin:8px 0;border:2px solid var(--bg4);}
+.ia h4{font-size:12px;font-weight:800;margin-bottom:6px;}
+.btn{padding:6px 12px;border:none;border-radius:7px;font-family:'Nunito',sans-serif;font-size:11px;font-weight:700;cursor:pointer;transition:all .2s;}
+.btn:hover{transform:translateY(-1px);}
+.bp{background:var(--accent);color:#000;}.bgr{background:var(--green);color:#000;}.br{background:var(--bg4);color:var(--text);}.bpu{background:var(--purple);color:#fff;}.bor{background:var(--orange);color:#000;}
+.ob{background:var(--code-bg);border-radius:7px;padding:8px 12px;font-family:'Fira Code',monospace;font-size:11px;line-height:1.6;margin:5px 0;border:1px solid rgba(255,255,255,0.05);}
+.bd{display:inline-block;padding:2px 6px;border-radius:4px;font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;}
+.bd-g{background:rgba(168,85,247,0.15);color:var(--purple);}.bd-q{background:rgba(249,115,22,0.15);color:var(--orange);}.bd-c{background:rgba(0,180,216,0.15);color:var(--accent);}.bd-n{background:rgba(233,69,96,0.15);color:var(--red);}
+.sr{display:flex;align-items:center;gap:6px;margin:5px 0;font-size:11px;}
+.sr input[type=range]{flex:1;accent-color:var(--accent);}
+.sv{font-family:'Fira Code',monospace;font-size:12px;font-weight:700;color:var(--yellow);min-width:32px;}
+.ct{width:100%;border-collapse:collapse;font-size:11px;margin:5px 0;}
+.ct th,.ct td{padding:5px 8px;text-align:left;border-bottom:1px solid rgba(255,255,255,0.05);}
+.ct th{color:var(--accent);font-weight:700;font-size:10px;}
+.matrix-cell{display:inline-flex;align-items:center;justify-content:center;width:38px;height:30px;border-radius:5px;font-family:'Fira Code',monospace;font-size:12px;font-weight:700;background:var(--bg4);border:2px solid transparent;transition:all .3s;margin:1px;}
+.matrix-cell.hl{border-color:var(--accent);background:rgba(0,180,216,0.15);color:var(--accent);}
+.matrix-cell.res{border-color:var(--green);background:rgba(6,214,160,0.15);color:var(--green);}
+.matrix-cell.ed{cursor:pointer;border-color:var(--dim);}.matrix-cell.ed:hover{border-color:var(--accent);}
+.prob-row{display:flex;align-items:center;gap:6px;margin:2px 0;font-size:11px;}
+.prob-label{width:50px;font-family:'Fira Code',monospace;font-weight:700;text-align:right;}
+.prob-track{flex:1;height:18px;background:var(--bg4);border-radius:4px;overflow:hidden;}
+.prob-fill{height:100%;border-radius:4px;transition:width .5s;}
+.prob-pct{width:36px;text-align:right;font-family:'Fira Code',monospace;font-size:10px;color:var(--dim);}
+canvas{border-radius:8px;border:1px solid rgba(255,255,255,0.05);}
+input[type=number],input[type=text]{outline:none;}
+.level-badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:9px;font-weight:800;letter-spacing:0.5px;margin-right:4px;}
+.lb1{background:rgba(0,180,216,0.2);color:var(--accent);}.lb2{background:rgba(168,85,247,0.2);color:var(--purple);}.lb3{background:rgba(249,115,22,0.2);color:var(--orange);}
+::-webkit-scrollbar{width:5px;}::-webkit-scrollbar-track{background:transparent;}::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:3px;}
+</style>
+</head>
+<body>
+<div class="topbar">
+<div class="logo">&#x1F6E0;&#xFE0F; Tech Skills for LLM</div>
+<div class="tab active" onclick="go(0)">Intro</div>
+<div class="sep">L1&#x25B8;</div>
+<div class="tab" onclick="go(1)">Vectors</div>
+<div class="tab" onclick="go(2)">Matrices</div>
+<div class="tab" onclick="go(3)">Derivatives</div>
+<div class="tab" onclick="go(4)">Probability</div>
+<div class="sep">L2&#x25B8;</div>
+<div class="tab l2" onclick="go(5)">Backprop</div>
+<div class="tab l2" onclick="go(6)">Neurons</div>
+<div class="tab l2" onclick="go(7)">NLP</div>
+<div class="tab l2" onclick="go(8)">PyTorch</div>
+<div class="sep">L3&#x25B8;</div>
+<div class="tab l3" onclick="go(9)">Optimizers</div>
+<div class="tab l3" onclick="go(10)">Attention</div>
+<div class="tab l3" onclick="go(11)">Transformers</div>
+<div class="tab l3" onclick="go(12)">Training</div>
+<div class="sc">&#x2B50;<span id="ts">0</span>/<span id="ms">0</span></div>
+</div>
+<div class="main">
+<div class="cp"><div class="ch"><span class="fn" id="cfn"></span><span class="fd" id="cfd"></span></div><div class="cs"><div class="cc" id="ccc"></div></div></div>
+<div class="gp"><div class="gh"><h2 id="gt"></h2><p id="gsu"></p></div><div class="gs"><div id="gc"></div></div></div>
+</div>
+<script>
+let cur=0,sc=0,mx=0,ans={};
+function asc(id,p){if(ans[id])return;ans[id]=1;sc+=p;document.getElementById('ts').textContent=sc;}
+function rq(id,p){if(!ans['_'+id]){ans['_'+id]=1;mx+=p;document.getElementById('ms').textContent=mx;}}
+function cq(qid,el,ok){const b=document.getElementById(qid);if(b.classList.contains('ok')||b.classList.contains('no'))return;const f=document.getElementById(qid+'-f');const os=b.querySelectorAll('.qp');if(ok){el.classList.add('sc2');b.classList.add('ok');f.className='qf sh ok';f.textContent='\u2705 Correct! +10';asc(qid,10);}else{el.classList.add('sw');b.classList.add('no');f.className='qf sh no';f.textContent='\u274C Not quite!';}os.forEach(o=>{o.classList.add('dis');if(o!==el&&o.getAttribute('onclick')&&o.getAttribute('onclick').includes(',true)'))o.classList.add('shc');});}
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function hl(l){if(l.trimStart().startsWith('#'))return'<span class="cm">'+l+'</span>';l=l.replace(/(""".*?"""|".*?"|'.*?')/g,'<span class="str">$1</span>');['def','class','return','for','in','if','import','from','self','None','True','False','super','not','and','or','range','print','with','as','else','elif','while','break','pass','assert','lambda','yield','try','except','raise','finally'].forEach(k=>{l=l.replace(new RegExp('\\b('+k+')\\b','g'),'<span class="kw">$1</span>');});l=l.replace(/\b(\d+\.?\d*)\b/g,'<span class="num">$1</span>');return l;}
+function rc(code){const c=document.getElementById('ccc');c.innerHTML='';code.split('\n').forEach((l,i)=>{const d=document.createElement('div');d.className='cl';d.innerHTML='<span class="ln">'+(i+1)+'</span><span class="lt">'+hl(esc(l))+'</span>';c.appendChild(d);});}
+function go(n){cur=n;const s=S[n];document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',i===n));document.getElementById('cfn').textContent=s.fn;document.getElementById('cfd').textContent=s.fd;rc(s.code);document.getElementById('gt').innerHTML=s.t;document.getElementById('gsu').textContent=s.su;const g=document.getElementById('gc');g.innerHTML='';s.gm(g);document.querySelector('.gs').scrollTop=0;document.querySelector('.cs').scrollTop=0;}
+function mkInput(id,w){return '<input type="number" id="'+id+'" style="width:'+w+'px;padding:4px;border-radius:5px;border:2px solid var(--bg4);background:var(--code-bg);color:var(--text);font-family:\'Fira Code\',monospace;text-align:center;font-size:12px;" placeholder="?">';}
+function softmax(arr,t){const s=arr.map(x=>x/(t||1));const m=Math.max(...s);const e=s.map(x=>Math.exp(x-m));const sm=e.reduce((a,b)=>a+b,0);return e.map(x=>x/sm);}
+
+const S=[
+
+// ═══════════════════════════════════════
+// 0: INTRO — ROADMAP
+// ═══════════════════════════════════════
+{fn:'roadmap.py',fd:'Complete Learning Path',t:'&#x1F6E0;&#xFE0F; Tech Skills for LLM — Complete Course',su:'Everything you need from zero to building LLMs. 3 levels, 12 topics, 100% self-contained.',
+code:`# ============================================
+# TECH SKILLS FOR LLM — COMPLETE COURSE
+# ============================================
+# This course teaches you EVERY prerequisite
+# skill needed to understand and build LLMs.
+#
+# You will NOT need to search anything outside.
+# Everything is explained from first principles.
+#
+# ============================================
+# LEVEL 1: FOUNDATIONS (Beginner)
+# ============================================
+# 1. Vectors     — What numbers mean in AI
+# 2. Matrices    — The core operation of NNs
+# 3. Derivatives — How models learn (slopes)
+# 4. Probability — How models predict (softmax)
+#
+# ============================================
+# LEVEL 2: BUILDING BLOCKS (Intermediate)
+# ============================================
+# 5. Backprop    — Chain rule + gradient flow
+# 6. Neurons     — Layers, activations, loss
+# 7. NLP         — Text to numbers pipeline
+# 8. PyTorch     — The framework (tensors, autograd)
+#
+# ============================================
+# LEVEL 3: LLM-READY (Advanced)
+# ============================================
+# 9.  Optimizers   — Adam, schedules, weight decay
+# 10. Attention    — The key innovation of LLMs
+# 11. Transformers — Full architecture deep dive
+# 12. Training     — End-to-end LLM training
+#
+# After this course, you're ready for:
+#   baby-llm/ → teenage-llm/ → adult-llm/ → expert-llm/
+#
+# Each topic has:
+#   LEFT:  Complete code with detailed comments
+#   RIGHT: Explanations + interactive games
+#
+# No prior ML knowledge needed.
+# Basic math (algebra) is helpful but we teach it.`,
+gm:function(c){c.innerHTML=`
+<div class="s"><h3>&#x1F3AF; What This Course Covers</h3>
+<div class="eb y"><p>This is a <strong>self-contained</strong> course. Every concept is explained from scratch with analogies, math, code, and interactive games. You won't need to Google anything (except Python installation).</p></div></div>
+
+<div class="s"><h3><span class="level-badge lb1">LEVEL 1</span> Foundations — Math Basics</h3>
+<div class="eb"><p><strong>Vectors:</strong> Numbers that represent meaning. "cat" = [0.2, 0.8, 0.1]. Every word in an LLM is a vector.</p></div>
+<div class="eb"><p><strong>Matrices:</strong> Grids of numbers. Every neural network layer = matrix multiplication. This is THE core operation.</p></div>
+<div class="eb"><p><strong>Derivatives:</strong> Slopes of curves. "If I change this weight by 0.01, how much does the error change?" That's a derivative.</p></div>
+<div class="eb"><p><strong>Probability:</strong> The model outputs probabilities for every possible next word. Softmax, temperature, sampling — all here.</p></div></div>
+
+<div class="s"><h3><span class="level-badge lb2">LEVEL 2</span> Building Blocks — Neural Networks</h3>
+<div class="eb p"><p><strong>Backpropagation:</strong> The algorithm that makes learning possible. Chain rule applied through every layer.</p></div>
+<div class="eb p"><p><strong>Neurons & Layers:</strong> Perceptrons, activation functions (ReLU, GELU, SwiGLU), loss functions, forward pass.</p></div>
+<div class="eb p"><p><strong>NLP Pipeline:</strong> Tokenization (char, word, BPE), embeddings, positional encoding, language modeling objective.</p></div>
+<div class="eb p"><p><strong>PyTorch:</strong> Tensors, autograd, nn.Module, training loops — the actual code framework.</p></div></div>
+
+<div class="s"><h3><span class="level-badge lb3">LEVEL 3</span> LLM-Ready — Advanced Techniques</h3>
+<div class="eb o"><p><strong>Optimizers:</strong> SGD → Adam → AdamW. Learning rate schedules. Weight decay. Gradient clipping.</p></div>
+<div class="eb o"><p><strong>Attention Mechanism:</strong> Q, K, V matrices. Scaled dot-product. Multi-head attention. Causal masking.</p></div>
+<div class="eb o"><p><strong>Transformer Architecture:</strong> Encoder vs decoder. Layer norm. Residual connections. The full stack.</p></div>
+<div class="eb o"><p><strong>End-to-End Training:</strong> Data loading, batching, mixed precision, evaluation, generation.</p></div></div>
+
+<div class="s"><h3><span class="bd bd-q">QUIZ</span> Starting Assessment</h3>
+<div class="qb" id="i-q1"><div class="qt">&#x1F914; What is the SINGLE most important math operation in neural networks?</div><div class="qo">
+<div class="qp" onclick="cq('i-q1',this,false)">Addition</div>
+<div class="qp" onclick="cq('i-q1',this,true)">Matrix multiplication (dot product)</div>
+<div class="qp" onclick="cq('i-q1',this,false)">Square root</div>
+</div><div class="qf" id="i-q1-f"></div></div>
+<div class="qb" id="i-q2"><div class="qt">&#x1F914; An LLM predicts the next word by outputting:</div><div class="qo">
+<div class="qp" onclick="cq('i-q2',this,false)">A single word directly</div>
+<div class="qp" onclick="cq('i-q2',this,true)">A probability distribution over ALL possible words</div>
+<div class="qp" onclick="cq('i-q2',this,false)">A random word</div>
+</div><div class="qf" id="i-q2-f"></div></div>
+<div class="qb" id="i-q3"><div class="qt">&#x1F914; "Backpropagation" is the process of:</div><div class="qo">
+<div class="qp" onclick="cq('i-q3',this,false)">Generating text backwards</div>
+<div class="qp" onclick="cq('i-q3',this,false)">Loading data into the model</div>
+<div class="qp" onclick="cq('i-q3',this,true)">Computing how much each weight contributed to the error, so we can fix it</div>
+</div><div class="qf" id="i-q3-f"></div></div></div>
+
+<div class="s"><h3>&#x1F5FA;&#xFE0F; Skill Map</h3>
+<table class="ct">
+<tr><th>Level</th><th>Topic</th><th>LLM Connection</th></tr>
+<tr><td><span class="level-badge lb1">L1</span></td><td>Vectors</td><td>Every word = a vector of numbers</td></tr>
+<tr><td><span class="level-badge lb1">L1</span></td><td>Matrices</td><td>Every layer = matrix multiply</td></tr>
+<tr><td><span class="level-badge lb1">L1</span></td><td>Derivatives</td><td>Gradient = direction to improve</td></tr>
+<tr><td><span class="level-badge lb1">L1</span></td><td>Probability</td><td>Softmax, cross-entropy, sampling</td></tr>
+<tr><td><span class="level-badge lb2">L2</span></td><td>Backprop</td><td>How 100M+ weights get updated</td></tr>
+<tr><td><span class="level-badge lb2">L2</span></td><td>Neurons</td><td>Layers, activations, loss functions</td></tr>
+<tr><td><span class="level-badge lb2">L2</span></td><td>NLP</td><td>Text → tokens → embeddings</td></tr>
+<tr><td><span class="level-badge lb2">L2</span></td><td>PyTorch</td><td>The framework to build it all</td></tr>
+<tr><td><span class="level-badge lb3">L3</span></td><td>Optimizers</td><td>Adam, LR schedules, weight decay</td></tr>
+<tr><td><span class="level-badge lb3">L3</span></td><td>Attention</td><td>THE innovation behind Transformers</td></tr>
+<tr><td><span class="level-badge lb3">L3</span></td><td>Transformers</td><td>The complete architecture</td></tr>
+<tr><td><span class="level-badge lb3">L3</span></td><td>Training</td><td>End-to-end LLM training pipeline</td></tr>
+</table></div>`;rq('i-q1',10);rq('i-q2',10);rq('i-q3',10);}},
+
+// ═══════════════════════════════════════
+// L1-1: VECTORS
+// ═══════════════════════════════════════
+{fn:'vectors.py',fd:'Level 1 — Numbers That Mean Things',t:'<span class="level-badge lb1">L1</span> Vectors — Numbers With Meaning',su:'A vector is a list of numbers. In LLMs, every word IS a vector. Similar words = similar vectors.',
+code:`# ============================================
+# VECTORS — The Language of AI
+# ============================================
+# A vector is just a LIST OF NUMBERS.
+# But in AI, those numbers have MEANING.
+#
+# WHAT IS A VECTOR?
+# =================
+# Think of it as coordinates.
+# A point on a map has 2 numbers: (x, y)
+# A point in 3D space has 3: (x, y, z)
+# A word in an LLM has 768 numbers!
+#
+# Example: 2D vector
+point = [3, 4]  # x=3, y=4
+
+# Example: word embedding (simplified to 4D)
+cat  = [0.9, 0.1, 0.8, 0.2]  # furry, small
+dog  = [0.8, 0.2, 0.7, 0.3]  # furry, medium
+car  = [0.1, 0.9, 0.1, 0.8]  # not furry, big
+
+# Notice: cat and dog are SIMILAR vectors!
+# car is very DIFFERENT from both.
+
+# ── VECTOR OPERATIONS ──
+
+# 1. ADDITION: combine vectors
+a = [1, 2, 3]
+b = [4, 5, 6]
+# a + b = [1+4, 2+5, 3+6] = [5, 7, 9]
+# Each element added separately!
+
+# 2. SCALAR MULTIPLICATION: scale a vector
+a = [1, 2, 3]
+# 2 * a = [2, 4, 6]  (each element × 2)
+
+# 3. DOT PRODUCT: multiply pairs, then sum
+a = [1, 2, 3]
+b = [4, 5, 6]
+# a · b = 1*4 + 2*5 + 3*6 = 4 + 10 + 18 = 32
+#
+# WHY THIS MATTERS:
+# Dot product measures SIMILARITY!
+# High dot product = vectors point same direction
+# Low/zero = vectors are unrelated
+# Negative = vectors point opposite directions
+
+# 4. MAGNITUDE (LENGTH): how "big" is the vector?
+import math
+a = [3, 4]
+length = math.sqrt(3**2 + 4**2)  # = 5.0
+# This is the Pythagorean theorem!
+
+# 5. COSINE SIMILARITY: similarity ignoring length
+# cos(θ) = (a · b) / (|a| × |b|)
+# Range: -1 (opposite) to +1 (identical direction)
+# This is how LLMs measure word similarity!
+
+def cosine_similarity(a, b):
+    dot = sum(x*y for x, y in zip(a, b))
+    mag_a = math.sqrt(sum(x**2 for x in a))
+    mag_b = math.sqrt(sum(x**2 for x in b))
+    return dot / (mag_a * mag_b)
+
+# cat vs dog: cosine_sim ≈ 0.97 (very similar!)
+# cat vs car: cosine_sim ≈ 0.36 (very different!)
+
+# ── IN LLMs ──
+# GPT-2: each word = 768-dimensional vector
+# GPT-3: each word = 12288-dimensional vector
+# These vectors are LEARNED during training.
+# The model discovers that similar words
+# should have similar vectors — automatically!`,
+gm:function(c){c.innerHTML=`
+<div class="s"><h3>&#x1F4D0; What is a Vector?</h3>
+<div class="eb"><p>A <strong>vector</strong> = a list of numbers. That's it! [3, 4] is a 2D vector. [0.2, 0.8, 0.1, 0.9] is a 4D vector. In LLMs, every word is represented as a vector with hundreds of dimensions.</p></div>
+<div class="eb y"><p><strong>&#x1F3E0; Analogy:</strong> Think of a house listing: [price, sqft, bedrooms, bathrooms] = [350000, 1500, 3, 2]. Each number describes a different feature. Word vectors work the same way — each number captures a different aspect of meaning!</p></div>
+<div class="eb g"><p><strong>&#x1F4A1; Key Insight:</strong> "cat" = [0.9, 0.1, 0.8, 0.2] and "dog" = [0.8, 0.2, 0.7, 0.3] are similar vectors because cats and dogs are related concepts. The model learns this automatically!</p></div></div>
+
+<div class="s"><h3><span class="bd bd-g">GAME</span> Vector Addition</h3>
+<p>Add these vectors element by element:</p>
+<div class="ia">
+<h4>[2, 5, 1] + [3, 1, 4] = ?</h4>
+<div style="display:flex;gap:6px;align-items:center;margin:8px 0;flex-wrap:wrap;">
+<span style="font-family:'Fira Code',monospace;font-size:12px;">[</span>
+${mkInput('va0',40)}<span>,</span>${mkInput('va1',40)}<span>,</span>${mkInput('va2',40)}
+<span style="font-family:'Fira Code',monospace;font-size:12px;">]</span>
+<button class="btn bp" onclick="checkVA()">Check</button>
+</div>
+<div id="vaFb" style="font-weight:700;font-size:11px;"></div>
+</div></div>
+
+<div class="s"><h3><span class="bd bd-g">GAME</span> Dot Product Step-by-Step</h3>
+<p>Compute [2, 3, 1] · [4, 1, 5] step by step:</p>
+<div class="ia">
+<div style="font-family:'Fira Code',monospace;font-size:12px;line-height:2;">
+<div>Step 1: 2 × 4 = ${mkInput('dp1',40)}</div>
+<div>Step 2: 3 × 1 = ${mkInput('dp2',40)}</div>
+<div>Step 3: 1 × 5 = ${mkInput('dp3',40)}</div>
+<div style="margin-top:4px;font-weight:800;">Sum = ${mkInput('dpT',50)}</div>
+</div>
+<button class="btn bp" onclick="checkDP()" style="margin-top:6px;">Check</button>
+<div id="dpFb" style="font-weight:700;font-size:11px;margin-top:4px;"></div>
+</div></div>
+
+<div class="s"><h3><span class="bd bd-g">GAME</span> Similarity Intuition</h3>
+<p>Which pairs are MORE similar? Click the more similar pair in each row.</p>
+<div class="ia" id="simGame"></div></div>
+
+<div class="s"><h3><span class="bd bd-q">QUIZ</span> Vector Concepts</h3>
+<div class="qb" id="v-q1"><div class="qt">&#x1F914; The dot product of [1,0,0] and [0,1,0] is 0. What does this mean?</div><div class="qo">
+<div class="qp" onclick="cq('v-q1',this,false)">The vectors are identical</div>
+<div class="qp" onclick="cq('v-q1',this,true)">The vectors are perpendicular (completely unrelated)</div>
+<div class="qp" onclick="cq('v-q1',this,false)">The vectors are opposite</div>
+</div><div class="qf" id="v-q1-f"></div></div>
+<div class="qb" id="v-q2"><div class="qt">&#x1F914; GPT-2 uses 768-dimensional word vectors. Why so many dimensions?</div><div class="qo">
+<div class="qp" onclick="cq('v-q2',this,false)">To waste memory</div>
+<div class="qp" onclick="cq('v-q2',this,true)">More dimensions = more aspects of meaning can be captured (grammar, sentiment, topic, etc.)</div>
+<div class="qp" onclick="cq('v-q2',this,false)">768 is a random number</div>
+</div><div class="qf" id="v-q2-f"></div></div>
+<div class="qb" id="v-q3"><div class="qt">&#x1F914; Cosine similarity ranges from -1 to +1. A value of +1 means:</div><div class="qo">
+<div class="qp" onclick="cq('v-q3',this,true)">Vectors point in exactly the same direction (identical meaning)</div>
+<div class="qp" onclick="cq('v-q3',this,false)">Vectors are perpendicular</div>
+<div class="qp" onclick="cq('v-q3',this,false)">Vectors have the same length</div>
+</div><div class="qf" id="v-q3-f"></div></div>
+<div class="qb" id="v-q4"><div class="qt">&#x1F914; The famous word embedding equation: king - man + woman ≈ queen. This works because:</div><div class="qo">
+<div class="qp" onclick="cq('v-q4',this,false)">It's a coincidence</div>
+<div class="qp" onclick="cq('v-q4',this,true)">Vector arithmetic captures semantic relationships — the "royalty" direction is preserved</div>
+<div class="qp" onclick="cq('v-q4',this,false)">The words are similar in spelling</div>
+</div><div class="qf" id="v-q4-f"></div></div></div>`;
+
+rq('v-q1',10);rq('v-q2',10);rq('v-q3',10);rq('v-q4',10);
+// Vector addition
+window.checkVA=function(){const a=+document.getElementById('va0').value,b=+document.getElementById('va1').value,c=+document.getElementById('va2').value;const fb=document.getElementById('vaFb');
+if(a===5&&b===6&&c===5){fb.innerHTML='<span style="color:var(--green);">&#x2705; [2+3, 5+1, 1+4] = [5, 6, 5]. Element-wise addition!</span>';asc('v-va',10);}else fb.innerHTML='<span style="color:var(--red);">&#x274C; Add each position: [2+3, 5+1, 1+4] = [5, 6, 5]</span>';};rq('v-va',10);
+// Dot product
+window.checkDP=function(){const a=+document.getElementById('dp1').value,b=+document.getElementById('dp2').value,c=+document.getElementById('dp3').value,t=+document.getElementById('dpT').value;const fb=document.getElementById('dpFb');
+if(a===8&&b===3&&c===5&&t===16){fb.innerHTML='<span style="color:var(--green);">&#x2705; 8+3+5=16. You computed a dot product!</span>';asc('v-dp',10);}else fb.innerHTML='<span style="color:var(--red);">&#x274C; 2×4=8, 3×1=3, 1×5=5, sum=16</span>';};rq('v-dp',10);
+// Similarity game
+const simPairs=[[{a:'happy',b:'joyful',sim:true},{a:'happy',b:'table',sim:false}],[{a:'king',b:'queen',sim:true},{a:'king',b:'banana',sim:false}],[{a:'run',b:'sprint',sim:true},{a:'run',b:'purple',sim:false}]];
+const sg=document.getElementById('simGame');let simSc=0;
+simPairs.forEach((pair,i)=>{
+  const row=document.createElement('div');row.style.cssText='display:flex;gap:8px;margin:6px 0;';
+  pair.forEach((p,j)=>{
+    const btn=document.createElement('button');btn.className='btn br';btn.style.cssText='flex:1;font-size:11px;padding:8px;';
+    btn.textContent=p.a+' ↔ '+p.b;
+    btn.onclick=function(){if(row.dataset.done)return;row.dataset.done='1';
+      if(p.sim){this.style.background='var(--green)';this.style.color='#000';simSc++;if(simSc===3)asc('v-sim',10);}
+      else{this.style.background='var(--red)';this.style.color='#000';}
+      row.querySelectorAll('button').forEach(b=>{b.disabled=true;});
+    };row.appendChild(btn);
+  });sg.appendChild(row);
+});rq('v-sim',10);
+}},
+
+// ═══════════════════════════════════════
+// L1-2: MATRICES
+// ═══════════════════════════════════════
+{fn:'matrices.py',fd:'Level 1 — The Core Operation of Neural Networks',t:'<span class="level-badge lb1">L1</span> Matrices — Grids of Numbers',su:'Every neural network layer is a matrix multiplication. Master this and you understand 80% of what happens inside an LLM.',
+code:`# ============================================
+# MATRICES — The Core of Neural Networks
+# ============================================
+# A matrix is a 2D grid of numbers.
+# Think of it as a spreadsheet or table.
+#
+# WHY MATRICES MATTER:
+# Every single layer in a neural network does:
+#   output = input_vector @ weight_matrix + bias
+# That "@" is matrix multiplication!
+
+import numpy as np
+
+# ── CREATING MATRICES ──
+# A 2×3 matrix (2 rows, 3 columns)
+A = np.array([
+    [1, 2, 3],    # row 0
+    [4, 5, 6]     # row 1
+])
+# Shape: (2, 3) — always (rows, columns)
+
+# ── MATRIX MULTIPLICATION ──
+# THE most important operation in all of AI!
+#
+# Rule: (a, b) @ (b, c) = (a, c)
+# Inner dimensions MUST match!
+#
+# How it works:
+# Each output cell = dot product of a ROW from A
+# with a COLUMN from B.
+
+A = np.array([[1, 2],     # (2, 2)
+              [3, 4]])
+B = np.array([[5, 6],     # (2, 2)
+              [7, 8]])
+
+C = A @ B
+# C[0,0] = 1*5 + 2*7 = 5 + 14 = 19
+# C[0,1] = 1*6 + 2*8 = 6 + 16 = 22
+# C[1,0] = 3*5 + 4*7 = 15 + 28 = 43
+# C[1,1] = 3*6 + 4*8 = 18 + 32 = 50
+# C = [[19, 22],
+#      [43, 50]]
+
+# ── TRANSPOSE ──
+# Flip rows and columns
+A = np.array([[1, 2, 3],
+              [4, 5, 6]])  # (2, 3)
+A_T = A.T
+# [[1, 4],
+#  [2, 5],
+#  [3, 6]]  # (3, 2)
+
+# ── SHAPES IN A TRANSFORMER ──
+# Input: (batch_size, seq_len, embed_dim)
+# Example: (32, 128, 768)
+#   32 sentences, each 128 tokens, each 768-dim
+#
+# Weight matrix W_query: (768, 64)
+# Q = input @ W_query
+# Shape: (32, 128, 768) @ (768, 64) = (32, 128, 64)
+#
+# Attention: Q @ K^T
+# (32, 128, 64) @ (32, 64, 128) = (32, 128, 128)
+# This 128×128 matrix = attention scores!
+# Each token's attention to every other token.
+
+# ── BROADCASTING ──
+# NumPy can add different-shaped arrays!
+matrix = np.array([[1, 2], [3, 4]])  # (2, 2)
+vector = np.array([10, 20])          # (2,)
+result = matrix + vector
+# [[11, 22],   ← [10,20] added to row 0
+#  [13, 24]]   ← [10,20] added to row 1
+# The vector is "broadcast" to each row!`,
+gm:function(c){c.innerHTML=`
+<div class="s"><h3>&#x1F4CA; Why Matrices?</h3>
+<div class="eb"><p>A <strong>matrix</strong> = a 2D grid of numbers. Shape is always (rows, columns). A (3,4) matrix has 3 rows and 4 columns = 12 numbers total.</p></div>
+<div class="eb r"><p><strong>&#x1F525; Critical Fact:</strong> Every neural network layer does <code>output = input @ weights + bias</code>. That <code>@</code> is matrix multiplication. A GPT-3 forward pass does ~96 matrix multiplications. Master this operation!</p></div>
+<div class="eb y"><p><strong>&#x1F4A1; Shape Rule:</strong> (a,<strong>b</strong>) @ (<strong>b</strong>,c) = (a,c). The inner dimensions must match! If they don't, you get an error.</p></div></div>
+
+<div class="s"><h3><span class="bd bd-g">GAME</span> Matrix Multiply — Click to Reveal</h3>
+<p>Click each "?" cell to see how it's computed from row × column dot products.</p>
+<div class="ia">
+<div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;">
+<div><h4 style="color:var(--accent);">A (2×3)</h4><div id="mA"></div></div>
+<div style="font-size:20px;font-weight:900;color:var(--dim);">×</div>
+<div><h4 style="color:var(--yellow);">B (3×2)</h4><div id="mB"></div></div>
+<div style="font-size:20px;font-weight:900;color:var(--dim);">=</div>
+<div><h4 style="color:var(--green);">C (2×2)</h4><div id="mC"></div></div>
+</div>
+<div id="mExp" class="ob" style="margin-top:8px;">Click any "?" to see the dot product calculation!</div>
+</div></div>
+
+<div class="s"><h3><span class="bd bd-g">GAME</span> Shape Calculator</h3>
+<p>What shape results from these multiplications?</p>
+<div class="ia">
+<div class="qb" id="m-q1"><div class="qt">(4, 3) @ (3, 5) = ?</div><div class="qo">
+<div class="qp" onclick="cq('m-q1',this,true)">(4, 5)</div>
+<div class="qp" onclick="cq('m-q1',this,false)">(3, 3)</div>
+<div class="qp" onclick="cq('m-q1',this,false)">(4, 3)</div>
+</div><div class="qf" id="m-q1-f"></div></div>
+<div class="qb" id="m-q2"><div class="qt">(32, 128, 768) @ (768, 64) = ?</div><div class="qo">
+<div class="qp" onclick="cq('m-q2',this,false)">(32, 768, 64)</div>
+<div class="qp" onclick="cq('m-q2',this,true)">(32, 128, 64)</div>
+<div class="qp" onclick="cq('m-q2',this,false)">(128, 64)</div>
+</div><div class="qf" id="m-q2-f"></div></div>
+<div class="qb" id="m-q3"><div class="qt">(10, 64) @ (64, 10) = ? — This is Q @ K^T in attention!</div><div class="qo">
+<div class="qp" onclick="cq('m-q3',this,true)">(10, 10) — a 10×10 attention score matrix!</div>
+<div class="qp" onclick="cq('m-q3',this,false)">(64, 64)</div>
+<div class="qp" onclick="cq('m-q3',this,false)">(10, 64)</div>
+</div><div class="qf" id="m-q3-f"></div></div>
+</div></div>
+
+<div class="s"><h3><span class="bd bd-q">QUIZ</span> Matrix Deep Dive</h3>
+<div class="qb" id="m-q4"><div class="qt">&#x1F914; The transpose of a (3, 7) matrix has shape:</div><div class="qo">
+<div class="qp" onclick="cq('m-q4',this,true)">(7, 3)</div>
+<div class="qp" onclick="cq('m-q4',this,false)">(3, 7)</div>
+<div class="qp" onclick="cq('m-q4',this,false)">(7, 7)</div>
+</div><div class="qf" id="m-q4-f"></div></div>
+<div class="qb" id="m-q5"><div class="qt">&#x1F914; Can you multiply (3, 4) @ (5, 6)?</div><div class="qo">
+<div class="qp" onclick="cq('m-q5',this,true)">No — inner dimensions 4 ≠ 5, they must match!</div>
+<div class="qp" onclick="cq('m-q5',this,false)">Yes — result is (3, 6)</div>
+<div class="qp" onclick="cq('m-q5',this,false)">Yes — result is (4, 5)</div>
+</div><div class="qf" id="m-q5-f"></div></div></div>`;
+
+rq('m-q1',10);rq('m-q2',10);rq('m-q3',10);rq('m-q4',10);rq('m-q5',10);
+const A=[[1,2,3],[4,5,6]],B=[[7,8],[9,10],[11,12]],R=[[58,64],[139,154]];
+function mkGrid(id,data,cols){const d=document.getElementById(id);data.flat().forEach(v=>{const c=document.createElement('span');c.className='matrix-cell';c.textContent=v;d.appendChild(c);});d.style.cssText='display:inline-grid;grid-template-columns:repeat('+cols+',1fr);gap:2px;';}
+mkGrid('mA',A,3);mkGrid('mB',B,2);
+const mC=document.getElementById('mC');mC.style.cssText='display:inline-grid;grid-template-columns:repeat(2,1fr);gap:2px;';
+R.flat().forEach((v,idx)=>{const c=document.createElement('span');c.className='matrix-cell ed';c.textContent='?';c.onclick=function(){
+  const i=Math.floor(idx/2),j=idx%2;this.textContent=v;this.classList.remove('ed');this.classList.add('res');
+  document.querySelectorAll('#mA .matrix-cell').forEach((mc,ci)=>mc.classList.toggle('hl',Math.floor(ci/3)===i));
+  document.querySelectorAll('#mB .matrix-cell').forEach((mc,ci)=>mc.classList.toggle('hl',ci%2===j));
+  document.getElementById('mExp').innerHTML='<strong>C['+i+','+j+']</strong> = Row '+i+' · Col '+j+' = '+A[i].map((a,k)=>a+'×'+B[k][j]).join(' + ')+' = <span style="color:var(--green);font-weight:800;">'+v+'</span>';
+};mC.appendChild(c);});
+}},
+
+// ═══════════════════════════════════════
+// L1-3: DERIVATIVES
+// ═══════════════════════════════════════
+{fn:'derivatives.py',fd:'Level 1 — Slopes, Rates of Change',t:'<span class="level-badge lb1">L1</span> Derivatives — How Models Learn',su:'A derivative = the slope of a curve at a point. It tells the model "which direction to adjust weights to reduce error."',
+code:`# ============================================
+# DERIVATIVES — The Math of Learning
+# ============================================
+# A derivative answers: "If I nudge x a tiny bit,
+# how much does y change?"
+#
+# INTUITION:
+# You're on a hill. The derivative tells you
+# how STEEP the hill is and which DIRECTION
+# is downhill. Go downhill = reduce error!
+
+# ── BASIC DERIVATIVES ──
+# f(x) = x²     → f'(x) = 2x
+# f(x) = x³     → f'(x) = 3x²
+# f(x) = 5x     → f'(x) = 5
+# f(x) = 7      → f'(x) = 0 (constant!)
+# f(x) = x^n    → f'(x) = n * x^(n-1)  [POWER RULE]
+#
+# RULES:
+# Sum:     (f + g)' = f' + g'
+# Product: (f * g)' = f'g + fg'
+# Chain:   (f(g(x)))' = f'(g(x)) * g'(x)
+
+# ── WHAT DOES THE DERIVATIVE MEAN? ──
+def f(x):
+    return x ** 2
+
+# At x = 3:
+# f(3) = 9
+# f'(3) = 2*3 = 6
+# Meaning: if x increases by 0.01,
+# f(x) increases by about 0.01 * 6 = 0.06
+# Verify: f(3.01) = 9.0601 ≈ 9 + 0.06 ✓
+
+# At x = 0:
+# f'(0) = 0
+# Meaning: the curve is FLAT here.
+# This is the MINIMUM! (slope = 0)
+
+# At x = -2:
+# f'(-2) = -4
+# Meaning: slope is negative = going downhill
+# To find the minimum, go in the POSITIVE direction
+
+# ── GRADIENT DESCENT ──
+# The algorithm that trains ALL neural networks:
+#
+# 1. Compute the loss (how wrong are we?)
+# 2. Compute the derivative of loss w.r.t. each weight
+# 3. Nudge each weight in the opposite direction
+#
+# weight = weight - learning_rate * derivative
+#
+# If derivative is positive: weight is too high → decrease
+# If derivative is negative: weight is too low → increase
+# If derivative is zero: we're at the minimum! Stop.
+
+def gradient_descent(start_x, learning_rate=0.1, steps=20):
+    x = start_x
+    for step in range(steps):
+        gradient = 2 * x          # derivative of x²
+        x = x - learning_rate * gradient  # step downhill
+        print(f"Step {step}: x={x:.4f}, f(x)={x**2:.4f}")
+    return x
+
+# gradient_descent(5.0)
+# Step 0: x=4.0000, f(x)=16.0000
+# Step 1: x=3.2000, f(x)=10.2400
+# Step 2: x=2.5600, f(x)=6.5536
+# ...
+# Step 19: x=0.0072, f(x)=0.0001  ← near minimum!
+
+# ── PARTIAL DERIVATIVES ──
+# When f depends on MULTIPLE variables:
+# f(x, y) = x² + y²
+# ∂f/∂x = 2x  (treat y as constant)
+# ∂f/∂y = 2y  (treat x as constant)
+#
+# In neural networks, we compute partial derivatives
+# for EVERY weight. Millions of them!`,
+gm:function(c){c.innerHTML=`
+<div class="s"><h3>&#x1F4C9; What is a Derivative?</h3>
+<div class="eb"><p>A <strong>derivative</strong> = the slope of a curve at a specific point. It answers: "If I change the input by a tiny amount, how much does the output change?"</p></div>
+<div class="eb y"><p><strong>&#x26F0;&#xFE0F; Hill Analogy:</strong> You're blindfolded on a hill. You can feel the slope under your feet (that's the derivative). To reach the valley (minimum error), you step in the direction that goes downhill. That's gradient descent!</p></div>
+<div class="eb g"><p><strong>Power Rule:</strong> If f(x) = x<sup>n</sup>, then f'(x) = n × x<sup>(n-1)</sup>. Examples: x² → 2x, x³ → 3x², x⁵ → 5x⁴. This one rule covers most of what you need!</p></div></div>
+
+<div class="s"><h3><span class="bd bd-g">GAME</span> Gradient Descent Simulator</h3>
+<p>Watch the ball roll downhill on f(x) = x². Adjust learning rate!</p>
+<div class="ia">
+<canvas id="gdC" width="440" height="180" style="width:100%;background:var(--code-bg);"></canvas>
+<div class="sr"><span>Learning Rate:</span><input type="range" id="lrS" min="1" max="50" value="10" oninput="document.getElementById('lrV').textContent=(this.value/100).toFixed(2)"><span class="sv" id="lrV">0.10</span></div>
+<div class="sr"><span>Start x:</span><input type="range" id="stS" min="-45" max="45" value="40" oninput="document.getElementById('stV').textContent=(this.value/10).toFixed(1)"><span class="sv" id="stV">4.0</span></div>
+<div style="display:flex;gap:6px;margin-top:6px;"><button class="btn bp" onclick="runGD()">&#x25B6; Run</button><button class="btn br" onclick="resetGD()">&#x21BB; Reset</button></div>
+<div id="gdI" class="ob">Click Run! The ball follows the gradient downhill toward x=0.</div>
+</div></div>
+
+<div class="s"><h3><span class="bd bd-g">GAME</span> Derivative Calculator</h3>
+<p>Apply the power rule: if f(x) = x<sup>n</sup>, then f'(x) = n·x<sup>(n-1)</sup></p>
+<div class="ia">
+<div class="qb" id="d-q1"><div class="qt">f(x) = x³. What is f'(x)?</div><div class="qo">
+<div class="qp" onclick="cq('d-q1',this,true)">3x²</div>
+<div class="qp" onclick="cq('d-q1',this,false)">2x</div>
+<div class="qp" onclick="cq('d-q1',this,false)">x²</div>
+</div><div class="qf" id="d-q1-f"></div></div>
+<div class="qb" id="d-q2"><div class="qt">f(x) = 5x² + 3x. What is f'(x)?</div><div class="qo">
+<div class="qp" onclick="cq('d-q2',this,false)">5x + 3</div>
+<div class="qp" onclick="cq('d-q2',this,true)">10x + 3</div>
+<div class="qp" onclick="cq('d-q2',this,false)">10x² + 3</div>
+</div><div class="qf" id="d-q2-f"></div></div>
+<div class="qb" id="d-q3"><div class="qt">f(x) = x² at x=3. The derivative f'(3) = 6. This means:</div><div class="qo">
+<div class="qp" onclick="cq('d-q3',this,false)">f(3) = 6</div>
+<div class="qp" onclick="cq('d-q3',this,true)">If x increases by 0.01, f(x) increases by about 0.06</div>
+<div class="qp" onclick="cq('d-q3',this,false)">The minimum is at x=6</div>
+</div><div class="qf" id="d-q3-f"></div></div></div></div>
+
+<div class="s"><h3><span class="bd bd-q">QUIZ</span> Gradient Descent</h3>
+<div class="qb" id="d-q4"><div class="qt">&#x1F914; In gradient descent, weight = weight - lr × gradient. If the gradient is POSITIVE, the weight:</div><div class="qo">
+<div class="qp" onclick="cq('d-q4',this,true)">Decreases (we subtract a positive number)</div>
+<div class="qp" onclick="cq('d-q4',this,false)">Increases</div>
+<div class="qp" onclick="cq('d-q4',this,false)">Stays the same</div>
+</div><div class="qf" id="d-q4-f"></div></div>
+<div class="qb" id="d-q5"><div class="qt">&#x1F914; What happens if the learning rate is TOO large?</div><div class="qo">
+<div class="qp" onclick="cq('d-q5',this,false)">Faster convergence</div>
+<div class="qp" onclick="cq('d-q5',this,true)">The model overshoots the minimum and diverges (bounces wildly)</div>
+<div class="qp" onclick="cq('d-q5',this,false)">Nothing changes</div>
+</div><div class="qf" id="d-q5-f"></div></div></div>`;
+
+rq('d-q1',10);rq('d-q2',10);rq('d-q3',10);rq('d-q4',10);rq('d-q5',10);
+// GD simulator
+const gdC=document.getElementById('gdC'),gx=gdC.getContext('2d');let gdA=null;
+function drawGD(bx,trail){const W=gdC.width,H=gdC.height;gx.clearRect(0,0,W,H);gx.strokeStyle='#00b4d8';gx.lineWidth=2;gx.beginPath();for(let p=0;p<W;p++){const x=(p-W/2)/(W/10);const y=x*x;const py=H-15-y*(H-30)/25;gx.lineTo(p,Math.max(8,py));}gx.stroke();
+if(trail&&trail.length>1){gx.strokeStyle='rgba(233,69,96,0.3)';gx.lineWidth=1;gx.beginPath();trail.forEach((tx,i)=>{const px=W/2+tx*(W/10);const py=H-15-tx*tx*(H-30)/25;if(i===0)gx.moveTo(px,Math.max(8,py));else gx.lineTo(px,Math.max(8,py));});gx.stroke();}
+const bpx=W/2+bx*(W/10),bpy=H-15-bx*bx*(H-30)/25;gx.fillStyle='#e94560';gx.beginPath();gx.arc(bpx,Math.max(8,bpy),7,0,Math.PI*2);gx.fill();gx.fillStyle='#fff';gx.font='bold 8px Fira Code';gx.textAlign='center';gx.fillText(bx.toFixed(2),bpx,Math.max(8,bpy)-10);gx.fillStyle='#6b7294';gx.font='9px Fira Code';gx.fillText('f(x)=x²',W/2,12);}
+drawGD(4,[]);
+window.resetGD=function(){if(gdA)clearTimeout(gdA);drawGD(+document.getElementById('stS').value/10,[]);document.getElementById('gdI').textContent='Click Run!';};
+window.runGD=function(){if(gdA)clearTimeout(gdA);let x=+document.getElementById('stS').value/10,lr=+document.getElementById('lrS').value/100,step=0;const trail=[x];
+function tick(){const g=2*x;x=x-lr*g;trail.push(x);step++;drawGD(x,trail);document.getElementById('gdI').innerHTML='Step '+step+': x='+x.toFixed(4)+', gradient='+g.toFixed(4)+', loss='+(x*x).toFixed(4);
+if(step<40&&Math.abs(x)>0.005&&Math.abs(x)<10)gdA=setTimeout(tick,180);
+else if(Math.abs(x)>=10)document.getElementById('gdI').innerHTML='<span style="color:var(--red);">&#x1F4A5; Diverged! LR too high!</span>';
+else{document.getElementById('gdI').innerHTML='<span style="color:var(--green);">&#x2705; Converged to x≈0 in '+step+' steps!</span>';asc('d-gd',10);}}tick();};rq('d-gd',10);
+}},
+
+// ═══════════════════════════════════════
+// L1-4: PROBABILITY
+// ═══════════════════════════════════════
+{fn:'probability.py',fd:'Level 1 — How Models Predict',t:'<span class="level-badge lb1">L1</span> Probability — How LLMs Choose Words',su:'LLMs output probabilities for every possible next word. Softmax, temperature, cross-entropy — all explained here.',
+code:`# ============================================
+# PROBABILITY — How LLMs Predict
+# ============================================
+# An LLM doesn't output ONE word.
+# It outputs a PROBABILITY for every word!
+#
+# "The cat sat on the ___"
+#   mat:   35%    ← most likely
+#   floor: 20%
+#   bed:   15%
+#   roof:  10%
+#   ...
+# Then it SAMPLES from this distribution.
+
+# ── WHAT IS PROBABILITY? ──
+# Probability = how likely something is
+# Range: 0 (impossible) to 1 (certain)
+# All probabilities must sum to 1.0
+#
+# Example: rolling a fair die
+# P(1) = P(2) = ... = P(6) = 1/6 ≈ 0.167
+# Sum: 6 × 1/6 = 1.0 ✓
+
+# ── SOFTMAX ──
+# The neural network outputs raw scores (logits).
+# Softmax converts them to probabilities.
+#
+# softmax(x_i) = e^(x_i) / Σ e^(x_j)
+#
+# Properties:
+# 1. All outputs are positive (e^x > 0 always)
+# 2. All outputs sum to 1.0
+# 3. Larger input → larger probability
+# 4. Preserves ordering
+
+import numpy as np
+
+def softmax(logits):
+    # Subtract max for numerical stability
+    shifted = logits - np.max(logits)
+    exp_vals = np.exp(shifted)
+    return exp_vals / exp_vals.sum()
+
+logits = np.array([2.0, 1.0, 0.5])
+probs = softmax(logits)
+# [0.659, 0.242, 0.099]
+# Highest logit (2.0) → highest prob (65.9%)
+
+# ── TEMPERATURE ──
+# Controls how "confident" the distribution is.
+# softmax(logits / temperature)
+#
+# temp = 0.1: very peaked (almost greedy)
+#   → [0.999, 0.001, 0.000]
+# temp = 1.0: normal
+#   → [0.659, 0.242, 0.099]
+# temp = 5.0: very flat (almost uniform)
+#   → [0.389, 0.332, 0.279]
+
+def softmax_temp(logits, temperature):
+    scaled = logits / temperature
+    shifted = scaled - np.max(scaled)
+    exp_vals = np.exp(shifted)
+    return exp_vals / exp_vals.sum()
+
+# ── CROSS-ENTROPY LOSS ──
+# Measures how wrong our predictions are.
+# loss = -log(probability of correct answer)
+#
+# If we predict 0.9 for the right word:
+#   loss = -log(0.9) = 0.105  (low = good!)
+# If we predict 0.01 for the right word:
+#   loss = -log(0.01) = 4.605 (high = bad!)
+#
+# The model trains to MINIMIZE this loss.
+
+def cross_entropy(probs, correct_index):
+    return -np.log(probs[correct_index])
+
+# ── SAMPLING STRATEGIES ──
+# Greedy: always pick highest probability
+# Top-k:  only consider top k tokens
+# Top-p:  only consider tokens summing to p%
+# Temperature: scale logits before softmax
+
+# Greedy (temp→0): "The cat sat on the mat"
+# Creative (temp=1.2): "The cat sat on the rainbow"
+# Wild (temp=2.0): "The cat sat on the quantum"`,
+gm:function(c){c.innerHTML=`
+<div class="s"><h3>&#x1F3B2; Probability Basics</h3>
+<div class="eb"><p><strong>Probability</strong> = a number between 0 and 1 that says how likely something is. 0 = impossible, 1 = certain. All probabilities for all options must sum to exactly 1.0.</p></div>
+<div class="eb y"><p><strong>&#x1F52E; In LLMs:</strong> The model computes a score (logit) for every word in its vocabulary (~50,000 words). <strong>Softmax</strong> converts these scores into probabilities. Then it samples a word based on those probabilities.</p></div></div>
+
+<div class="s"><h3><span class="bd bd-g">GAME</span> Temperature Playground</h3>
+<p>Drag the slider to see how temperature changes the distribution!</p>
+<div class="ia">
+<h4>Logits: [2.0, 1.0, 0.5, 0.1] → Words: [mat, floor, bed, roof]</h4>
+<div class="sr"><span>Temperature:</span><input type="range" id="tS" min="1" max="40" value="10" oninput="drawT()"><span class="sv" id="tV">1.0</span></div>
+<div id="tBars"></div>
+<div id="tExp" class="ob"></div>
+</div></div>
+
+<div class="s"><h3><span class="bd bd-g">GAME</span> Cross-Entropy Loss</h3>
+<p>The correct word is "mat". How bad is each prediction?</p>
+<div class="ia">
+<table class="ct">
+<tr><th>P(mat)</th><th>Loss = -log(p)</th><th>Quality</th></tr>
+<tr><td>0.90</td><td>0.105</td><td style="color:var(--green);">&#x2705; Excellent</td></tr>
+<tr><td>0.50</td><td>0.693</td><td style="color:var(--yellow);">&#x26A0;&#xFE0F; Okay</td></tr>
+<tr><td>0.10</td><td>2.303</td><td style="color:var(--orange);">&#x1F615; Bad</td></tr>
+<tr><td>0.01</td><td>4.605</td><td style="color:var(--red);">&#x1F4A5; Terrible</td></tr>
+</table>
+<div class="eb g"><p><strong>Pattern:</strong> As the predicted probability of the correct answer approaches 1, loss approaches 0. As it approaches 0, loss shoots to infinity. The model is heavily punished for being confidently wrong!</p></div>
+</div></div>
+
+<div class="s"><h3><span class="bd bd-q">QUIZ</span> Probability Mastery</h3>
+<div class="qb" id="p-q1"><div class="qt">&#x1F914; Softmax([10, 10, 10]) produces:</div><div class="qo">
+<div class="qp" onclick="cq('p-q1',this,false)">[10, 10, 10]</div>
+<div class="qp" onclick="cq('p-q1',this,true)">[0.333, 0.333, 0.333] — equal inputs = equal probabilities</div>
+<div class="qp" onclick="cq('p-q1',this,false)">[1, 0, 0]</div>
+</div><div class="qf" id="p-q1-f"></div></div>
+<div class="qb" id="p-q2"><div class="qt">&#x1F914; Temperature = 0.01 makes the model:</div><div class="qo">
+<div class="qp" onclick="cq('p-q2',this,true)">Almost greedy — nearly 100% on the top token</div>
+<div class="qp" onclick="cq('p-q2',this,false)">Very creative and random</div>
+<div class="qp" onclick="cq('p-q2',this,false)">Output uniform probabilities</div>
+</div><div class="qf" id="p-q2-f"></div></div>
+<div class="qb" id="p-q3"><div class="qt">&#x1F914; Cross-entropy loss = -log(0.5) ≈ 0.693. This is also known as:</div><div class="qo">
+<div class="qp" onclick="cq('p-q3',this,false)">Perfect prediction</div>
+<div class="qp" onclick="cq('p-q3',this,true)">The loss of a coin flip — the model is 50/50 on the right answer</div>
+<div class="qp" onclick="cq('p-q3',this,false)">Maximum possible loss</div>
+</div><div class="qf" id="p-q3-f"></div></div>
+<div class="qb" id="p-q4"><div class="qt">&#x1F914; Why subtract max(logits) before computing e^x in softmax?</div><div class="qo">
+<div class="qp" onclick="cq('p-q4',this,false)">To make it faster</div>
+<div class="qp" onclick="cq('p-q4',this,true)">Numerical stability — e^(large number) overflows to infinity</div>
+<div class="qp" onclick="cq('p-q4',this,false)">To change the result</div>
+</div><div class="qf" id="p-q4-f"></div></div></div>`;
+
+rq('p-q1',10);rq('p-q2',10);rq('p-q3',10);rq('p-q4',10);
+const tLogits=[2.0,1.0,0.5,0.1],tWords=['mat','floor','bed','roof'],tColors=['#00b4d8','#06d6a0','#ffd166','#a855f7'];
+window.drawT=function(){const t=document.getElementById('tS').value/10;document.getElementById('tV').textContent=t.toFixed(1);const probs=softmax(tLogits,t);const d=document.getElementById('tBars');d.innerHTML='';
+probs.forEach((p,i)=>{d.innerHTML+='<div class="prob-row"><span class="prob-label" style="color:'+tColors[i]+';">'+tWords[i]+'</span><div class="prob-track"><div class="prob-fill" style="width:'+p*100+'%;background:'+tColors[i]+';"></div></div><span class="prob-pct">'+(p*100).toFixed(1)+'%</span></div>';});
+const e=document.getElementById('tExp');if(t<0.3)e.innerHTML='&#x1F9CA; <strong>Near-greedy:</strong> Almost 100% on "mat". Deterministic output.';else if(t<1.5)e.innerHTML='&#x2696;&#xFE0F; <strong>Balanced:</strong> "mat" is most likely but others have a chance. Good for normal text.';else e.innerHTML='&#x1F525; <strong>High temperature:</strong> All words have similar probability. Creative but potentially nonsensical.';};drawT();
+}},
+
+// ═══════════════════════════════════════
+// L2-5: BACKPROPAGATION
+// ═══════════════════════════════════════
+{fn:'backprop.py',fd:'Level 2 — Chain Rule Through Layers',t:'<span class="level-badge lb2">L2</span> Backpropagation — How Networks Learn',su:'The chain rule applied through every layer. This is THE algorithm that makes deep learning possible.',
+code:`# ============================================
+# BACKPROPAGATION
+# ============================================
+# "How does the model know which weights to change?"
+#
+# Answer: BACKPROPAGATION
+# = chain rule applied backwards through layers
+#
+# FORWARD PASS: input → layer1 → layer2 → loss
+# BACKWARD PASS: loss → layer2 → layer1 → gradients!
+
+# ── THE CHAIN RULE ──
+# If y = f(g(x)), then:
+#   dy/dx = dy/dg × dg/dx
+#
+# In words: multiply the derivatives along the chain.
+#
+# Example: y = (3x + 2)²
+# Let u = 3x + 2, y = u²
+# dy/du = 2u
+# du/dx = 3
+# dy/dx = 2u × 3 = 6(3x + 2)
+
+# ── SIMPLE NEURAL NETWORK ──
+# Input: x
+# Layer 1: h = w1 * x + b1
+# Activation: a = relu(h)
+# Layer 2: y = w2 * a + b2
+# Loss: L = (y - target)²
+
+# FORWARD PASS (compute output):
+x = 2.0
+w1, b1 = 0.5, 0.1
+w2, b2 = 0.8, -0.2
+target = 1.0
+
+h = w1 * x + b1        # h = 0.5*2 + 0.1 = 1.1
+a = max(0, h)           # a = relu(1.1) = 1.1
+y = w2 * a + b2         # y = 0.8*1.1 - 0.2 = 0.68
+L = (y - target) ** 2   # L = (0.68-1)² = 0.1024
+
+# BACKWARD PASS (compute gradients):
+# Start from loss, work backwards!
+
+# dL/dy = 2(y - target) = 2(0.68-1) = -0.64
+dL_dy = 2 * (y - target)
+
+# dy/dw2 = a = 1.1
+# dL/dw2 = dL/dy × dy/dw2 = -0.64 × 1.1 = -0.704
+dL_dw2 = dL_dy * a
+
+# dy/da = w2 = 0.8
+# da/dh = 1 (relu derivative, since h > 0)
+# dh/dw1 = x = 2.0
+# dL/dw1 = dL/dy × dy/da × da/dh × dh/dw1
+#        = -0.64 × 0.8 × 1 × 2.0 = -1.024
+dL_dw1 = dL_dy * w2 * 1 * x
+
+# UPDATE WEIGHTS:
+lr = 0.1
+w1 = w1 - lr * dL_dw1  # 0.5 - 0.1*(-1.024) = 0.6024
+w2 = w2 - lr * dL_dw2  # 0.8 - 0.1*(-0.704) = 0.8704
+
+# After update, the prediction will be CLOSER to target!
+
+# ── IN REAL NETWORKS ──
+# PyTorch does this AUTOMATICALLY!
+# loss.backward()  ← computes ALL gradients
+# optimizer.step() ← updates ALL weights
+# That's it! But understanding the math helps debug.
+
+# ── VANISHING/EXPLODING GRADIENTS ──
+# If gradients get multiplied many times:
+# 0.5 × 0.5 × 0.5 × ... = vanishes to 0!
+# 2.0 × 2.0 × 2.0 × ... = explodes to infinity!
+# Solutions: ReLU, residual connections, gradient clipping`,
+gm:function(c){c.innerHTML=`
+<div class="s"><h3>&#x1F517; The Chain Rule</h3>
+<div class="eb"><p><strong>Chain rule:</strong> If y = f(g(x)), then dy/dx = f'(g(x)) × g'(x). In words: multiply the derivatives along the chain. This is how gradients flow backwards through layers.</p></div>
+<div class="eb p"><p><strong>&#x1F4A1; Backprop in one sentence:</strong> Start from the loss, and multiply derivatives backwards through each layer to find how much each weight contributed to the error.</p></div></div>
+
+<div class="s"><h3><span class="bd bd-g">GAME</span> Trace the Gradient</h3>
+<p>Follow the backward pass step by step through a 2-layer network!</p>
+<div class="ia">
+<h4>Network: x=2 → w1=0.5,b1=0.1 → ReLU → w2=0.8,b2=-0.2 → Loss</h4>
+<div class="ob" style="font-size:11px;">Forward: h=1.1, a=1.1, y=0.68, L=0.1024</div>
+<div class="qb" id="bp-q1"><div class="qt">dL/dy = 2(y - target) = 2(0.68 - 1.0) = ?</div><div class="qo">
+<div class="qp" onclick="cq('bp-q1',this,true)">-0.64</div>
+<div class="qp" onclick="cq('bp-q1',this,false)">0.64</div>
+<div class="qp" onclick="cq('bp-q1',this,false)">-0.32</div>
+</div><div class="qf" id="bp-q1-f"></div></div>
+<div class="qb" id="bp-q2"><div class="qt">dL/dw2 = dL/dy × a = -0.64 × 1.1 = ?</div><div class="qo">
+<div class="qp" onclick="cq('bp-q2',this,false)">-0.64</div>
+<div class="qp" onclick="cq('bp-q2',this,true)">-0.704</div>
+<div class="qp" onclick="cq('bp-q2',this,false)">0.704</div>
+</div><div class="qf" id="bp-q2-f"></div></div>
+<div class="qb" id="bp-q3"><div class="qt">After update: w2_new = 0.8 - 0.1 × (-0.704) = ?</div><div class="qo">
+<div class="qp" onclick="cq('bp-q3',this,false)">0.7296</div>
+<div class="qp" onclick="cq('bp-q3',this,true)">0.8704 — weight increased because gradient was negative!</div>
+<div class="qp" onclick="cq('bp-q3',this,false)">0.8</div>
+</div><div class="qf" id="bp-q3-f"></div></div>
+</div></div>
+
+<div class="s"><h3><span class="bd bd-q">QUIZ</span> Backprop Deep Dive</h3>
+<div class="qb" id="bp-q4"><div class="qt">&#x1F914; In a 100-layer network, if each layer's gradient multiplier is 0.5, the gradient at layer 1 is:</div><div class="qo">
+<div class="qp" onclick="cq('bp-q4',this,true)">0.5^99 ≈ 0 — vanishing gradient problem!</div>
+<div class="qp" onclick="cq('bp-q4',this,false)">50 — it accumulates</div>
+<div class="qp" onclick="cq('bp-q4',this,false)">0.5 — same as each layer</div>
+</div><div class="qf" id="bp-q4-f"></div></div>
+<div class="qb" id="bp-q5"><div class="qt">&#x1F914; Residual connections (y = f(x) + x) help because:</div><div class="qo">
+<div class="qp" onclick="cq('bp-q5',this,false)">They make the model bigger</div>
+<div class="qp" onclick="cq('bp-q5',this,true)">The gradient of "+x" is always 1, providing a highway for gradients to flow</div>
+<div class="qp" onclick="cq('bp-q5',this,false)">They reduce memory usage</div>
+</div><div class="qf" id="bp-q5-f"></div></div>
+<div class="qb" id="bp-q6"><div class="qt">&#x1F914; ReLU's derivative is 1 for x>0 and 0 for x<0. Why is this better than sigmoid for deep networks?</div><div class="qo">
+<div class="qp" onclick="cq('bp-q6',this,true)">Sigmoid's max derivative is 0.25, so gradients shrink every layer. ReLU passes gradients through unchanged (×1).</div>
+<div class="qp" onclick="cq('bp-q6',this,false)">ReLU is faster to compute</div>
+<div class="qp" onclick="cq('bp-q6',this,false)">ReLU uses less memory</div>
+</div><div class="qf" id="bp-q6-f"></div></div></div>`;
+rq('bp-q1',10);rq('bp-q2',10);rq('bp-q3',10);rq('bp-q4',10);rq('bp-q5',10);rq('bp-q6',10);
+}},
+
+// ═══════════════════════════════════════
+// L2-6: NEURONS & LAYERS
+// ═══════════════════════════════════════
+{fn:'neurons.py',fd:'Level 2 — Perceptrons, Activations, Loss',t:'<span class="level-badge lb2">L2</span> Neurons & Layers',su:'The building blocks of neural networks — neurons, activation functions, layers, and loss functions.',
+code:`# ============================================
+# NEURONS & LAYERS
+# ============================================
+# A neuron: output = activation(w·x + b)
+# A layer: many neurons in parallel
+# A network: many layers stacked
+
+import numpy as np
+
+# ── SINGLE NEURON ──
+# inputs: [x1, x2, x3]
+# weights: [w1, w2, w3]
+# bias: b
+# output = activation(x1*w1 + x2*w2 + x3*w3 + b)
+
+def neuron(inputs, weights, bias):
+    z = np.dot(inputs, weights) + bias
+    return relu(z)
+
+# ── ACTIVATION FUNCTIONS ──
+# Without activations, stacking layers is useless!
+# (linear(linear(x)) = still linear)
+
+def relu(x):
+    """max(0, x) — kills negatives, passes positives"""
+    return np.maximum(0, x)
+    # x = -3 → 0
+    # x = 0  → 0
+    # x = 5  → 5
+    # Derivative: 0 if x<0, 1 if x>0
+
+def sigmoid(x):
+    """Squashes to (0, 1) — used for probabilities"""
+    return 1 / (1 + np.exp(-x))
+    # x = -10 → 0.00005
+    # x = 0   → 0.5
+    # x = 10  → 0.99995
+    # Problem: gradient max = 0.25 (vanishing!)
+
+def gelu(x):
+    """Used in GPT, BERT — smooth version of ReLU"""
+    return 0.5 * x * (1 + np.tanh(
+        np.sqrt(2/np.pi) * (x + 0.044715*x**3)))
+    # Like ReLU but smooth at x=0
+    # Allows small negative values through
+
+def swiglu(x, gate):
+    """Used in LLaMA, PaLM — gated activation"""
+    return x * sigmoid(gate) * gate
+    # Combines gating with activation
+    # State-of-the-art for modern LLMs
+
+# ── A LAYER = MANY NEURONS ──
+class LinearLayer:
+    def __init__(self, in_dim, out_dim):
+        # Xavier initialization
+        scale = np.sqrt(2.0 / in_dim)
+        self.W = np.random.randn(in_dim, out_dim) * scale
+        self.b = np.zeros(out_dim)
+        # W shape: (in_dim, out_dim)
+        # Parameters: in_dim × out_dim + out_dim
+
+    def forward(self, x):
+        # x: (batch, in_dim)
+        # output: (batch, out_dim)
+        return x @ self.W + self.b
+
+# ── LOSS FUNCTIONS ──
+# MSE: for regression (predict a number)
+def mse_loss(pred, target):
+    return np.mean((pred - target) ** 2)
+
+# Cross-Entropy: for classification (predict a class)
+# Used in ALL language models!
+def cross_entropy(logits, target_idx):
+    probs = softmax(logits)
+    return -np.log(probs[target_idx])
+
+# ── PUTTING IT TOGETHER ──
+# A 2-layer network:
+# input(4) → Linear(4,8) → ReLU → Linear(8,3) → softmax
+# Parameters: 4×8+8 + 8×3+3 = 67
+# This tiny network can classify inputs into 3 classes!`,
+gm:function(c){c.innerHTML=`
+<div class="s"><h3>&#x1F9E0; Neurons and Layers</h3>
+<div class="eb"><p>A <strong>neuron</strong> computes: output = activation(weights · inputs + bias). A <strong>layer</strong> = many neurons in parallel (implemented as a matrix multiply). A <strong>network</strong> = layers stacked together.</p></div>
+<div class="eb r"><p><strong>&#x1F525; Why activations matter:</strong> Without them, 100 layers = 1 layer (linear functions compose into linear functions). Activations add non-linearity, letting networks learn curves, edges, and complex patterns.</p></div></div>
+
+<div class="s"><h3><span class="bd bd-g">GAME</span> Activation Function Explorer</h3>
+<p>See how each function transforms inputs. Click to switch!</p>
+<div class="ia">
+<canvas id="actC" width="440" height="170" style="width:100%;background:var(--code-bg);"></canvas>
+<div style="display:flex;gap:4px;margin-top:6px;flex-wrap:wrap;">
+<button class="btn bp" onclick="drawAct('relu')">ReLU</button>
+<button class="btn br" onclick="drawAct('sigmoid')">Sigmoid</button>
+<button class="btn br" onclick="drawAct('tanh')">Tanh</button>
+<button class="btn br" onclick="drawAct('gelu')">GELU</button>
+</div>
+<div id="actI" class="ob">ReLU: max(0,x). Kills negatives, passes positives unchanged. Most popular activation.</div>
+</div></div>
+
+<div class="s"><h3><span class="bd bd-g">GAME</span> Compute a Neuron</h3>
+<div class="ia">
+<h4>inputs=[1, 2, 3], weights=[0.5, -0.5, 0.2], bias=0.1, activation=ReLU</h4>
+<p style="font-size:11px;color:var(--dim);">z = 1×0.5 + 2×(-0.5) + 3×0.2 + 0.1 = ?</p>
+<div style="display:flex;gap:6px;align-items:center;margin:6px 0;">
+<span style="font-family:'Fira Code',monospace;font-size:11px;">z=</span>${mkInput('nz',50)}
+<span style="font-family:'Fira Code',monospace;font-size:11px;">ReLU(z)=</span>${mkInput('no',50)}
+<button class="btn bp" onclick="checkNeu()">Check</button>
+</div>
+<div id="nFb" style="font-weight:700;font-size:11px;"></div>
+</div></div>
+
+<div class="s"><h3><span class="bd bd-q">QUIZ</span> Neural Network Concepts</h3>
+<div class="qb" id="n-q1"><div class="qt">&#x1F914; A Linear(768, 2048) layer has how many parameters?</div><div class="qo">
+<div class="qp" onclick="cq('n-q1',this,false)">768 + 2048 = 2,816</div>
+<div class="qp" onclick="cq('n-q1',this,true)">768×2048 + 2048 = 1,574,912 (weights + biases)</div>
+<div class="qp" onclick="cq('n-q1',this,false)">768 × 2048 = 1,572,864 (weights only)</div>
+</div><div class="qf" id="n-q1-f"></div></div>
+<div class="qb" id="n-q2"><div class="qt">&#x1F914; Which activation is used in GPT models?</div><div class="qo">
+<div class="qp" onclick="cq('n-q2',this,false)">ReLU</div>
+<div class="qp" onclick="cq('n-q2',this,true)">GELU — smooth approximation of ReLU, allows small negative values</div>
+<div class="qp" onclick="cq('n-q2',this,false)">Sigmoid</div>
+</div><div class="qf" id="n-q2-f"></div></div>
+<div class="qb" id="n-q3"><div class="qt">&#x1F914; LLaMA uses SwiGLU instead of GELU. SwiGLU is special because:</div><div class="qo">
+<div class="qp" onclick="cq('n-q3',this,true)">It uses a gating mechanism — one path controls how much of the other path passes through</div>
+<div class="qp" onclick="cq('n-q3',this,false)">It's faster to compute</div>
+<div class="qp" onclick="cq('n-q3',this,false)">It uses less memory</div>
+</div><div class="qf" id="n-q3-f"></div></div></div>`;
+
+rq('n-q1',10);rq('n-q2',10);rq('n-q3',10);
+// Activation visualizer
+const actC=document.getElementById('actC'),ax=actC.getContext('2d');
+const actFns={relu:{fn:x=>Math.max(0,x),c:'#00b4d8',info:'<strong>ReLU:</strong> max(0,x). Dead simple. Derivative=1 for x>0, 0 for x<0. Problem: "dead neurons" when x<0 always.'},sigmoid:{fn:x=>1/(1+Math.exp(-x)),c:'#06d6a0',info:'<strong>Sigmoid:</strong> 1/(1+e^-x). Squashes to (0,1). Used for binary outputs. Problem: max gradient=0.25 → vanishing gradients.'},tanh:{fn:x=>Math.tanh(x),c:'#ffd166',info:'<strong>Tanh:</strong> Squashes to (-1,1). Zero-centered (better than sigmoid). Still has vanishing gradient issue.'},gelu:{fn:x=>0.5*x*(1+Math.tanh(Math.sqrt(2/Math.PI)*(x+0.044715*x*x*x))),c:'#a855f7',info:'<strong>GELU:</strong> Smooth ReLU used in GPT/BERT. Allows small negative values. State-of-the-art for transformers.'}};
+window.drawAct=function(name){const W=actC.width,H=actC.height,f=actFns[name];ax.clearRect(0,0,W,H);ax.strokeStyle='#222';ax.lineWidth=1;ax.beginPath();ax.moveTo(0,H/2);ax.lineTo(W,H/2);ax.moveTo(W/2,0);ax.lineTo(W/2,H);ax.stroke();ax.strokeStyle=f.c;ax.lineWidth=2.5;ax.beginPath();for(let p=0;p<W;p++){const x=(p-W/2)/(W/8);const y=f.fn(x);const py=H/2-y*(H/4);if(p===0)ax.moveTo(p,py);else ax.lineTo(p,Math.max(3,Math.min(H-3,py)));}ax.stroke();document.getElementById('actI').innerHTML=f.info;};drawAct('relu');
+// Neuron game
+window.checkNeu=function(){const z=parseFloat(document.getElementById('nz').value),o=parseFloat(document.getElementById('no').value);const fb=document.getElementById('nFb');
+// z = 0.5 - 1.0 + 0.6 + 0.1 = 0.2, relu(0.2) = 0.2
+if(Math.abs(z-0.2)<0.05&&Math.abs(o-0.2)<0.05){fb.innerHTML='<span style="color:var(--green);">&#x2705; z=0.5-1.0+0.6+0.1=0.2, ReLU(0.2)=0.2. The neuron fires!</span>';asc('n-neu',10);}else fb.innerHTML='<span style="color:var(--red);">&#x274C; z = 0.5 + (-1.0) + 0.6 + 0.1 = 0.2. ReLU(0.2) = 0.2</span>';};rq('n-neu',10);
+}},
+
+// ═══════════════════════════════════════
+// L2-7: NLP FUNDAMENTALS
+// ═══════════════════════════════════════
+{fn:'nlp.py',fd:'Level 2 — Text to Numbers Pipeline',t:'<span class="level-badge lb2">L2</span> NLP — Text to Numbers',su:'The complete pipeline: raw text → tokens → IDs → embeddings → model. Every LLM follows this exact flow.',
+code:`# ============================================
+# NLP — Natural Language Processing
+# ============================================
+# Computers only understand numbers.
+# NLP = converting text into numbers and back.
+#
+# THE PIPELINE:
+# "The cat" → tokenize → ["The"," cat"]
+#           → encode   → [464, 3797]
+#           → embed    → [[0.1,0.3,...], [0.2,0.7,...]]
+#           → model    → logits for next token
+#           → softmax  → probabilities
+#           → sample   → next token ID
+#           → decode   → "sat"
+
+# ── TOKENIZATION TYPES ──
+
+# 1. CHARACTER-LEVEL: each letter is a token
+text = "cat"
+tokens = list(text)  # ['c', 'a', 't']
+# Vocab size: ~100 (letters + punctuation)
+# Pro: tiny vocabulary
+# Con: sequences are very long
+
+# 2. WORD-LEVEL: each word is a token
+text = "The cat sat"
+tokens = text.split()  # ['The', 'cat', 'sat']
+# Vocab size: ~100,000+
+# Pro: short sequences
+# Con: can't handle new/rare words ("ChatGPT"?)
+
+# 3. SUBWORD (BPE): the sweet spot!
+text = "unhappiness"
+tokens = ["un", "happiness"]  # or ["un","happ","iness"]
+# Vocab size: ~32,000-50,000
+# Pro: handles any word by breaking into known pieces
+# Con: slightly longer than word-level
+# GPT-2/3/4, LLaMA, Mistral ALL use BPE!
+
+# ── HOW BPE WORKS ──
+# 1. Start with individual characters
+# 2. Find the most frequent pair (e.g., "t"+"h")
+# 3. Merge them into a new token ("th")
+# 4. Repeat until vocab_size reached
+#
+# "the cat" → ['t','h','e',' ','c','a','t']
+# Most frequent pair: ('t','h') → merge!
+# → ['th','e',' ','c','a','t']
+# Next: ('th','e') → merge!
+# → ['the',' ','c','a','t']
+# Next: ('c','a') → merge!
+# → ['the',' ','ca','t']
+# And so on...
+
+# ── EMBEDDINGS ──
+# Each token ID maps to a learned vector.
+import numpy as np
+
+vocab_size = 50000
+embed_dim = 768  # GPT-2
+
+# Embedding table: (50000, 768)
+# = 50000 × 768 = 38.4 MILLION parameters!
+embedding_table = np.random.randn(vocab_size, embed_dim)
+
+# Look up: token_id → vector
+token_id = 3797  # "cat"
+cat_vector = embedding_table[token_id]  # shape: (768,)
+
+# ── POSITIONAL ENCODING ──
+# "The cat ate the fish" ≠ "The fish ate the cat"
+# Same tokens, different meaning!
+# Position encoding tells the model WHERE each token is.
+#
+# Sinusoidal (original Transformer):
+#   PE(pos, 2i)   = sin(pos / 10000^(2i/d))
+#   PE(pos, 2i+1) = cos(pos / 10000^(2i/d))
+#
+# Learned (GPT-2): just another embedding table!
+#   position_embedding = Embedding(max_seq_len, embed_dim)
+#
+# RoPE (LLaMA): rotates vectors based on position
+#   Encodes RELATIVE position, not absolute
+
+# ── LANGUAGE MODELING OBJECTIVE ──
+# Given context, predict the NEXT token.
+# "The cat sat on" → predict "the"
+# "The cat sat on the" → predict "mat"
+#
+# This is CAUSAL (autoregressive) modeling:
+# Can only see PAST tokens, never future ones.
+# Enforced by a causal MASK in attention.`,
+gm:function(c){c.innerHTML=`
+<div class="s"><h3>&#x1F4DD; The NLP Pipeline</h3>
+<div class="eb"><p><strong>Text → Tokens → IDs → Embeddings → Model → Predictions</strong>. Every LLM follows this exact pipeline. Understanding each step is essential.</p></div>
+<div class="eb y"><p><strong>BPE (Byte Pair Encoding)</strong> is the tokenizer used by GPT, LLaMA, Mistral, and almost every modern LLM. It splits text into subwords: "unhappiness" → ["un", "happiness"]. This handles any word, even ones never seen before!</p></div></div>
+
+<div class="s"><h3><span class="bd bd-g">GAME</span> Tokenizer Comparison</h3>
+<p>How would each tokenizer split "ChatGPT is amazing"?</p>
+<div class="ia">
+<div class="qb" id="nl-q1"><div class="qt">Character-level tokenizer produces:</div><div class="qo">
+<div class="qp" onclick="cq('nl-q1',this,true)">['C','h','a','t','G','P','T',' ','i','s',...] — 18 tokens</div>
+<div class="qp" onclick="cq('nl-q1',this,false)">['ChatGPT','is','amazing'] — 3 tokens</div>
+<div class="qp" onclick="cq('nl-q1',this,false)">['Chat','GPT','is','amazing'] — 4 tokens</div>
+</div><div class="qf" id="nl-q1-f"></div></div>
+<div class="qb" id="nl-q2"><div class="qt">BPE tokenizer (GPT-style) likely produces:</div><div class="qo">
+<div class="qp" onclick="cq('nl-q2',this,false)">['ChatGPT','is','amazing'] — whole words</div>
+<div class="qp" onclick="cq('nl-q2',this,true)">['Chat','G','PT',' is',' amazing'] — subwords (breaks unknown words into known pieces)</div>
+<div class="qp" onclick="cq('nl-q2',this,false)">['C','h','a','t','G','P','T',...] — characters</div>
+</div><div class="qf" id="nl-q2-f"></div></div>
+</div></div>
+
+<div class="s"><h3><span class="bd bd-g">GAME</span> BPE Merge Simulator</h3>
+<p>Watch BPE build tokens by merging frequent pairs!</p>
+<div class="ia">
+<h4>Text: "the cat the car"</h4>
+<div id="bpeSteps" style="font-family:'Fira Code',monospace;font-size:11px;"></div>
+<button class="btn bp" onclick="bpeStep()" id="bpeBtn">Next Merge →</button>
+<div id="bpeFb" style="font-weight:700;font-size:11px;margin-top:4px;"></div>
+</div></div>
+
+<div class="s"><h3><span class="bd bd-g">GAME</span> Embedding Lookup</h3>
+<p>The embedding table maps token IDs to vectors. Fill in the blanks:</p>
+<div class="ia">
+<table class="ct">
+<tr><th>Token</th><th>ID</th><th>Embedding (first 4 dims)</th></tr>
+<tr><td>"the"</td><td>464</td><td style="color:var(--accent);">[0.12, -0.34, 0.56, 0.78]</td></tr>
+<tr><td>"cat"</td><td>3797</td><td style="color:var(--green);">[0.45, 0.23, -0.67, 0.11]</td></tr>
+<tr><td>"dog"</td><td>3290</td><td style="color:var(--yellow);">[0.43, 0.25, -0.61, 0.15]</td></tr>
+</table>
+<div class="qb" id="nl-q3"><div class="qt">Notice "cat" and "dog" embeddings are similar. Why?</div><div class="qo">
+<div class="qp" onclick="cq('nl-q3',this,false)">Their token IDs are close (3797 vs 3290)</div>
+<div class="qp" onclick="cq('nl-q3',this,true)">They appear in similar contexts during training ("The ___ sat on the mat")</div>
+<div class="qp" onclick="cq('nl-q3',this,false)">They have the same number of letters</div>
+</div><div class="qf" id="nl-q3-f"></div></div>
+</div></div>
+
+<div class="s"><h3><span class="bd bd-q">QUIZ</span> NLP Deep Dive</h3>
+<div class="qb" id="nl-q4"><div class="qt">&#x1F914; GPT-2's embedding table is (50257, 768). How many parameters is that?</div><div class="qo">
+<div class="qp" onclick="cq('nl-q4',this,true)">~38.6 million — just for the embedding layer!</div>
+<div class="qp" onclick="cq('nl-q4',this,false)">~51,000</div>
+<div class="qp" onclick="cq('nl-q4',this,false)">~768</div>
+</div><div class="qf" id="nl-q4-f"></div></div>
+<div class="qb" id="nl-q5"><div class="qt">&#x1F914; In causal language modeling, the model can see:</div><div class="qo">
+<div class="qp" onclick="cq('nl-q5',this,true)">Only past tokens — future tokens are masked</div>
+<div class="qp" onclick="cq('nl-q5',this,false)">All tokens in the sequence</div>
+<div class="qp" onclick="cq('nl-q5',this,false)">Only the current token</div>
+</div><div class="qf" id="nl-q5-f"></div></div></div>`;
+
+rq('nl-q1',10);rq('nl-q2',10);rq('nl-q3',10);rq('nl-q4',10);rq('nl-q5',10);
+// BPE simulator
+const bpeData=[
+  {tokens:['t','h','e',' ','c','a','t',' ','t','h','e',' ','c','a','r'],pair:'t+h',desc:'Most frequent pair: "t"+"h" (appears 2×)'},
+  {tokens:['th','e',' ','c','a','t',' ','th','e',' ','c','a','r'],pair:'th+e',desc:'Most frequent: "th"+"e" (appears 2×)'},
+  {tokens:['the',' ','c','a','t',' ','the',' ','c','a','r'],pair:'c+a',desc:'Most frequent: "c"+"a" (appears 2×)'},
+  {tokens:['the',' ','ca','t',' ','the',' ','ca','r'],pair:'done',desc:'Vocab: {t,h,e, ,c,a,r,th,the,ca}. 10 tokens from 7 chars!'}
+];
+let bpeIdx=0;
+function renderBPE(){const d=document.getElementById('bpeSteps');const step=bpeData[bpeIdx];d.innerHTML='<div style="margin:4px 0;color:var(--dim);">Step '+bpeIdx+':</div><div style="display:flex;flex-wrap:wrap;gap:3px;">'+step.tokens.map(t=>'<span style="padding:3px 6px;border-radius:4px;background:var(--bg4);font-size:11px;">'+t+'</span>').join('')+'</div><div style="margin-top:4px;font-size:11px;color:var(--accent);">'+step.desc+'</div>';}
+renderBPE();
+window.bpeStep=function(){if(bpeIdx<bpeData.length-1){bpeIdx++;renderBPE();if(bpeIdx===bpeData.length-1){document.getElementById('bpeBtn').disabled=true;document.getElementById('bpeFb').innerHTML='<span style="color:var(--green);">&#x2705; BPE complete! Common subwords become single tokens.</span>';asc('nl-bpe',10);}}};rq('nl-bpe',10);
+}},
+
+// ═══════════════════════════════════════
+// L2-8: PYTORCH
+// ═══════════════════════════════════════
+{fn:'pytorch.py',fd:'Level 2 — Tensors, Autograd, nn.Module',t:'<span class="level-badge lb2">L2</span> PyTorch — The Framework',su:'Every modern LLM is built with PyTorch. Tensors, automatic differentiation, and nn.Module — the three pillars.',
+code:`# ============================================
+# PYTORCH — The LLM Framework
+# ============================================
+# PyTorch = NumPy + GPU + Automatic Gradients
+# GPT, LLaMA, Mistral, Claude — all PyTorch!
+
+import torch
+import torch.nn as nn
+
+# ── TENSORS (like NumPy arrays, but better) ──
+a = torch.tensor([1.0, 2.0, 3.0])
+b = torch.zeros(3, 4)         # 3×4 of zeros
+c = torch.randn(2, 3)         # random normal
+d = torch.ones(5)              # [1,1,1,1,1]
+
+# Key properties:
+print(a.shape)    # torch.Size([3])
+print(a.dtype)    # torch.float32
+print(a.device)   # cpu (or cuda:0 for GPU)
+
+# Move to GPU:
+if torch.cuda.is_available():
+    a = a.to('cuda')  # now on GPU!
+
+# Operations (same as NumPy):
+x = torch.randn(3, 4)
+y = torch.randn(4, 2)
+z = x @ y              # matrix multiply → (3,2)
+z = x + 1              # broadcast add
+z = x * 2              # scalar multiply
+z = x.sum()            # sum all elements
+z = x.mean(dim=1)      # mean along columns
+
+# ── AUTOGRAD (automatic differentiation) ──
+# PyTorch tracks operations and computes
+# gradients AUTOMATICALLY!
+
+x = torch.tensor(3.0, requires_grad=True)
+y = x ** 2 + 2 * x + 1   # y = x² + 2x + 1
+y.backward()               # compute dy/dx
+print(x.grad)              # tensor(8.0)
+# dy/dx = 2x + 2 = 2(3) + 2 = 8 ✓
+
+# This works for MILLIONS of parameters!
+# PyTorch builds a computation graph and
+# applies the chain rule automatically.
+
+# ── nn.Module (building models) ──
+class BabyLLM(nn.Module):
+    def __init__(self, vocab_size, embed_dim, hidden):
+        super().__init__()
+        # Layers are registered as attributes
+        self.embedding = nn.Embedding(vocab_size, embed_dim)
+        self.linear1 = nn.Linear(embed_dim, hidden)
+        self.linear2 = nn.Linear(hidden, vocab_size)
+        self.relu = nn.ReLU()
+
+    def forward(self, x):
+        # x: (batch, seq_len) — token IDs
+        emb = self.embedding(x)          # (B, S, E)
+        h = self.relu(self.linear1(emb)) # (B, S, H)
+        logits = self.linear2(h)         # (B, S, V)
+        return logits
+
+model = BabyLLM(50000, 768, 2048)
+
+# Count parameters:
+total = sum(p.numel() for p in model.parameters())
+print(f"{total:,} parameters")
+
+# ── TRAINING LOOP ──
+optimizer = torch.optim.AdamW(model.parameters(), lr=3e-4)
+criterion = nn.CrossEntropyLoss()
+
+for batch in dataloader:
+    # 1. Forward pass
+    logits = model(batch['input_ids'])
+
+    # 2. Compute loss
+    loss = criterion(
+        logits.view(-1, vocab_size),
+        batch['labels'].view(-1)
+    )
+
+    # 3. Backward pass (compute gradients)
+    loss.backward()
+
+    # 4. Update weights
+    optimizer.step()
+
+    # 5. Reset gradients
+    optimizer.zero_grad()
+
+    # That's it! 5 lines to train any model.`,
+gm:function(c){c.innerHTML=`
+<div class="s"><h3>&#x1F525; PyTorch = NumPy + GPU + Autograd</h3>
+<div class="eb"><p>PyTorch tensors work like NumPy arrays but with two superpowers: <strong>GPU acceleration</strong> (100x faster) and <strong>automatic gradient computation</strong> (no manual calculus!).</p></div>
+<div class="eb g"><p><strong>The 5-line training loop:</strong> forward → loss → backward → step → zero_grad. This trains ANY neural network, from a tiny classifier to GPT-4.</p></div></div>
+
+<div class="s"><h3><span class="bd bd-g">GAME</span> Tensor Shape Tracker</h3>
+<p>Track shapes through a model. This is the #1 debugging skill in PyTorch!</p>
+<div class="ia">
+<h4>Model: Embedding(50000, 768) → Linear(768, 2048) → ReLU → Linear(2048, 50000)</h4>
+<div class="qb" id="pt-q1"><div class="qt">input_ids shape: (batch=4, seq=32). After Embedding, shape is:</div><div class="qo">
+<div class="qp" onclick="cq('pt-q1',this,true)">(4, 32, 768) — each token ID becomes a 768-dim vector</div>
+<div class="qp" onclick="cq('pt-q1',this,false)">(4, 768)</div>
+<div class="qp" onclick="cq('pt-q1',this,false)">(32, 768)</div>
+</div><div class="qf" id="pt-q1-f"></div></div>
+<div class="qb" id="pt-q2"><div class="qt">After Linear(768, 2048), shape is:</div><div class="qo">
+<div class="qp" onclick="cq('pt-q2',this,false)">(4, 32, 768)</div>
+<div class="qp" onclick="cq('pt-q2',this,true)">(4, 32, 2048) — last dim changes from 768 to 2048</div>
+<div class="qp" onclick="cq('pt-q2',this,false)">(4, 2048)</div>
+</div><div class="qf" id="pt-q2-f"></div></div>
+<div class="qb" id="pt-q3"><div class="qt">After final Linear(2048, 50000), shape is:</div><div class="qo">
+<div class="qp" onclick="cq('pt-q3',this,true)">(4, 32, 50000) — logits for every token position over entire vocab!</div>
+<div class="qp" onclick="cq('pt-q3',this,false)">(4, 50000)</div>
+<div class="qp" onclick="cq('pt-q3',this,false)">(32, 50000)</div>
+</div><div class="qf" id="pt-q3-f"></div></div>
+</div></div>
+
+<div class="s"><h3><span class="bd bd-g">GAME</span> Autograd Challenge</h3>
+<div class="ia">
+<h4>x = torch.tensor(5.0, requires_grad=True)</h4>
+<h4>y = 3*x² - 4*x + 2</h4>
+<p style="font-size:11px;color:var(--dim);">dy/dx = 6x - 4. At x=5: dy/dx = ?</p>
+<div style="display:flex;gap:6px;align-items:center;margin:6px 0;">
+<span style="font-family:'Fira Code',monospace;font-size:11px;">x.grad =</span>${mkInput('ag',50)}
+<button class="btn bp" onclick="checkAG()">Check</button>
+</div>
+<div id="agFb" style="font-weight:700;font-size:11px;"></div>
+</div></div>
+
+<div class="s"><h3><span class="bd bd-q">QUIZ</span> PyTorch Mastery</h3>
+<div class="qb" id="pt-q4"><div class="qt">&#x1F914; What does loss.backward() actually do?</div><div class="qo">
+<div class="qp" onclick="cq('pt-q4',this,true)">Walks the computation graph backwards, computing d(loss)/d(param) for every parameter</div>
+<div class="qp" onclick="cq('pt-q4',this,false)">Runs the model in reverse</div>
+<div class="qp" onclick="cq('pt-q4',this,false)">Resets the model</div>
+</div><div class="qf" id="pt-q4-f"></div></div>
+<div class="qb" id="pt-q5"><div class="qt">&#x1F914; Why call optimizer.zero_grad()?</div><div class="qo">
+<div class="qp" onclick="cq('pt-q5',this,true)">PyTorch ACCUMULATES gradients by default. Without zeroing, gradients from previous batches add up!</div>
+<div class="qp" onclick="cq('pt-q5',this,false)">To free GPU memory</div>
+<div class="qp" onclick="cq('pt-q5',this,false)">To make training faster</div>
+</div><div class="qf" id="pt-q5-f"></div></div></div>`;
+
+rq('pt-q1',10);rq('pt-q2',10);rq('pt-q3',10);rq('pt-q4',10);rq('pt-q5',10);
+window.checkAG=function(){const v=parseFloat(document.getElementById('ag').value);const fb=document.getElementById('agFb');
+if(v===26){fb.innerHTML='<span style="color:var(--green);">&#x2705; 6(5)-4=26. PyTorch computes this automatically for millions of parameters!</span>';asc('pt-ag',10);}else fb.innerHTML='<span style="color:var(--red);">&#x274C; dy/dx = 6x - 4 = 6(5) - 4 = 26</span>';};rq('pt-ag',10);
+}},
+
+// ═══════════════════════════════════════
+// L3-9: OPTIMIZERS
+// ═══════════════════════════════════════
+{fn:'optimizers.py',fd:'Level 3 — SGD, Adam, Schedules',t:'<span class="level-badge lb3">L3</span> Optimizers — Making Learning Work',su:'SGD is too simple for LLMs. Adam adapts per-parameter. AdamW adds weight decay. Plus: LR schedules, gradient clipping.',
+code:`# ============================================
+# OPTIMIZERS — From SGD to AdamW
+# ============================================
+# An optimizer decides HOW to update weights.
+# weight = weight - lr * gradient  ← that's SGD
+# But we can do MUCH better!
+
+import torch
+
+# ── SGD (Stochastic Gradient Descent) ──
+# The simplest optimizer.
+# weight -= lr * gradient
+#
+# Problems:
+# 1. Same LR for all parameters (some need more!)
+# 2. Oscillates in steep dimensions
+# 3. Gets stuck in saddle points
+
+# ── SGD + Momentum ──
+# Add "velocity" — like a ball rolling downhill
+# velocity = 0.9 * velocity + gradient
+# weight -= lr * velocity
+#
+# The 0.9 means: "remember 90% of previous direction"
+# This smooths out oscillations and speeds up!
+
+# ── Adam (Adaptive Moment Estimation) ──
+# THE standard optimizer for deep learning.
+# Tracks TWO things per parameter:
+#   m = running average of gradients (momentum)
+#   v = running average of gradient² (variance)
+#
+# Update: weight -= lr * m / (sqrt(v) + eps)
+#
+# Why this works:
+# - Parameters with large gradients get SMALLER steps
+# - Parameters with small gradients get LARGER steps
+# - Automatically adapts learning rate per parameter!
+
+# m_t = β1 * m_{t-1} + (1-β1) * gradient
+# v_t = β2 * v_{t-1} + (1-β2) * gradient²
+# m_hat = m_t / (1 - β1^t)   # bias correction
+# v_hat = v_t / (1 - β2^t)
+# weight -= lr * m_hat / (sqrt(v_hat) + eps)
+#
+# Default: β1=0.9, β2=0.999, eps=1e-8
+
+# ── AdamW (Adam + Weight Decay) ──
+# Standard for ALL modern LLMs!
+# Adds weight decay DIRECTLY to weights:
+# weight -= lr * (m_hat/(sqrt(v_hat)+eps) + wd*weight)
+#
+# Weight decay = "prefer smaller weights"
+# Prevents overfitting, improves generalization
+
+optimizer = torch.optim.AdamW(
+    model.parameters(),
+    lr=3e-4,           # peak learning rate
+    betas=(0.9, 0.95), # momentum parameters
+    weight_decay=0.1,  # regularization strength
+    eps=1e-8
+)
+
+# ── LEARNING RATE SCHEDULE ──
+# Don't use a fixed LR! Change it during training.
+#
+# Warmup: start low, increase linearly
+#   Why? Random weights → large gradients → instability
+#   Warmup lets the model "settle" first.
+#
+# Cosine Decay: after warmup, decrease smoothly
+#   lr = max_lr * 0.5 * (1 + cos(π * progress))
+#
+# GPT-3 recipe: 375M warmup steps, then cosine decay
+
+import math
+def get_lr(step, total_steps, warmup, max_lr, min_lr):
+    if step < warmup:
+        return max_lr * step / warmup
+    progress = (step - warmup) / (total_steps - warmup)
+    return min_lr + (max_lr - min_lr) * 0.5 * (
+        1 + math.cos(math.pi * progress))
+
+# ── GRADIENT CLIPPING ──
+# If gradients are too large → training explodes!
+# Solution: cap the gradient magnitude.
+torch.nn.utils.clip_grad_norm_(
+    model.parameters(), max_norm=1.0
+)
+# If total gradient norm > 1.0, scale ALL gradients
+# down proportionally. Simple and effective!`,
+gm:function(c){c.innerHTML=`
+<div class="s"><h3>&#x2699;&#xFE0F; Why Not Just SGD?</h3>
+<div class="eb"><p><strong>SGD</strong> uses the same learning rate for all parameters. But some parameters need big updates, others need tiny ones. <strong>Adam</strong> adapts the learning rate per-parameter automatically.</p></div>
+<div class="eb o"><p><strong>The LLM Recipe:</strong> AdamW (β1=0.9, β2=0.95, wd=0.1) + cosine LR schedule with warmup + gradient clipping (max_norm=1.0). This is what GPT-3, LLaMA, and Mistral all use.</p></div></div>
+
+<div class="s"><h3><span class="bd bd-g">GAME</span> Optimizer Race</h3>
+<p>Watch SGD vs Adam optimize f(x) = (x-3)² + 1. Who converges faster?</p>
+<div class="ia">
+<canvas id="optC" width="440" height="160" style="width:100%;background:var(--code-bg);"></canvas>
+<div style="display:flex;gap:6px;margin-top:6px;"><button class="btn bp" onclick="runOpt()">&#x1F3C1; Race!</button><button class="btn br" onclick="resetOpt()">&#x21BB; Reset</button></div>
+<div style="font-size:11px;margin-top:4px;"><span style="color:#e94560;">&#x25CF; SGD</span> &nbsp; <span style="color:#06d6a0;">&#x25CF; Adam</span></div>
+<div id="optI" class="ob">Click Race to compare optimizers!</div>
+</div></div>
+
+<div class="s"><h3><span class="bd bd-g">GAME</span> LR Schedule Visualizer</h3>
+<div class="ia">
+<canvas id="lrC" width="440" height="140" style="width:100%;background:var(--code-bg);"></canvas>
+<div class="sr"><span>Warmup %:</span><input type="range" id="wS" min="0" max="40" value="10" oninput="drawLR()"><span class="sv" id="wV">10%</span></div>
+<div id="lrI" class="ob">Warmup → Peak → Cosine decay. This prevents early instability.</div>
+</div></div>
+
+<div class="s"><h3><span class="bd bd-q">QUIZ</span> Optimizer Mastery</h3>
+<div class="qb" id="o-q1"><div class="qt">&#x1F914; Adam tracks m (mean of gradients) and v (mean of gradient²). Why track v?</div><div class="qo">
+<div class="qp" onclick="cq('o-q1',this,true)">To normalize: parameters with large gradients get smaller steps (divide by √v)</div>
+<div class="qp" onclick="cq('o-q1',this,false)">To save memory</div>
+<div class="qp" onclick="cq('o-q1',this,false)">To make it faster</div>
+</div><div class="qf" id="o-q1-f"></div></div>
+<div class="qb" id="o-q2"><div class="qt">&#x1F914; Weight decay in AdamW penalizes large weights. Why is this good?</div><div class="qo">
+<div class="qp" onclick="cq('o-q2',this,true)">Prevents overfitting — the model can't rely on any single huge weight, must distribute knowledge</div>
+<div class="qp" onclick="cq('o-q2',this,false)">Makes training faster</div>
+<div class="qp" onclick="cq('o-q2',this,false)">Reduces model size</div>
+</div><div class="qf" id="o-q2-f"></div></div>
+<div class="qb" id="o-q3"><div class="qt">&#x1F914; Gradient clipping with max_norm=1.0 means:</div><div class="qo">
+<div class="qp" onclick="cq('o-q3',this,false)">Each gradient is capped at 1.0</div>
+<div class="qp" onclick="cq('o-q3',this,true)">If the TOTAL gradient norm exceeds 1.0, ALL gradients are scaled down proportionally</div>
+<div class="qp" onclick="cq('o-q3',this,false)">Gradients below 1.0 are set to zero</div>
+</div><div class="qf" id="o-q3-f"></div></div></div>`;
+
+rq('o-q1',10);rq('o-q2',10);rq('o-q3',10);
+// Optimizer race
+const optC=document.getElementById('optC'),ox=optC.getContext('2d');let optA=null;
+function drawOpt(sx,ax2,t1,t2){const W=optC.width,H=optC.height;ox.clearRect(0,0,W,H);ox.strokeStyle='#333';ox.lineWidth=1.5;ox.beginPath();for(let p=0;p<W;p++){const x=(p/W)*8-1;const y=(x-3)*(x-3)+1;const py=H-10-y*(H-20)/18;ox.lineTo(p,Math.max(5,py));}ox.stroke();
+function ball(bx,col,lbl){const px=((bx+1)/8)*W;const y=(bx-3)*(bx-3)+1;const py=H-10-y*(H-20)/18;ox.fillStyle=col;ox.beginPath();ox.arc(px,Math.max(6,py),5,0,Math.PI*2);ox.fill();ox.fillStyle='#fff';ox.font='bold 7px Fira Code';ox.textAlign='center';ox.fillText(lbl,px,Math.max(6,py)-8);}
+ball(sx,'#e94560','SGD');ball(ax2,'#06d6a0','Adam');}
+drawOpt(-0.5,-0.5,[],[]);
+window.runOpt=function(){if(optA)clearInterval(optA);let sx=-0.5,ax2=-0.5,sv=0,am=0,av=0,st=0;
+optA=setInterval(()=>{st++;const sg=2*(sx-3);sv=0.9*sv+sg;sx-=0.01*sv;const ag=2*(ax2-3);am=0.9*am+0.1*ag;av=0.999*av+0.001*ag*ag;const mh=am/(1-Math.pow(0.9,st)),vh=av/(1-Math.pow(0.999,st));ax2-=0.3*mh/(Math.sqrt(vh)+1e-8);drawOpt(sx,ax2,[],[]);document.getElementById('optI').innerHTML='Step '+st+': SGD='+sx.toFixed(2)+' Adam='+ax2.toFixed(2);
+if(st>=80){clearInterval(optA);document.getElementById('optI').innerHTML='<span style="color:var(--green);">&#x1F3C1; Adam converges faster! Both approach x=3 (minimum).</span>';asc('o-race',10);}},80);};
+window.resetOpt=function(){if(optA)clearInterval(optA);drawOpt(-0.5,-0.5,[],[]);document.getElementById('optI').textContent='Click Race!';};rq('o-race',10);
+// LR schedule
+const lrC=document.getElementById('lrC'),lx=lrC.getContext('2d');
+window.drawLR=function(){const W=lrC.width,H=lrC.height,wp=document.getElementById('wS').value/100;document.getElementById('wV').textContent=Math.round(wp*100)+'%';lx.clearRect(0,0,W,H);lx.strokeStyle='#333';lx.lineWidth=1;lx.beginPath();lx.moveTo(30,5);lx.lineTo(30,H-15);lx.lineTo(W-5,H-15);lx.stroke();lx.strokeStyle='#00b4d8';lx.lineWidth=2;lx.beginPath();
+for(let s=0;s<=100;s++){let lr;const ws=Math.round(wp*100);if(s<ws)lr=s/Math.max(ws,1);else{const p=(s-ws)/Math.max(100-ws,1);lr=0.5*(1+Math.cos(Math.PI*p));}const px=30+(s/100)*(W-35);const py=5+(1-lr)*(H-25);if(s===0)lx.moveTo(px,py);else lx.lineTo(px,py);}lx.stroke();
+if(wp>0){const wx=30+(wp)*(W-35);lx.strokeStyle='rgba(255,209,102,0.3)';lx.setLineDash([3,3]);lx.beginPath();lx.moveTo(wx,5);lx.lineTo(wx,H-15);lx.stroke();lx.setLineDash([]);}};drawLR();
+}},
+
+// ═══════════════════════════════════════
+// L3-10: ATTENTION MECHANISM
+// ═══════════════════════════════════════
+{fn:'attention.py',fd:'Level 3 — The Key Innovation',t:'<span class="level-badge lb3">L3</span> Attention — The Heart of LLMs',su:'THE breakthrough that made Transformers possible. Q, K, V matrices, scaled dot-product, multi-head attention, causal masking.',
+code:`# ============================================
+# ATTENTION MECHANISM
+# ============================================
+# "Attention Is All You Need" (2017)
+# The paper that started the LLM revolution!
+#
+# CORE IDEA:
+# For each token, compute how much it should
+# "attend to" (look at) every other token.
+#
+# "The cat sat on the mat"
+# When processing "sat", attention might focus
+# heavily on "cat" (who sat?) and "on" (sat where?)
+
+import torch
+import torch.nn as nn
+import math
+
+# ── Q, K, V — The Three Matrices ──
+# For each token, we compute three vectors:
+#   Q (Query):  "What am I looking for?"
+#   K (Key):    "What do I contain?"
+#   V (Value):  "What information do I provide?"
+#
+# Analogy: Library search
+#   Q = your search query
+#   K = book titles (what each book is about)
+#   V = book contents (the actual information)
+#   Attention = match query to titles, read matching books
+
+# Input: (batch, seq_len, embed_dim)
+# W_q, W_k, W_v: (embed_dim, head_dim)
+
+embed_dim = 768
+head_dim = 64  # 768 / 12 heads = 64
+
+W_q = nn.Linear(embed_dim, head_dim, bias=False)
+W_k = nn.Linear(embed_dim, head_dim, bias=False)
+W_v = nn.Linear(embed_dim, head_dim, bias=False)
+
+# For input x: (batch, seq_len, 768)
+Q = W_q(x)  # (batch, seq_len, 64)
+K = W_k(x)  # (batch, seq_len, 64)
+V = W_v(x)  # (batch, seq_len, 64)
+
+# ── SCALED DOT-PRODUCT ATTENTION ──
+# Step 1: Compute attention scores
+# scores = Q @ K^T / sqrt(head_dim)
+scores = Q @ K.transpose(-2, -1) / math.sqrt(head_dim)
+# Shape: (batch, seq_len, seq_len)
+# scores[i][j] = how much token i attends to token j
+
+# Step 2: Apply causal mask (for autoregressive LLMs)
+# Token i can only attend to tokens 0..i (not future!)
+mask = torch.triu(torch.ones(seq_len, seq_len), diagonal=1)
+scores = scores.masked_fill(mask == 1, float('-inf'))
+
+# Step 3: Softmax → probabilities
+weights = torch.softmax(scores, dim=-1)
+# Each row sums to 1.0
+# weights[i][j] = probability that token i looks at token j
+
+# Step 4: Weighted sum of values
+output = weights @ V  # (batch, seq_len, head_dim)
+# Each token's output = weighted average of all V vectors
+
+# ── MULTI-HEAD ATTENTION ──
+# Instead of one attention, run 12 in parallel!
+# Each head can learn different patterns:
+#   Head 1: subject-verb relationships
+#   Head 2: adjective-noun relationships
+#   Head 3: positional patterns
+#   ...
+# Then concatenate and project back.
+
+class MultiHeadAttention(nn.Module):
+    def __init__(self, embed_dim, n_heads):
+        super().__init__()
+        self.n_heads = n_heads
+        self.head_dim = embed_dim // n_heads
+        self.W_qkv = nn.Linear(embed_dim, 3*embed_dim)
+        self.W_out = nn.Linear(embed_dim, embed_dim)
+
+    def forward(self, x):
+        B, S, E = x.shape
+        qkv = self.W_qkv(x)  # (B, S, 3*E)
+        qkv = qkv.reshape(B, S, 3, self.n_heads, self.head_dim)
+        qkv = qkv.permute(2, 0, 3, 1, 4)
+        Q, K, V = qkv[0], qkv[1], qkv[2]
+        # Each: (B, n_heads, S, head_dim)
+
+        scores = Q @ K.transpose(-2,-1) / math.sqrt(self.head_dim)
+        # Causal mask
+        mask = torch.triu(torch.ones(S,S,device=x.device),1).bool()
+        scores.masked_fill_(mask, float('-inf'))
+        weights = torch.softmax(scores, dim=-1)
+        out = weights @ V  # (B, n_heads, S, head_dim)
+        out = out.transpose(1,2).reshape(B, S, E)
+        return self.W_out(out)`,
+gm:function(c){c.innerHTML=`
+<div class="s"><h3>&#x1F440; The Attention Revolution</h3>
+<div class="eb"><p><strong>Attention</strong> lets each token look at every other token and decide what's relevant. "The cat sat on the ___" — when predicting the blank, the model attends heavily to "cat" and "sat" to understand context.</p></div>
+<div class="eb y"><p><strong>&#x1F4DA; Library Analogy:</strong> Q = your search query, K = book titles, V = book contents. You match your query against titles (Q·K), then read the matching books (weighted sum of V). That's attention!</p></div></div>
+
+<div class="s"><h3><span class="bd bd-g">GAME</span> Attention Score Calculator</h3>
+<p>Compute attention for "The cat sat":</p>
+<div class="ia">
+<h4>Step 1: Q @ K^T (simplified 3×3 scores)</h4>
+<table class="ct" style="text-align:center;">
+<tr><th></th><th style="color:var(--accent);">The</th><th style="color:var(--accent);">cat</th><th style="color:var(--accent);">sat</th></tr>
+<tr><td style="color:var(--yellow);font-weight:700;">The</td><td>0.8</td><td>0.2</td><td>0.1</td></tr>
+<tr><td style="color:var(--yellow);font-weight:700;">cat</td><td>0.3</td><td>0.9</td><td>0.4</td></tr>
+<tr><td style="color:var(--yellow);font-weight:700;">sat</td><td>0.1</td><td>0.7</td><td>0.5</td></tr>
+</table>
+<div class="qb" id="a-q1"><div class="qt">Step 2: Apply causal mask. "cat" (row 2) can see "The" and "cat" but NOT "sat". After masking, cat's row becomes:</div><div class="qo">
+<div class="qp" onclick="cq('a-q1',this,true)">[0.3, 0.9, -∞] — "sat" is masked to -infinity</div>
+<div class="qp" onclick="cq('a-q1',this,false)">[0.3, 0.9, 0.4] — no change</div>
+<div class="qp" onclick="cq('a-q1',this,false)">[0.3, 0.9, 0] — masked to zero</div>
+</div><div class="qf" id="a-q1-f"></div></div>
+<div class="qb" id="a-q2"><div class="qt">Step 3: After softmax on [0.3, 0.9, -∞], the -∞ becomes 0. "cat" attends mostly to:</div><div class="qo">
+<div class="qp" onclick="cq('a-q2',this,true)">Itself ("cat") — 0.9 is the highest score, gets highest probability</div>
+<div class="qp" onclick="cq('a-q2',this,false)">"The" — because it comes first</div>
+<div class="qp" onclick="cq('a-q2',this,false)">"sat" — even though it's masked</div>
+</div><div class="qf" id="a-q2-f"></div></div>
+</div></div>
+
+<div class="s"><h3><span class="bd bd-g">GAME</span> Multi-Head Intuition</h3>
+<p>Why use 12 attention heads instead of 1?</p>
+<div class="ia">
+<div class="eb"><p><strong>Head 1</strong> might learn: "who did the action?" (subject-verb)</p></div>
+<div class="eb p"><p><strong>Head 2</strong> might learn: "what describes this noun?" (adjective-noun)</p></div>
+<div class="eb g"><p><strong>Head 3</strong> might learn: "what's the nearby context?" (local patterns)</p></div>
+<div class="eb o"><p><strong>Head 4</strong> might learn: "what was mentioned earlier?" (long-range dependencies)</p></div>
+<div class="qb" id="a-q3"><div class="qt">GPT-2 has 12 heads with head_dim=64. Total embed_dim = ?</div><div class="qo">
+<div class="qp" onclick="cq('a-q3',this,true)">12 × 64 = 768</div>
+<div class="qp" onclick="cq('a-q3',this,false)">12 + 64 = 76</div>
+<div class="qp" onclick="cq('a-q3',this,false)">64</div>
+</div><div class="qf" id="a-q3-f"></div></div>
+</div></div>
+
+<div class="s"><h3><span class="bd bd-q">QUIZ</span> Attention Deep Dive</h3>
+<div class="qb" id="a-q4"><div class="qt">&#x1F914; Why divide scores by √(head_dim)?</div><div class="qo">
+<div class="qp" onclick="cq('a-q4',this,true)">Without scaling, dot products grow with dimension, making softmax too peaked (all attention on one token)</div>
+<div class="qp" onclick="cq('a-q4',this,false)">To make it faster</div>
+<div class="qp" onclick="cq('a-q4',this,false)">To reduce memory</div>
+</div><div class="qf" id="a-q4-f"></div></div>
+<div class="qb" id="a-q5"><div class="qt">&#x1F914; Attention shape: (batch, seq, seq). For seq=1024, this matrix has 1024×1024 = 1M entries. This is why:</div><div class="qo">
+<div class="qp" onclick="cq('a-q5',this,true)">Attention is O(n²) in sequence length — long sequences are expensive!</div>
+<div class="qp" onclick="cq('a-q5',this,false)">Attention is O(n) — very efficient</div>
+<div class="qp" onclick="cq('a-q5',this,false)">Sequence length doesn't matter</div>
+</div><div class="qf" id="a-q5-f"></div></div></div>`;
+rq('a-q1',10);rq('a-q2',10);rq('a-q3',10);rq('a-q4',10);rq('a-q5',10);
+}},
+
+// ═══════════════════════════════════════
+// L3-11: TRANSFORMER ARCHITECTURE
+// ═══════════════════════════════════════
+{fn:'transformer.py',fd:'Level 3 — The Full Architecture',t:'<span class="level-badge lb3">L3</span> Transformer Architecture',su:'The complete stack: embedding → N × (attention + FFN + LayerNorm + residual) → output. Every LLM is this.',
+code:`# ============================================
+# TRANSFORMER ARCHITECTURE
+# ============================================
+# Every LLM (GPT, LLaMA, Mistral, Claude) is
+# a stack of Transformer DECODER blocks.
+#
+# FULL ARCHITECTURE:
+# ==================
+# 1. Token Embedding + Position Embedding
+# 2. N × Transformer Block:
+#    a. LayerNorm
+#    b. Multi-Head Self-Attention
+#    c. Residual Connection (add input back)
+#    d. LayerNorm
+#    e. Feed-Forward Network (FFN)
+#    f. Residual Connection
+# 3. Final LayerNorm
+# 4. Linear → logits (vocab_size)
+
+import torch
+import torch.nn as nn
+
+class TransformerBlock(nn.Module):
+    def __init__(self, embed_dim, n_heads, ff_dim, dropout=0.1):
+        super().__init__()
+        self.ln1 = nn.LayerNorm(embed_dim)
+        self.attn = MultiHeadAttention(embed_dim, n_heads)
+        self.ln2 = nn.LayerNorm(embed_dim)
+        self.ffn = nn.Sequential(
+            nn.Linear(embed_dim, ff_dim),
+            nn.GELU(),
+            nn.Linear(ff_dim, embed_dim),
+            nn.Dropout(dropout)
+        )
+
+    def forward(self, x):
+        # Pre-norm architecture (used by GPT-2+)
+        # Residual + Attention
+        x = x + self.attn(self.ln1(x))
+        # Residual + FFN
+        x = x + self.ffn(self.ln2(x))
+        return x
+
+# ── LAYER NORM ──
+# Normalizes activations to mean=0, std=1
+# Then scales and shifts with learned params
+# WHY: stabilizes training, prevents values
+# from growing too large or too small
+#
+# For each token vector [x1, x2, ..., xd]:
+#   mean = average of all xi
+#   std = standard deviation
+#   x_norm = (x - mean) / (std + eps)
+#   output = gamma * x_norm + beta
+# gamma and beta are LEARNED parameters
+
+# ── RESIDUAL CONNECTIONS ──
+# output = layer(x) + x  ← add input back!
+#
+# WHY: gradient highway!
+# d(x + f(x))/dx = 1 + f'(x)
+# The "1" means gradients always flow through.
+# Without residuals, 100-layer networks can't train.
+
+# ── FEED-FORWARD NETWORK ──
+# Two linear layers with activation in between.
+# FFN(x) = Linear2(GELU(Linear1(x)))
+#
+# Linear1: (embed_dim → 4*embed_dim)  expand
+# GELU: activation
+# Linear2: (4*embed_dim → embed_dim)  compress
+#
+# This is where the model "thinks" about each token.
+# Attention = communication between tokens
+# FFN = computation within each token
+
+# ── FULL GPT MODEL ──
+class GPT(nn.Module):
+    def __init__(self, vocab_size, embed_dim, n_heads,
+                 n_layers, max_seq_len, ff_dim):
+        super().__init__()
+        self.tok_emb = nn.Embedding(vocab_size, embed_dim)
+        self.pos_emb = nn.Embedding(max_seq_len, embed_dim)
+        self.blocks = nn.ModuleList([
+            TransformerBlock(embed_dim, n_heads, ff_dim)
+            for _ in range(n_layers)
+        ])
+        self.ln_f = nn.LayerNorm(embed_dim)
+        self.head = nn.Linear(embed_dim, vocab_size, bias=False)
+
+    def forward(self, idx):
+        B, S = idx.shape
+        tok = self.tok_emb(idx)                    # (B,S,E)
+        pos = self.pos_emb(torch.arange(S, device=idx.device))
+        x = tok + pos                              # (B,S,E)
+        for block in self.blocks:
+            x = block(x)                           # (B,S,E)
+        x = self.ln_f(x)                           # (B,S,E)
+        logits = self.head(x)                      # (B,S,V)
+        return logits
+
+# GPT-2 Small: vocab=50257, embed=768, heads=12,
+#              layers=12, ff=3072
+# Parameters: ~124 million`,
+gm:function(c){c.innerHTML=`
+<div class="s"><h3>&#x1F3D7;&#xFE0F; The Transformer Stack</h3>
+<div class="eb"><p>Every LLM is a stack of identical <strong>Transformer blocks</strong>. GPT-2 has 12 blocks. GPT-3 has 96. Each block has: LayerNorm → Attention → Residual → LayerNorm → FFN → Residual.</p></div>
+<div class="eb r"><p><strong>Two key operations per block:</strong><br>• <strong>Attention</strong> = tokens communicate with each other ("who is relevant?")<br>• <strong>FFN</strong> = each token processes its own information ("what does this mean?")</p></div></div>
+
+<div class="s"><h3><span class="bd bd-g">GAME</span> Architecture Diagram</h3>
+<p>Click each component to learn what it does!</p>
+<div class="ia" id="archDiag"></div></div>
+
+<div class="s"><h3><span class="bd bd-g">GAME</span> Parameter Counter</h3>
+<p>GPT-2 Small: vocab=50257, embed=768, heads=12, layers=12, ff=3072, max_seq=1024</p>
+<div class="ia">
+<div class="qb" id="t-q1"><div class="qt">Token embedding: Embedding(50257, 768) = ? parameters</div><div class="qo">
+<div class="qp" onclick="cq('t-q1',this,true)">50257 × 768 = ~38.6M</div>
+<div class="qp" onclick="cq('t-q1',this,false)">50257 + 768 = ~51K</div>
+<div class="qp" onclick="cq('t-q1',this,false)">768 × 768 = ~590K</div>
+</div><div class="qf" id="t-q1-f"></div></div>
+<div class="qb" id="t-q2"><div class="qt">One attention layer: W_qkv(768→2304) + W_out(768→768) = ?</div><div class="qo">
+<div class="qp" onclick="cq('t-q2',this,true)">768×2304 + 768×768 = ~2.36M per block</div>
+<div class="qp" onclick="cq('t-q2',this,false)">768 × 3 = 2304</div>
+<div class="qp" onclick="cq('t-q2',this,false)">768 × 768 = ~590K</div>
+</div><div class="qf" id="t-q2-f"></div></div>
+<div class="qb" id="t-q3"><div class="qt">One FFN: Linear(768→3072) + Linear(3072→768) = ?</div><div class="qo">
+<div class="qp" onclick="cq('t-q3',this,true)">768×3072 + 3072×768 = ~4.72M per block</div>
+<div class="qp" onclick="cq('t-q3',this,false)">768 + 3072 = 3840</div>
+<div class="qp" onclick="cq('t-q3',this,false)">3072 × 3072 = ~9.4M</div>
+</div><div class="qf" id="t-q3-f"></div></div>
+</div></div>
+
+<div class="s"><h3><span class="bd bd-q">QUIZ</span> Transformer Mastery</h3>
+<div class="qb" id="t-q4"><div class="qt">&#x1F914; Why use Pre-LayerNorm (norm before attention) instead of Post-LayerNorm?</div><div class="qo">
+<div class="qp" onclick="cq('t-q4',this,true)">Pre-norm is more stable for deep networks — the residual path stays clean</div>
+<div class="qp" onclick="cq('t-q4',this,false)">Pre-norm is faster</div>
+<div class="qp" onclick="cq('t-q4',this,false)">Post-norm is actually better</div>
+</div><div class="qf" id="t-q4-f"></div></div>
+<div class="qb" id="t-q5"><div class="qt">&#x1F914; The FFN expands from 768 → 3072 → 768. Why expand then compress?</div><div class="qo">
+<div class="qp" onclick="cq('t-q5',this,true)">The wider hidden layer gives the network more capacity to learn complex transformations, then compresses back</div>
+<div class="qp" onclick="cq('t-q5',this,false)">To save memory</div>
+<div class="qp" onclick="cq('t-q5',this,false)">It's arbitrary</div>
+</div><div class="qf" id="t-q5-f"></div></div></div>`;
+
+rq('t-q1',10);rq('t-q2',10);rq('t-q3',10);rq('t-q4',10);rq('t-q5',10);
+// Architecture diagram
+const arch=document.getElementById('archDiag');
+const components=[
+  {name:'Token Embedding',color:'var(--accent)',desc:'Maps each token ID to a 768-dim vector. Learned during training. 50257 × 768 = 38.6M params.'},
+  {name:'+ Position Embedding',color:'var(--accent)',desc:'Adds position information. Token at position 5 gets a different vector than position 10. Without this, the model can\'t tell word order!'},
+  {name:'LayerNorm',color:'var(--dim)',desc:'Normalizes each vector to mean=0, std=1. Stabilizes training. Has 2×768 = 1536 learnable params (scale + shift).'},
+  {name:'Multi-Head Attention',color:'var(--yellow)',desc:'12 parallel attention heads. Each head: Q,K,V projections + scaled dot-product + causal mask + softmax + weighted sum. ~2.36M params.'},
+  {name:'+ Residual',color:'var(--green)',desc:'Add the input back: output = attention(x) + x. Creates a gradient highway. Without this, deep networks can\'t train.'},
+  {name:'LayerNorm',color:'var(--dim)',desc:'Another normalization before the FFN.'},
+  {name:'Feed-Forward (FFN)',color:'var(--purple)',desc:'Two linear layers: 768→3072→768 with GELU activation. This is where per-token "thinking" happens. ~4.72M params.'},
+  {name:'+ Residual',color:'var(--green)',desc:'Add input back again. Each block has TWO residual connections.'},
+  {name:'× 12 blocks',color:'var(--orange)',desc:'Stack 12 identical blocks. Each block refines the representations. Deeper = more abstract understanding.'},
+  {name:'Final LayerNorm → Linear → Logits',color:'var(--red)',desc:'Project from 768-dim back to vocab_size (50257). These logits go through softmax to get next-token probabilities.'}
+];
+components.forEach(comp=>{
+  const d=document.createElement('div');
+  d.style.cssText='padding:6px 10px;margin:3px 0;border-radius:6px;background:var(--bg4);cursor:pointer;border-left:3px solid '+comp.color+';font-size:11px;font-weight:700;transition:all .2s;';
+  d.textContent=comp.name;
+  d.onclick=function(){
+    arch.querySelectorAll('.arch-desc').forEach(e=>e.remove());
+    const desc=document.createElement('div');desc.className='arch-desc ob';desc.style.cssText='font-size:11px;margin:2px 0 6px 0;';desc.textContent=comp.desc;
+    this.after(desc);
+  };
+  arch.appendChild(d);
+});
+}},
+
+// ═══════════════════════════════════════
+// L3-12: END-TO-END TRAINING
+// ═══════════════════════════════════════
+{fn:'training.py',fd:'Level 3 — The Complete Pipeline',t:'<span class="level-badge lb3">L3</span> End-to-End LLM Training',su:'Data loading, batching, mixed precision, evaluation, generation — the complete training pipeline from data to deployed model.',
+code:`# ============================================
+# END-TO-END LLM TRAINING
+# ============================================
+# You now know every component. Let's put
+# them ALL together into a complete pipeline!
+#
+# PIPELINE:
+# 1. Prepare data (tokenize, create batches)
+# 2. Build model (Transformer)
+# 3. Configure optimizer (AdamW + schedule)
+# 4. Training loop
+# 5. Evaluation (perplexity)
+# 6. Generation (sampling)
+
+import torch
+import torch.nn as nn
+
+# ── STEP 1: DATA PREPARATION ──
+# Tokenize all text into one long sequence of IDs
+text = open("training_data.txt").read()
+tokens = tokenizer.encode(text)  # [464, 3797, ...]
+
+# Create input-target pairs (sliding window)
+# Input:  [The, cat, sat, on]
+# Target: [cat, sat, on, the]  ← shifted by 1!
+seq_len = 128
+def get_batch(data, batch_size, seq_len):
+    ix = torch.randint(len(data)-seq_len, (batch_size,))
+    x = torch.stack([data[i:i+seq_len] for i in ix])
+    y = torch.stack([data[i+1:i+seq_len+1] for i in ix])
+    return x, y  # both (batch_size, seq_len)
+
+# ── STEP 2: BUILD MODEL ──
+model = GPT(
+    vocab_size=50257,
+    embed_dim=768,
+    n_heads=12,
+    n_layers=12,
+    max_seq_len=1024,
+    ff_dim=3072
+)
+# ~124M parameters
+
+# ── STEP 3: OPTIMIZER + SCHEDULE ──
+optimizer = torch.optim.AdamW(
+    model.parameters(),
+    lr=6e-4,
+    betas=(0.9, 0.95),
+    weight_decay=0.1
+)
+
+total_steps = 100000
+warmup_steps = 2000
+
+# ── STEP 4: TRAINING LOOP ──
+model.train()
+for step in range(total_steps):
+    # Get batch
+    x, y = get_batch(train_data, batch_size=64, seq_len=128)
+
+    # Forward pass
+    logits = model(x)  # (64, 128, 50257)
+
+    # Compute loss
+    loss = nn.CrossEntropyLoss()(
+        logits.view(-1, 50257),  # (64*128, 50257)
+        y.view(-1)               # (64*128,)
+    )
+
+    # Backward pass
+    loss.backward()
+
+    # Gradient clipping
+    torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
+
+    # Update learning rate
+    lr = get_lr(step, total_steps, warmup_steps, 6e-4, 6e-5)
+    for pg in optimizer.param_groups:
+        pg['lr'] = lr
+
+    # Update weights
+    optimizer.step()
+    optimizer.zero_grad()
+
+    if step % 100 == 0:
+        print(f"Step {step}, Loss: {loss.item():.4f}, LR: {lr:.6f}")
+
+# ── STEP 5: EVALUATION ──
+# Perplexity = e^(average loss)
+# Lower = better. Random = vocab_size (50257)
+# Good LLM: perplexity 10-30
+model.eval()
+with torch.no_grad():
+    total_loss = 0
+    for x, y in val_batches:
+        logits = model(x)
+        loss = nn.CrossEntropyLoss()(logits.view(-1,50257), y.view(-1))
+        total_loss += loss.item()
+    avg_loss = total_loss / len(val_batches)
+    perplexity = math.exp(avg_loss)
+    print(f"Perplexity: {perplexity:.2f}")
+
+# ── STEP 6: GENERATION ──
+def generate(model, prompt_ids, max_new_tokens, temperature=0.8):
+    model.eval()
+    ids = prompt_ids.clone()
+    for _ in range(max_new_tokens):
+        # Only use last max_seq_len tokens
+        context = ids[:, -1024:]
+        logits = model(context)
+        # Get logits for last position only
+        next_logits = logits[:, -1, :] / temperature
+        probs = torch.softmax(next_logits, dim=-1)
+        next_id = torch.multinomial(probs, 1)
+        ids = torch.cat([ids, next_id], dim=1)
+    return ids`,
+gm:function(c){c.innerHTML=`
+<div class="s"><h3>&#x1F3C6; The Complete Pipeline</h3>
+<div class="eb g"><p>You now understand <strong>every single component</strong> of an LLM! Data → Tokenizer → Embeddings → Attention → FFN → LayerNorm → Residuals → Loss → Backprop → Optimizer → Generation. Let's put it all together.</p></div></div>
+
+<div class="s"><h3><span class="bd bd-g">GAME</span> Training Pipeline Ordering</h3>
+<p>Put these training steps in the correct order!</p>
+<div class="ia">
+<div class="qb" id="e-q1"><div class="qt">What is the correct order of one training step?</div><div class="qo">
+<div class="qp" onclick="cq('e-q1',this,false)">backward → forward → step → zero_grad</div>
+<div class="qp" onclick="cq('e-q1',this,false)">forward → step → backward → zero_grad</div>
+<div class="qp" onclick="cq('e-q1',this,true)">forward → loss → backward → clip_grad → step → zero_grad</div>
+</div><div class="qf" id="e-q1-f"></div></div>
+</div></div>
+
+<div class="s"><h3><span class="bd bd-g">GAME</span> Loss Curve Simulator</h3>
+<p>Watch the training loss decrease over time!</p>
+<div class="ia">
+<canvas id="lossC" width="440" height="140" style="width:100%;background:var(--code-bg);"></canvas>
+<button class="btn bp" onclick="runLoss()">&#x25B6; Train!</button>
+<div id="lossI" class="ob">Click Train to watch the loss curve!</div>
+</div></div>
+
+<div class="s"><h3><span class="bd bd-q">QUIZ</span> Training Mastery</h3>
+<div class="qb" id="e-q2"><div class="qt">&#x1F914; The target sequence is the input shifted by 1. "The cat sat" → input=[The,cat], target=[cat,sat]. Why?</div><div class="qo">
+<div class="qp" onclick="cq('e-q2',this,true)">We're training the model to predict the NEXT token at each position</div>
+<div class="qp" onclick="cq('e-q2',this,false)">To double the training data</div>
+<div class="qp" onclick="cq('e-q2',this,false)">To make batches even-sized</div>
+</div><div class="qf" id="e-q2-f"></div></div>
+<div class="qb" id="e-q3"><div class="qt">&#x1F914; Perplexity = e^(loss). A perplexity of 50257 (vocab size) means:</div><div class="qo">
+<div class="qp" onclick="cq('e-q3',this,true)">The model is randomly guessing — no better than uniform distribution</div>
+<div class="qp" onclick="cq('e-q3',this,false)">The model is perfect</div>
+<div class="qp" onclick="cq('e-q3',this,false)">The model has memorized the data</div>
+</div><div class="qf" id="e-q3-f"></div></div>
+<div class="qb" id="e-q4"><div class="qt">&#x1F914; During generation, we only use logits[:, -1, :]. Why the last position?</div><div class="qo">
+<div class="qp" onclick="cq('e-q4',this,true)">The last position has seen all previous tokens and predicts the NEXT one</div>
+<div class="qp" onclick="cq('e-q4',this,false)">The first position is more important</div>
+<div class="qp" onclick="cq('e-q4',this,false)">All positions predict the same thing</div>
+</div><div class="qf" id="e-q4-f"></div></div>
+<div class="qb" id="e-q5"><div class="qt">&#x1F914; Mixed precision (FP16) training is used because:</div><div class="qo">
+<div class="qp" onclick="cq('e-q5',this,true)">FP16 uses half the memory and is 2x faster on GPUs, with minimal accuracy loss</div>
+<div class="qp" onclick="cq('e-q5',this,false)">FP16 is more accurate than FP32</div>
+<div class="qp" onclick="cq('e-q5',this,false)">FP16 is required by PyTorch</div>
+</div><div class="qf" id="e-q5-f"></div></div></div>
+
+<div class="s"><h3>&#x1F3C6; Course Complete!</h3>
+<div class="eb g"><p><strong>Congratulations!</strong> You've mastered all the tech skills needed for LLM development:</p>
+<p style="margin-top:6px;"><strong>L1:</strong> Vectors, Matrices, Derivatives, Probability</p>
+<p><strong>L2:</strong> Backprop, Neurons, NLP, PyTorch</p>
+<p><strong>L3:</strong> Optimizers, Attention, Transformers, Training</p></div>
+<div class="eb y"><p><strong>&#x1F449; Next Steps:</strong> Open <code>baby-llm/baby_llm_interactive.html</code> to build your first LLM from scratch! You now have all the foundation knowledge to understand every line of code.</p></div>
+<table class="ct">
+<tr><th>Your Path Forward</th><th>What You'll Build</th></tr>
+<tr><td>baby-llm/</td><td>205K param model, character tokenizer, basic attention</td></tr>
+<tr><td>teenage-llm/</td><td>1.2M params, BPE, dropout, GELU, KV-cache</td></tr>
+<tr><td>adult-llm/</td><td>5.5M params, RoPE, GQA, SwiGLU, beam search</td></tr>
+<tr><td>expert-llm/</td><td>MoE, LoRA, quantization, DPO, speculative decoding</td></tr>
+</table></div>`;
+
+rq('e-q1',10);rq('e-q2',10);rq('e-q3',10);rq('e-q4',10);rq('e-q5',10);
+// Loss curve simulator
+const lossC=document.getElementById('lossC'),lcx=lossC.getContext('2d');let lossA=null;
+window.runLoss=function(){if(lossA)clearInterval(lossA);const W=lossC.width,H=lossC.height;const pts=[];let step=0;
+lossA=setInterval(()=>{step++;const loss=10*Math.exp(-step/30)+0.5+Math.random()*0.3*(10/(step+5));pts.push(loss);
+lcx.clearRect(0,0,W,H);lcx.strokeStyle='#333';lcx.lineWidth=1;lcx.beginPath();lcx.moveTo(30,5);lcx.lineTo(30,H-15);lcx.lineTo(W-5,H-15);lcx.stroke();
+lcx.fillStyle='#6b7294';lcx.font='9px Fira Code';lcx.fillText('Loss',5,12);lcx.fillText('Steps',W-35,H-3);
+lcx.strokeStyle='#e94560';lcx.lineWidth=2;lcx.beginPath();
+pts.forEach((l,i)=>{const px=30+(i/150)*(W-35);const py=5+(1-Math.min(l,11)/11)*(H-25);if(i===0)lcx.moveTo(px,py);else lcx.lineTo(px,py);});lcx.stroke();
+document.getElementById('lossI').innerHTML='Step '+step+': Loss='+loss.toFixed(3)+' | Perplexity='+Math.exp(loss).toFixed(1);
+if(step>=150){clearInterval(lossA);document.getElementById('lossI').innerHTML='<span style="color:var(--green);">&#x2705; Training complete! Loss decreased from ~10 to ~0.8. Perplexity: '+Math.exp(pts[pts.length-1]).toFixed(1)+'</span>';asc('e-loss',10);}
+},60);};rq('e-loss',10);
+}}
+
+]; // end STEPS
+
+// ═══════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════
+go(0);
+</script>
+</body>
+</html>

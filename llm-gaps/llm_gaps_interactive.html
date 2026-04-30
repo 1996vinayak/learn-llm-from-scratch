@@ -1,0 +1,1400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LLM Gap Filler - Missing Concepts Interactive Learning</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fira+Code:wght@400;500;600&display=swap');
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{--bg:#0a0a14;--bg2:#12121f;--bg3:#1a1a2e;--bg4:#16213e;--accent:#48cae4;--green:#06d6a0;--red:#e94560;--yellow:#ffd166;--blue:#00b4d8;--purple:#a855f7;--text:#e8e8f0;--dim:#6b7294;--code-bg:#0d1117;}
+body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);overflow:hidden;height:100vh;}
+.topbar{height:52px;background:var(--bg2);display:flex;align-items:center;padding:0 14px;border-bottom:1px solid rgba(255,255,255,0.05);gap:5px;z-index:100;overflow-x:auto;}
+.topbar .logo{font-weight:900;font-size:15px;background:linear-gradient(135deg,#48cae4,#06d6a0);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-right:10px;white-space:nowrap;}
+.tab{padding:5px 10px;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;transition:all .3s;color:var(--dim);white-space:nowrap;}
+.tab:hover{color:var(--text);background:var(--bg3);}
+.tab.active{background:var(--accent);color:#fff;}
+.sc{margin-left:auto;font-size:12px;font-weight:700;color:var(--yellow);white-space:nowrap;}
+.main{display:flex;height:calc(100vh - 52px);}
+.cp{width:46%;background:var(--code-bg);border-right:1px solid rgba(255,255,255,0.05);display:flex;flex-direction:column;}
+.ch{padding:8px 14px;background:var(--bg2);border-bottom:1px solid rgba(255,255,255,0.05);display:flex;align-items:center;gap:8px;}
+.ch .fn{font-family:'Fira Code',monospace;font-size:11px;color:var(--accent);font-weight:600;}
+.ch .fd{font-size:10px;color:var(--dim);}
+.cs{flex:1;overflow-y:auto;}
+.cc{font-family:'Fira Code',monospace;font-size:11.5px;line-height:1.85;padding:10px 0;}
+.cl{display:flex;padding:0 10px 0 0;min-height:20px;}
+.cl:hover{background:rgba(255,255,255,0.02);}
+.ln{min-width:36px;text-align:right;padding-right:10px;color:var(--dim);user-select:none;font-size:10px;}
+.lt{white-space:pre;flex:1;}
+.kw{color:#ff79c6;}.str{color:#f1fa8c;}.cm{color:#6272a4;font-style:italic;}.fn2{color:#50fa7b;}.num{color:#bd93f9;}.dec{color:#ffb86c;}
+.gp{width:54%;display:flex;flex-direction:column;}
+.gh{padding:10px 18px;background:var(--bg2);border-bottom:1px solid rgba(255,255,255,0.05);}
+.gh h2{font-size:17px;font-weight:800;}
+.gh p{font-size:11px;color:var(--dim);margin-top:2px;}
+.gs{flex:1;overflow-y:auto;padding:18px;}
+.s{margin-bottom:22px;}
+.s h3{font-size:15px;font-weight:800;margin-bottom:8px;}
+.s p{font-size:13px;line-height:1.6;}
+.eb{background:var(--bg3);border-radius:10px;padding:12px 16px;margin:8px 0;border-left:4px solid var(--accent);font-size:13px;}
+.eb.g{border-left-color:var(--green);}.eb.y{border-left-color:var(--yellow);}.eb.r{border-left-color:var(--red);}.eb.b{border-left-color:var(--blue);}.eb.p{border-left-color:var(--purple);}
+.qb{background:var(--bg3);border-radius:12px;padding:14px;margin:10px 0;border:2px solid var(--bg4);}
+.qb.ok{border-color:var(--green);}.qb.no{border-color:var(--red);}
+.qt{font-size:13px;font-weight:800;margin-bottom:8px;}
+.qo{display:flex;flex-direction:column;gap:5px;}
+.qp{padding:7px 12px;border-radius:8px;background:var(--bg4);cursor:pointer;font-size:12px;font-weight:600;transition:all .2s;border:2px solid transparent;}
+.qp:hover{border-color:var(--accent);}
+.qp.sc2{background:rgba(6,214,160,0.15);border-color:var(--green);color:var(--green);}
+.qp.sw{background:rgba(233,69,96,0.15);border-color:var(--red);color:var(--red);}
+.qp.dis{pointer-events:none;opacity:0.6;}.qp.shc{border-color:var(--green);opacity:1!important;}
+.qf{margin-top:6px;padding:6px 10px;border-radius:6px;font-size:11px;font-weight:600;display:none;}
+.qf.sh{display:block;}.qf.ok{background:rgba(6,214,160,0.1);color:var(--green);}.qf.no{background:rgba(233,69,96,0.1);color:var(--red);}
+.ia{background:var(--bg3);border-radius:12px;padding:14px;margin:10px 0;border:2px solid var(--bg4);}
+.ia h4{font-size:13px;font-weight:800;margin-bottom:8px;}
+.btn{padding:7px 14px;border:none;border-radius:8px;font-family:'Nunito',sans-serif;font-size:12px;font-weight:700;cursor:pointer;transition:all .2s;}
+.btn:hover{transform:translateY(-1px);}
+.bp{background:var(--accent);color:#fff;}.bg{background:var(--green);color:#000;}.br{background:var(--bg4);color:var(--text);}
+.ob{background:var(--code-bg);border-radius:8px;padding:10px 14px;font-family:'Fira Code',monospace;font-size:12px;line-height:1.6;margin:6px 0;border:1px solid rgba(255,255,255,0.05);}
+.bd{display:inline-block;padding:2px 7px;border-radius:5px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;}
+.bd-g{background:rgba(168,85,247,0.15);color:var(--purple);}.bd-q{background:rgba(72,202,228,0.15);color:var(--accent);}.bd-n{background:rgba(233,69,96,0.15);color:var(--red);}
+.sr{display:flex;align-items:center;gap:8px;margin:6px 0;font-size:12px;}
+.sr input[type=range]{flex:1;accent-color:var(--accent);}
+.sv{font-family:'Fira Code',monospace;font-size:13px;font-weight:700;color:var(--yellow);min-width:36px;}
+.ct{width:100%;border-collapse:collapse;font-size:12px;margin:6px 0;}
+.ct th,.ct td{padding:6px 10px;text-align:left;border-bottom:1px solid rgba(255,255,255,0.05);}
+.ct th{color:var(--accent);font-weight:700;font-size:11px;}
+::-webkit-scrollbar{width:5px;}::-webkit-scrollbar-track{background:transparent;}::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:3px;}
+.covered{color:var(--green);}.gap{color:var(--yellow);}
+.drag-zone{min-height:36px;border:2px dashed rgba(255,255,255,0.15);border-radius:8px;padding:6px;display:flex;flex-wrap:wrap;gap:4px;align-items:center;margin:4px 0;transition:border-color .2s;}
+.drag-zone.over{border-color:var(--accent);}
+.token-chip{display:inline-block;padding:4px 10px;border-radius:6px;font-size:11px;font-weight:700;cursor:grab;user-select:none;transition:all .2s;}
+.token-chip:active{cursor:grabbing;transform:scale(1.05);}
+.token-chip.special{background:rgba(72,202,228,0.2);border:1px solid var(--accent);color:var(--accent);}
+.token-chip.normal{background:var(--bg4);border:1px solid rgba(255,255,255,0.1);color:var(--text);}
+.token-chip.placed{opacity:0.4;pointer-events:none;}
+.node-chain{display:flex;align-items:center;gap:0;margin:10px 0;flex-wrap:wrap;}
+.node-box{padding:8px 12px;border-radius:8px;text-align:center;font-size:11px;font-weight:700;min-width:70px;border:2px solid var(--bg4);background:var(--bg4);transition:all .4s;}
+.node-box.active{border-color:var(--accent);box-shadow:0 0 12px rgba(72,202,228,0.3);}
+.node-box.done{border-color:var(--green);box-shadow:0 0 12px rgba(6,214,160,0.3);}
+.node-arrow{font-size:16px;color:var(--dim);padding:0 4px;}
+.bar-chart{display:flex;align-items:flex-end;gap:4px;height:120px;padding:8px;background:var(--bg4);border-radius:8px;margin:8px 0;}
+.bar-col{display:flex;flex-direction:column;align-items:center;flex:1;height:100%;justify-content:flex-end;}
+.bar{width:100%;border-radius:4px 4px 0 0;transition:height .3s;min-height:2px;cursor:pointer;}
+.bar-label{font-size:9px;color:var(--dim);margin-top:4px;text-align:center;word-break:break-all;}
+.bar-val{font-size:9px;color:var(--yellow);margin-bottom:2px;font-family:'Fira Code',monospace;}
+.map-node{display:inline-block;padding:4px 10px;border-radius:6px;font-size:10px;font-weight:700;margin:2px;border:1px solid rgba(255,255,255,0.1);}
+.map-node.done{background:rgba(6,214,160,0.15);border-color:var(--green);color:var(--green);}
+.map-node.gap-filled{background:rgba(72,202,228,0.15);border-color:var(--accent);color:var(--accent);}
+</style>
+</head>
+<body>
+<div class="topbar">
+<div class="logo">&#x1F9E9; LLM Gap Filler</div>
+<div class="tab active" onclick="go(0)">Intro</div>
+<div class="tab" onclick="go(1)">1.Backprop</div>
+<div class="tab" onclick="go(2)">2.CrossEnt</div>
+<div class="tab" onclick="go(3)">3.Softmax</div>
+<div class="tab" onclick="go(4)">4.Overfit</div>
+<div class="tab" onclick="go(5)">5.Tokens</div>
+<div class="tab" onclick="go(6)">6.Context</div>
+<div class="tab" onclick="go(7)">7.RAG</div>
+<div class="tab" onclick="go(8)">8.Safety</div>
+<div class="tab" onclick="go(9)">9.Map</div>
+<div class="sc">&#x2B50;<span id="ts">0</span>/<span id="ms">0</span></div>
+</div>
+<div class="main">
+<div class="cp"><div class="ch"><span class="fn" id="cfn"></span><span class="fd" id="cfd"></span></div><div class="cs"><div class="cc" id="ccc"></div></div></div>
+<div class="gp"><div class="gh"><h2 id="gt"></h2><p id="gsu"></p></div><div class="gs"><div id="gc"></div></div></div>
+</div>
+<script>
+let cur=0,sc=0,mx=0,ans={};
+function asc(id,p){if(ans[id])return;ans[id]=1;sc+=p;document.getElementById('ts').textContent=sc;}
+function rq(id,p){if(!ans['_'+id]){ans['_'+id]=1;mx+=p;document.getElementById('ms').textContent=mx;}}
+function cq(qid,el,ok){const b=document.getElementById(qid);if(b.classList.contains('ok')||b.classList.contains('no'))return;const f=document.getElementById(qid+'-f');const os=b.querySelectorAll('.qp');if(ok){el.classList.add('sc2');b.classList.add('ok');f.className='qf sh ok';f.textContent='\u2705 Correct! +10';asc(qid,10);}else{el.classList.add('sw');b.classList.add('no');f.className='qf sh no';f.textContent='\u274C Not quite!';}os.forEach(o=>{o.classList.add('dis');if(o!==el&&o.getAttribute('onclick')&&o.getAttribute('onclick').includes('true'))o.classList.add('shc');});}
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function hl(l){if(l.trimStart().startsWith('#'))return'<span class="cm">'+l+'</span>';l=l.replace(/(""".*?"""|".*?"|'.*?')/g,'<span class="str">$1</span>');['def','class','return','for','in','if','import','from','self','None','True','False','super','not','and','or','range','print','with','as','else','elif','while','break','pass','assert','lambda','yield'].forEach(k=>{l=l.replace(new RegExp('\\\\b('+k+')\\\\b','g'),'<span class="kw">$1</span>');});l=l.replace(/\\b(\\d+\\.?\\d*)\\b/g,'<span class="num">$1</span>');return l;}
+function rc(code){const c=document.getElementById('ccc');c.innerHTML='';code.split('\\n').forEach((l,i)=>{const d=document.createElement('div');d.className='cl';d.innerHTML='<span class="ln">'+(i+1)+'</span><span class="lt">'+hl(esc(l))+'</span>';c.appendChild(d);});}
+function go(n){cur=n;const s=S[n];document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',i===n));document.getElementById('cfn').textContent=s.fn;document.getElementById('cfd').textContent=s.fd;rc(s.code);document.getElementById('gt').innerHTML=s.t;document.getElementById('gsu').textContent=s.su;const g=document.getElementById('gc');g.innerHTML='';s.gm(g);document.querySelector('.gs').scrollTop=0;document.querySelector('.cs').scrollTop=0;}
+</script>
+<script>
+const S=[
+// ═══════════════════════════════════════════
+// 0: INTRO
+// ═══════════════════════════════════════════
+{fn:'overview',fd:'Gap Filler',t:'\u{1F9E9} Gap Filler: Missing Concepts',su:'Filling every conceptual gap across all 4 levels of the LLM curriculum',
+code:`# ============================================
+# LLM GAP FILLER - Missing Concepts
+# ============================================
+# The 4-level curriculum covers a LOT:
+#   Baby:    Data, Tokenizer, Embeddings,
+#            Attention, Transformer, Training,
+#            Generation
+#   Teenage: BPE, Dropout, GELU, LayerNorm,
+#            Cosine LR, Top-p, KV-Cache
+#   Adult:   RoPE, GQA, SwiGLU, Flash Attn,
+#            Beam Search, RMSNorm, Mixed Prec,
+#            RLHF, Weight Tying
+#   Expert:  LoRA, Quantization, MoE, DPO,
+#            Scaling Laws, Speculative Decoding
+#
+# But some KEY concepts fell through the cracks!
+# This file fills ALL of them:
+#
+# 1. Backpropagation  (Baby gap)
+# 2. Cross-Entropy    (Baby gap)
+# 3. Softmax Deep Dive(Baby gap)
+# 4. Overfitting      (Teenage gap)
+# 5. Special Tokens   (Teenage gap)
+# 6. Context Window   (Adult gap)
+# 7. RAG              (Expert gap)
+# 8. Hallucination    (Expert gap)
+#
+# After this, you'll have COMPLETE coverage
+# of every concept needed to understand LLMs!`,
+gm:function(c){c.innerHTML=`
+<div class="s"><h3>\u{1F4CB} Curriculum Coverage Checklist</h3>
+<p style="margin-bottom:8px;">What's already covered <span class="covered">\u2705 green</span> vs what this file fills <span class="gap">\u{1F7E1} yellow</span></p>
+<div class="eb g"><p><strong>\u{1F37C} Baby LLM — Level 1</strong></p>
+<p class="covered">\u2705 Data preparation &amp; character tokenization</p>
+<p class="covered">\u2705 Embeddings (token + position)</p>
+<p class="covered">\u2705 Self-attention mechanism</p>
+<p class="covered">\u2705 Transformer block architecture</p>
+<p class="covered">\u2705 Training loop basics</p>
+<p class="covered">\u2705 Text generation (greedy, top-k)</p>
+<p class="gap">\u{1F7E1} Backpropagation &amp; chain rule</p>
+<p class="gap">\u{1F7E1} Cross-entropy loss function</p>
+<p class="gap">\u{1F7E1} Softmax in depth (temperature)</p></div>
+<div class="eb b"><p><strong>\u{1F9D1}\u200D\u{1F393} Teenage LLM — Level 2</strong></p>
+<p class="covered">\u2705 BPE tokenization</p>
+<p class="covered">\u2705 Dropout regularization</p>
+<p class="covered">\u2705 GELU activation</p>
+<p class="covered">\u2705 LayerNorm</p>
+<p class="covered">\u2705 Cosine LR scheduler</p>
+<p class="covered">\u2705 Top-p sampling &amp; KV-Cache</p>
+<p class="gap">\u{1F7E1} Overfitting &amp; train/val/test splits</p>
+<p class="gap">\u{1F7E1} Special tokens (BOS, EOS, PAD, UNK)</p></div>
+<div class="eb y"><p><strong>\u{1F393} Adult LLM — Level 3</strong></p>
+<p class="covered">\u2705 RoPE, GQA, SwiGLU, Flash Attention</p>
+<p class="covered">\u2705 Beam Search, RMSNorm</p>
+<p class="covered">\u2705 Mixed Precision, RLHF, Weight Tying</p>
+<p class="gap">\u{1F7E1} Context window &amp; sliding window attention</p></div>
+<div class="eb p"><p><strong>\u{1F9E0} Expert LLM — Level 4</strong></p>
+<p class="covered">\u2705 LoRA, Quantization, MoE</p>
+<p class="covered">\u2705 DPO, Scaling Laws</p>
+<p class="covered">\u2705 Speculative Decoding</p>
+<p class="gap">\u{1F7E1} RAG (Retrieval-Augmented Generation)</p>
+<p class="gap">\u{1F7E1} Hallucination &amp; Safety</p></div></div>
+<div class="s"><h3><span class="bd bd-q">QUIZ</span> Readiness Check</h3>
+<div class="qb" id="i-q1"><div class="qt">\u{1F914} Which of these is NOT covered in the main 4-level curriculum?</div><div class="qo">
+<div class="qp" onclick="cq('i-q1',this,false)">Self-attention mechanism</div>
+<div class="qp" onclick="cq('i-q1',this,false)">BPE tokenization</div>
+<div class="qp" onclick="cq('i-q1',this,true)">Backpropagation and the chain rule</div>
+</div><div class="qf" id="i-q1-f"></div></div>
+<div class="qb" id="i-q2"><div class="qt">\u{1F914} Why is understanding loss functions important for LLMs?</div><div class="qo">
+<div class="qp" onclick="cq('i-q2',this,true)">The loss function is what the model optimizes during training — it defines what "good" means</div>
+<div class="qp" onclick="cq('i-q2',this,false)">Loss functions are only used during inference</div>
+<div class="qp" onclick="cq('i-q2',this,false)">Loss functions determine the model's architecture</div>
+</div><div class="qf" id="i-q2-f"></div></div></div>`;rq('i-q1',10);rq('i-q2',10);}},
+
+// ═══════════════════════════════════════════
+// 1: BACKPROPAGATION
+// ═══════════════════════════════════════════
+{fn:'backprop.py',fd:'Chain rule & gradient flow',t:'\u{1F519} Backpropagation',su:'How neural networks learn — gradients flowing backward through the chain rule',
+code:`# BACKPROPAGATION
+# ================
+# Forward pass: compute output from input
+# Backward pass: compute gradients from loss
+#
+# The CHAIN RULE is the key insight:
+#   If y = f(g(x)), then dy/dx = dy/dg * dg/dx
+#
+# Example: 3-layer network
+#   Input x = 2.0
+#   Layer 1: h1 = x * w1     (w1 = 0.5)
+#   Layer 2: h2 = h1 * w2    (w2 = -1.0)
+#   Layer 3: out = h2 * w3   (w3 = 2.0)
+#   Loss = (out - target)^2  (target = 1.0)
+#
+# FORWARD PASS:
+#   h1  = 2.0 * 0.5  = 1.0
+#   h2  = 1.0 * -1.0 = -1.0
+#   out = -1.0 * 2.0 = -2.0
+#   loss = (-2.0 - 1.0)^2 = 9.0
+#
+# BACKWARD PASS (chain rule):
+#   dL/dout = 2*(out - target) = 2*(-3) = -6.0
+#   dL/dw3  = dL/dout * h2 = -6.0 * -1.0 = 6.0
+#   dL/dh2  = dL/dout * w3 = -6.0 * 2.0 = -12.0
+#   dL/dw2  = dL/dh2 * h1  = -12.0 * 1.0 = -12.0
+#   dL/dh1  = dL/dh2 * w2  = -12.0 * -1.0 = 12.0
+#   dL/dw1  = dL/dh1 * x   = 12.0 * 2.0 = 24.0
+#
+# UPDATE WEIGHTS (learning rate = 0.01):
+#   w1 = 0.5  - 0.01 * 24.0  = 0.26
+#   w2 = -1.0 - 0.01 * -12.0 = -0.88
+#   w3 = 2.0  - 0.01 * 6.0   = 1.94
+#
+# Gradients VANISH if they keep getting smaller
+# Gradients EXPLODE if they keep getting bigger`,
+gm:function(c){c.innerHTML=`
+<div class="s"><h3>\u{1F519} Understanding Backpropagation</h3>
+<div class="eb y"><p><strong>\u{1F4E7} Postal Analogy:</strong> Forward pass is like sending a letter through a chain of post offices. Backward pass is the complaint letter traveling back — each office passes the blame (gradient) to the previous one, multiplied by how much they contributed!</p></div>
+<div class="eb b"><p><strong>Chain Rule:</strong> If y = f(g(x)), then dy/dx = dy/dg \u00D7 dg/dx. Each layer multiplies the upstream gradient by its local gradient. This is why deep networks can have vanishing or exploding gradients!</p></div></div>
+<div class="s"><h3><span class="bd bd-g">GAME</span> Gradient Flow Simulator</h3>
+<p>Click "Backward Pass" to watch gradients flow from loss back through each node:</p>
+<div class="ia">
+<div class="node-chain" id="bpChain"></div>
+<div id="bpInfo" class="ob" style="min-height:40px;margin-top:8px;"></div>
+<div style="display:flex;gap:6px;margin-top:8px;">
+<button class="btn bp" onclick="bpStep()">Backward Step \u2B05</button>
+<button class="btn br" onclick="bpReset()">Reset</button></div></div></div>
+<div class="s"><h3><span class="bd bd-q">QUIZ</span> Backpropagation Challenge</h3>
+<div class="qb" id="bp-q1"><div class="qt">\u{1F914} In the chain rule, if layer A multiplies by 0.01 and layer B multiplies by 0.01, what happens to the gradient after both layers?</div><div class="qo">
+<div class="qp" onclick="cq('bp-q1',this,true)">It gets multiplied by 0.0001 — the gradient vanishes!</div>
+<div class="qp" onclick="cq('bp-q1',this,false)">It gets added: 0.02</div>
+<div class="qp" onclick="cq('bp-q1',this,false)">It stays at 0.01</div>
+</div><div class="qf" id="bp-q1-f"></div></div>
+<div class="qb" id="bp-q2"><div class="qt">\u{1F914} Why do gradients flow BACKWARD (from loss to input) instead of forward?</div><div class="qo">
+<div class="qp" onclick="cq('bp-q2',this,false)">It's just a convention, either direction works</div>
+<div class="qp" onclick="cq('bp-q2',this,true)">We need to know how each weight affects the LOSS, so we start from the loss and trace back using the chain rule</div>
+<div class="qp" onclick="cq('bp-q2',this,false)">Forward gradients are too slow to compute</div>
+</div><div class="qf" id="bp-q2-f"></div></div>
+<div class="qb" id="bp-q3"><div class="qt">&#x1F914; Residual connections (y = f(x) + x) help backprop because:</div><div class="qo">
+<div class="qp" onclick="cq('bp-q3',this,true)">The gradient of "+x" is always 1, creating a highway for gradients to flow through even in 100-layer networks</div>
+<div class="qp" onclick="cq('bp-q3',this,false)">They make the model bigger</div>
+<div class="qp" onclick="cq('bp-q3',this,false)">They skip the activation function</div>
+</div><div class="qf" id="bp-q3-f"></div></div></div>`;
+rq('bp-q1',10);rq('bp-q2',10);rq('bp-q3',10);bpReset();}},
+
+// ═══════════════════════════════════════════
+// 2: CROSS-ENTROPY LOSS
+// ═══════════════════════════════════════════
+{fn:'cross_entropy.py',fd:'Measuring prediction quality',t:'\u{1F4C9} Cross-Entropy Loss',su:'How we measure how wrong the model\'s predictions are',
+code:`# CROSS-ENTROPY LOSS
+# ====================
+# The model outputs a probability distribution
+# over all possible next tokens.
+#
+# Cross-entropy measures how "surprised" the
+# model is by the correct answer.
+#
+# Formula:
+#   L = -log(P(correct_token))
+#
+# If model says P("cat") = 0.9 and answer IS "cat":
+#   L = -log(0.9) = 0.105  (low loss, good!)
+#
+# If model says P("cat") = 0.01 and answer IS "cat":
+#   L = -log(0.01) = 4.605  (high loss, bad!)
+#
+# If model says P("cat") = 1.0 (perfect):
+#   L = -log(1.0) = 0.0  (zero loss, perfect!)
+#
+# Key properties:
+#   - Loss is ALWAYS >= 0
+#   - Loss = 0 only when P(correct) = 1.0
+#   - Loss -> infinity as P(correct) -> 0
+#   - Penalizes confident wrong answers HEAVILY
+#
+# In PyTorch:
+# loss = F.cross_entropy(logits, targets)
+#
+# This does 3 things internally:
+#   1. Apply softmax to logits -> probabilities
+#   2. Take log of probabilities
+#   3. Pick the negative log prob of correct class
+#
+# For language models:
+#   logits shape: (batch, seq_len, vocab_size)
+#   targets shape: (batch, seq_len)
+#   Each position predicts the NEXT token`,
+gm:function(c){c.innerHTML=`
+<div class="s"><h3>\u{1F4C9} Understanding Cross-Entropy</h3>
+<div class="eb r"><p><strong>\u{1F3AF} Surprise Analogy:</strong> Cross-entropy measures how "surprised" the model is. If it predicted the right answer with 90% confidence, it's barely surprised (low loss). If it gave the right answer only 1% probability, it's VERY surprised (high loss)!</p></div>
+<div class="eb g"><p><strong>Key Formula:</strong> Loss = -log(P(correct)). That's it! The negative log of the probability assigned to the correct answer.</p></div></div>
+<div class="s"><h3><span class="bd bd-g">GAME</span> Loss Calculator</h3>
+<p>The model predicts probabilities for the next character. The correct answer is highlighted. Adjust the slider to see how loss changes:</p>
+<div class="ia">
+<h4>Predicted probability for correct token:</h4>
+<div class="sr"><span style="width:100px;">P(correct):</span><input type="range" id="ceSlider" min="1" max="100" value="50" oninput="updateCE()"><span class="sv" id="ceProb">0.50</span></div>
+<div class="bar-chart" id="ceChart"></div>
+<div style="display:flex;gap:10px;margin:10px 0;">
+<div style="flex:1;text-align:center;padding:12px;background:var(--bg4);border-radius:8px;">
+<div style="font-size:10px;color:var(--dim);">Cross-Entropy Loss</div>
+<div id="ceLoss" style="font-size:28px;font-weight:900;color:var(--accent);">0.69</div></div>
+<div style="flex:1;text-align:center;padding:12px;background:var(--bg4);border-radius:8px;">
+<div style="font-size:10px;color:var(--dim);">Verdict</div>
+<div id="ceVerdict" style="font-size:16px;font-weight:900;">🤔</div></div></div>
+<div id="ceExplain" style="font-size:11px;color:var(--dim);margin-top:4px;"></div></div></div>
+<div class="s"><h3><span class="bd bd-q">QUIZ</span> Cross-Entropy Challenge</h3>
+<div class="qb" id="ce-q1"><div class="qt">\u{1F914} The model predicts P("hello")=0.8 but the correct next token is "world" with P("world")=0.05. What's the loss?</div><div class="qo">
+<div class="qp" onclick="cq('ce-q1',this,false)">-log(0.8) = 0.22 (use the highest probability)</div>
+<div class="qp" onclick="cq('ce-q1',this,true)">-log(0.05) = 3.0 (use the probability of the CORRECT token)</div>
+<div class="qp" onclick="cq('ce-q1',this,false)">0.8 - 0.05 = 0.75</div>
+</div><div class="qf" id="ce-q1-f"></div></div>
+<div class="qb" id="ce-q2"><div class="qt">\u{1F914} Why does cross-entropy penalize confident wrong answers more than uncertain ones?</div><div class="qo">
+<div class="qp" onclick="cq('ce-q2',this,false)">It doesn't — all wrong answers are penalized equally</div>
+<div class="qp" onclick="cq('ce-q2',this,true)">Because -log(x) grows rapidly as x approaches 0 — a very low probability for the correct answer means very high loss</div>
+<div class="qp" onclick="cq('ce-q2',this,false)">Because it uses squared error internally</div>
+</div><div class="qf" id="ce-q2-f"></div></div></div>`;
+rq('ce-q1',10);rq('ce-q2',10);updateCE();}},
+
+// ═══════════════════════════════════════════
+// 3: SOFTMAX DEEP DIVE
+// ═══════════════════════════════════════════
+{fn:'softmax.py',fd:'From logits to probabilities',t:'\u{1F4CA} Softmax Deep Dive',su:'How raw scores become probabilities, and how temperature controls randomness',
+code:`# SOFTMAX - From Logits to Probabilities
+# ========================================
+# The model outputs raw scores (logits).
+# Softmax converts them to probabilities.
+#
+# Formula:
+#   P(i) = exp(x_i) / sum(exp(x_j) for all j)
+#
+# Example: logits = [2.0, 1.0, 0.1]
+#   exp(2.0) = 7.389
+#   exp(1.0) = 2.718
+#   exp(0.1) = 1.105
+#   sum = 11.212
+#   P = [0.659, 0.242, 0.099]
+#
+# Properties:
+#   - All outputs are between 0 and 1
+#   - All outputs sum to exactly 1.0
+#   - Larger logits get larger probabilities
+#   - The "exp" makes differences more extreme
+#
+# TEMPERATURE:
+#   Divide logits by temperature BEFORE softmax
+#   P(i) = exp(x_i / T) / sum(exp(x_j / T))
+#
+#   T = 1.0: normal (default)
+#   T = 0.1: very peaked (confident, deterministic)
+#   T = 10:  very flat (uniform, random)
+#   T -> 0:  argmax (pick the highest)
+#   T -> inf: uniform distribution
+#
+# In code:
+def softmax(logits, temperature=1.0):
+    scaled = [x / temperature for x in logits]
+    exps = [math.exp(x) for x in scaled]
+    total = sum(exps)
+    return [e / total for e in exps]
+
+# Temperature is the "creativity dial":
+#   Low temp  = predictable, repetitive
+#   High temp = creative, sometimes nonsensical`,
+gm:function(c){c.innerHTML=`
+<div class="s"><h3>\u{1F4CA} Understanding Softmax</h3>
+<div class="eb y"><p><strong>\u{1F3B0} Voting Analogy:</strong> Logits are like raw vote counts. Softmax converts them to percentages. The "exp" function amplifies differences — a candidate with slightly more votes gets a much bigger share of the probability!</p></div>
+<div class="eb b"><p><strong>Temperature:</strong> Think of it as a "creativity dial." Low temperature = the model is very sure and picks the obvious answer. High temperature = the model considers all options more equally, leading to more surprising outputs.</p></div></div>
+<div class="s"><h3><span class="bd bd-g">GAME</span> Softmax Playground</h3>
+<p>Adjust 5 logit values and temperature to see the softmax output in real-time:</p>
+<div class="ia">
+<h4>Input Logits:</h4>
+<div class="sr"><span style="width:60px;">A:</span><input type="range" id="sm0" min="-30" max="30" value="20" oninput="updateSM()"><span class="sv" id="smv0">2.0</span></div>
+<div class="sr"><span style="width:60px;">B:</span><input type="range" id="sm1" min="-30" max="30" value="10" oninput="updateSM()"><span class="sv" id="smv1">1.0</span></div>
+<div class="sr"><span style="width:60px;">C:</span><input type="range" id="sm2" min="-30" max="30" value="1" oninput="updateSM()"><span class="sv" id="smv2">0.1</span></div>
+<div class="sr"><span style="width:60px;">D:</span><input type="range" id="sm3" min="-30" max="30" value="-5" oninput="updateSM()"><span class="sv" id="smv3">-0.5</span></div>
+<div class="sr"><span style="width:60px;">E:</span><input type="range" id="sm4" min="-30" max="30" value="-10" oninput="updateSM()"><span class="sv" id="smv4">-1.0</span></div>
+<div class="sr" style="margin-top:8px;border-top:1px solid rgba(255,255,255,0.1);padding-top:8px;"><span style="width:60px;color:var(--accent);font-weight:800;">\u{1F321} Temp:</span><input type="range" id="smTemp" min="1" max="100" value="10" oninput="updateSM()"><span class="sv" id="smTempV">1.0</span></div>
+<div class="bar-chart" id="smChart"></div>
+<div id="smInfo" style="font-size:11px;color:var(--dim);margin-top:4px;"></div></div></div>
+<div class="s"><h3><span class="bd bd-q">QUIZ</span> Softmax Challenge</h3>
+<div class="qb" id="sm-q1"><div class="qt">\u{1F914} What happens to softmax output as temperature approaches 0?</div><div class="qo">
+<div class="qp" onclick="cq('sm-q1',this,false)">All probabilities become equal (uniform)</div>
+<div class="qp" onclick="cq('sm-q1',this,true)">All probability concentrates on the highest logit (becomes argmax)</div>
+<div class="qp" onclick="cq('sm-q1',this,false)">All probabilities become 0</div>
+</div><div class="qf" id="sm-q1-f"></div></div>
+<div class="qb" id="sm-q2"><div class="qt">\u{1F914} Why does softmax use exp() instead of just dividing by the sum?</div><div class="qo">
+<div class="qp" onclick="cq('sm-q2',this,false)">exp() is faster to compute</div>
+<div class="qp" onclick="cq('sm-q2',this,false)">It's just a convention with no practical difference</div>
+<div class="qp" onclick="cq('sm-q2',this,true)">exp() ensures all values are positive AND amplifies differences between logits, making the distribution more decisive</div>
+</div><div class="qf" id="sm-q2-f"></div></div></div>`;
+rq('sm-q1',10);rq('sm-q2',10);updateSM();}},
+
+// ═══════════════════════════════════════════
+// 4: OVERFITTING & SPLITS
+// ═══════════════════════════════════════════
+{fn:'overfitting.py',fd:'Train/Val/Test & early stopping',t:'\u{1F4C8} Overfitting & Splits',su:'Why your model might memorize instead of learn, and how to detect it',
+code:`# OVERFITTING & DATA SPLITS
+# ===========================
+# Overfitting = model memorizes training data
+#   instead of learning general patterns.
+#
+# Like a student who memorizes answers to
+# practice tests but can't solve new problems!
+#
+# SOLUTION: Split your data!
+#   Train set (80%): model learns from this
+#   Val set   (10%): check during training
+#   Test set  (10%): final evaluation (once!)
+#
+# The model NEVER sees val/test during training.
+# If train_loss goes down but val_loss goes UP,
+# the model is overfitting!
+
+def split_data(data, train=0.8, val=0.1):
+    n = len(data)
+    train_end = int(n * train)
+    val_end = int(n * (train + val))
+    return (data[:train_end],
+            data[train_end:val_end],
+            data[val_end:])
+
+# EARLY STOPPING:
+# Stop training when val_loss stops improving
+best_val_loss = float('inf')
+patience = 5  # wait 5 epochs before stopping
+wait = 0
+
+for epoch in range(max_epochs):
+    train_loss = train_one_epoch(model, train_data)
+    val_loss = evaluate(model, val_data)
+
+    if val_loss < best_val_loss:
+        best_val_loss = val_loss
+        wait = 0
+        save_checkpoint(model)  # save best!
+    else:
+        wait += 1
+        if wait >= patience:
+            print("Early stopping!")
+            break  # stop before overfitting!
+
+# SIGNS OF OVERFITTING:
+#   - Train loss: keeps going down
+#   - Val loss: goes down, then UP
+#   - Gap between train and val loss grows
+#
+# SIGNS OF UNDERFITTING:
+#   - Both train and val loss are HIGH
+#   - Model is too simple for the data`,
+gm:function(c){c.innerHTML=`
+<div class="s"><h3>\u{1F4C8} Understanding Overfitting</h3>
+<div class="eb r"><p><strong>\u{1F393} Student Analogy:</strong> Overfitting is like a student who memorizes every practice test answer word-for-word. They ace practice tests but fail the real exam because they never learned the underlying concepts!</p></div>
+<div class="eb g"><p><strong>Three Splits:</strong> Train (learn), Validation (tune), Test (final grade). The model NEVER sees test data until the very end. Validation is your "practice exam" during training.</p></div></div>
+<div class="s"><h3><span class="bd bd-g">GAME</span> Overfitting Detector</h3>
+<p>Watch the training curves. Click where you think overfitting starts!</p>
+<div class="ia">
+<canvas id="ofCanvas" width="500" height="220" style="width:100%;background:var(--bg4);border-radius:8px;cursor:crosshair;" onclick="ofClick(event)"></canvas>
+<p style="font-size:10px;color:var(--dim);margin-top:4px;"><span style="color:var(--blue);">\u2588</span> Train Loss <span style="color:var(--red);">\u2588</span> Val Loss — Click where overfitting begins!</p>
+<div id="ofResult" style="font-size:12px;margin-top:6px;min-height:20px;"></div>
+<div style="display:flex;gap:6px;margin-top:8px;">
+<button class="btn bp" onclick="ofScenario('overfit')">Show Overfitting</button>
+<button class="btn br" onclick="ofScenario('underfit')">Show Underfitting</button>
+<button class="btn bg" onclick="ofScenario('goodfit')">Show Good Fit</button></div></div></div>
+<div class="s"><h3><span class="bd bd-q">QUIZ</span> Overfitting Challenge</h3>
+<div class="qb" id="of-q1"><div class="qt">\u{1F914} Train loss = 0.01, Val loss = 3.5. What's happening?</div><div class="qo">
+<div class="qp" onclick="cq('of-q1',this,true)">Overfitting — the model memorized training data but can't generalize</div>
+<div class="qp" onclick="cq('of-q1',this,false)">Underfitting — the model hasn't learned enough</div>
+<div class="qp" onclick="cq('of-q1',this,false)">Good fit — both losses are acceptable</div>
+</div><div class="qf" id="of-q1-f"></div></div>
+<div class="qb" id="of-q2"><div class="qt">\u{1F914} When should you stop training?</div><div class="qo">
+<div class="qp" onclick="cq('of-q2',this,false)">When train loss reaches 0</div>
+<div class="qp" onclick="cq('of-q2',this,true)">When validation loss stops improving (early stopping)</div>
+<div class="qp" onclick="cq('of-q2',this,false)">After a fixed number of epochs, regardless of loss</div>
+</div><div class="qf" id="of-q2-f"></div></div></div>`;
+rq('of-q1',10);rq('of-q2',10);ofScenario('overfit');}},
+
+// ═══════════════════════════════════════════
+// 5: SPECIAL TOKENS
+// ═══════════════════════════════════════════
+{fn:'special_tokens.py',fd:'BOS, EOS, PAD, UNK',t:'\u{1F3F7} Special Tokens',su:'The invisible tokens that tell the model where things start, end, and what to ignore',
+code:`# SPECIAL TOKENS
+# ================
+# LLMs use special tokens to structure input:
+#
+# [BOS] - Beginning Of Sequence
+#   Marks the start of input
+#   Tells model: "a new sequence begins here"
+#
+# [EOS] - End Of Sequence
+#   Marks the end of generation
+#   Model generates this to say "I'm done"
+#
+# [PAD] - Padding
+#   Fills shorter sequences in a batch
+#   Model learns to IGNORE these
+#   Needed because batches must be same length
+#
+# [UNK] - Unknown Token
+#   Replaces tokens not in vocabulary
+#   Rare with BPE (can handle any input)
+#
+# [SEP] - Separator
+#   Separates different parts of input
+#   e.g., prompt [SEP] response
+#
+# Example: Batch of 2 sequences
+# Seq 1: "Hello world"  (2 tokens)
+# Seq 2: "Hi"           (1 token)
+#
+# Batched:
+# [BOS] Hello world [EOS] [PAD]
+# [BOS] Hi    [EOS] [PAD] [PAD]
+#
+# Chat format (ChatGPT-style):
+# [BOS] [SYSTEM] You are helpful [SEP]
+# [USER] What is 2+2? [SEP]
+# [ASSISTANT] 2+2 is 4. [EOS]
+#
+# The attention mask tells the model
+# which tokens to attend to (1) and
+# which to ignore (0 = PAD tokens):
+# attention_mask = [1, 1, 1, 1, 0]
+# attention_mask = [1, 1, 1, 0, 0]`,
+gm:function(c){c.innerHTML=`
+<div class="s"><h3>\u{1F3F7} Understanding Special Tokens</h3>
+<div class="eb p"><p><strong>\u{1F4D6} Book Analogy:</strong> Special tokens are like punctuation for the model. [BOS] is the opening of a chapter, [EOS] is "The End", [PAD] is blank pages added to make all books the same thickness, and [SEP] is a section divider!</p></div></div>
+<div class="s"><h3><span class="bd bd-g">GAME</span> Token Formatter</h3>
+<p>Drag the special tokens into the correct positions to format this conversation:</p>
+<div class="ia">
+<h4>Raw conversation:</h4>
+<div class="ob">User: What is Python? Assistant: Python is a programming language.</div>
+<h4 style="margin-top:10px;">Available special tokens (drag them):</h4>
+<div id="tokenBank" style="display:flex;flex-wrap:wrap;gap:6px;margin:6px 0;"></div>
+<h4 style="margin-top:10px;">Build the formatted sequence:</h4>
+<div class="drag-zone" id="tokenTarget" style="min-height:50px;"></div>
+<div style="display:flex;gap:6px;margin-top:8px;">
+<button class="btn bp" onclick="checkTokens()">Check Answer</button>
+<button class="btn br" onclick="resetTokens()">Reset</button></div>
+<div id="tokenResult" style="font-size:12px;margin-top:6px;min-height:20px;"></div>
+<div class="eb y" style="margin-top:10px;"><p><strong>Expected:</strong> [BOS] What is Python? [SEP] Python is a programming language. [EOS] [PAD] [PAD]</p></div></div></div>
+<div class="s"><h3><span class="bd bd-q">QUIZ</span> Special Tokens Challenge</h3>
+<div class="qb" id="st-q1"><div class="qt">\u{1F914} Why do we need [PAD] tokens?</div><div class="qo">
+<div class="qp" onclick="cq('st-q1',this,false)">To add more information to short sequences</div>
+<div class="qp" onclick="cq('st-q1',this,true)">To make all sequences in a batch the same length, since GPUs process fixed-size tensors</div>
+<div class="qp" onclick="cq('st-q1',this,false)">To mark the end of a sentence</div>
+</div><div class="qf" id="st-q1-f"></div></div>
+<div class="qb" id="st-q2"><div class="qt">\u{1F914} How does the model know to ignore [PAD] tokens?</div><div class="qo">
+<div class="qp" onclick="cq('st-q2',this,false)">PAD tokens are removed before processing</div>
+<div class="qp" onclick="cq('st-q2',this,false)">The model naturally learns to ignore them</div>
+<div class="qp" onclick="cq('st-q2',this,true)">An attention mask sets PAD positions to 0, preventing the model from attending to them</div>
+</div><div class="qf" id="st-q2-f"></div></div></div>`;
+rq('st-q1',10);rq('st-q2',10);resetTokens();}},
+
+// ═══════════════════════════════════════════
+// 6: CONTEXT WINDOW
+// ═══════════════════════════════════════════
+{fn:'context_window.py',fd:'What the model can see',t:'\u{1F50D} Context Window',su:'The limited window of text the model can process at once — and why it matters',
+code:`# CONTEXT WINDOW
+# ================
+# Every LLM has a maximum context length.
+# It can only "see" this many tokens at once.
+#
+# GPT-3:     2,048 tokens
+# GPT-3.5:   4,096 tokens
+# GPT-4:     8,192 / 32,768 tokens
+# GPT-4o:    128,000 tokens
+# Claude 3:  200,000 tokens
+# Gemini 1.5: 1,000,000 tokens
+#
+# WHY LIMITED?
+# Self-attention is O(N^2) in memory!
+#   N = 2K:   4M operations
+#   N = 32K:  1B operations
+#   N = 128K: 16B operations!
+#
+# In code, this is "block_size":
+class TransformerBlock:
+    def __init__(self, block_size=2048):
+        # Causal mask: can only see past tokens
+        self.mask = torch.tril(
+            torch.ones(block_size, block_size)
+        )
+
+# SLIDING WINDOW ATTENTION (Mistral):
+# Instead of attending to ALL previous tokens,
+# each token only attends to the last W tokens.
+#
+# Window size W = 4096
+# Token at position 5000 can see: 901-5000
+# Token at position 5001 can see: 902-5001
+#
+# Benefits:
+#   - O(N * W) instead of O(N^2)
+#   - Can process longer sequences
+#   - Info still flows through layers!
+#
+# With 32 layers and W=4096:
+#   Effective context = 32 * 4096 = 131,072!
+#   Because layer 2 sees layer 1's output,
+#   which already incorporated W tokens.
+#
+# Think of it like a game of telephone:
+#   Each person (layer) passes info forward,
+#   so the last person knows about everyone!`,
+gm:function(c){c.innerHTML=`
+<div class="s"><h3>\u{1F50D} Understanding Context Windows</h3>
+<div class="eb y"><p><strong>\u{1F4F1} Screen Analogy:</strong> The context window is like your phone screen showing a document. You can only see a portion at a time. A bigger screen (larger context) lets you see more, but costs more (memory). Sliding window is like scrolling — you always see the most recent part!</p></div>
+<div class="eb b"><p><strong>O(N\u00B2) Problem:</strong> Self-attention compares every token to every other token. Double the context = 4x the memory. This is why context length is limited!</p></div></div>
+<div class="s"><h3><span class="bd bd-g">GAME</span> Context Window Visualizer</h3>
+<p>See what the model can "see" at each position. Adjust the window size:</p>
+<div class="ia">
+<div class="sr"><span style="width:100px;">Window size:</span><input type="range" id="cwSize" min="2" max="16" value="6" oninput="updateCW()"><span class="sv" id="cwSizeV">6</span></div>
+<div class="sr"><span style="width:100px;">Current pos:</span><input type="range" id="cwPos" min="0" max="19" value="10" oninput="updateCW()"><span class="sv" id="cwPosV">10</span></div>
+<div id="cwViz" style="margin:10px 0;"></div>
+<div style="display:flex;gap:10px;margin:10px 0;">
+<div style="flex:1;text-align:center;padding:10px;background:var(--bg4);border-radius:8px;">
+<div style="font-size:10px;color:var(--dim);">Memory (Full Attn)</div>
+<div id="cwFull" style="font-size:18px;font-weight:900;color:var(--red);"></div></div>
+<div style="flex:1;text-align:center;padding:10px;background:var(--bg4);border-radius:8px;">
+<div style="font-size:10px;color:var(--dim);">Memory (Sliding)</div>
+<div id="cwSlide" style="font-size:18px;font-weight:900;color:var(--green);"></div></div></div>
+<div id="cwInfo" style="font-size:11px;color:var(--dim);"></div></div></div>
+<div class="s"><h3><span class="bd bd-q">QUIZ</span> Context Window Challenge</h3>
+<div class="qb" id="cw-q1"><div class="qt">\u{1F914} If you double the context window from 4K to 8K tokens, how does memory change for standard attention?</div><div class="qo">
+<div class="qp" onclick="cq('cw-q1',this,false)">Doubles (2x)</div>
+<div class="qp" onclick="cq('cw-q1',this,true)">Quadruples (4x) — because attention is O(N\u00B2)</div>
+<div class="qp" onclick="cq('cw-q1',this,false)">Stays the same</div>
+</div><div class="qf" id="cw-q1-f"></div></div>
+<div class="qb" id="cw-q2"><div class="qt">\u{1F914} How does sliding window attention achieve a larger effective context than its window size?</div><div class="qo">
+<div class="qp" onclick="cq('cw-q2',this,true)">Information flows through multiple layers — each layer passes context forward, so deeper layers have access to information from much earlier tokens</div>
+<div class="qp" onclick="cq('cw-q2',this,false)">It compresses old tokens into a summary</div>
+<div class="qp" onclick="cq('cw-q2',this,false)">It stores all tokens but only computes attention on recent ones</div>
+</div><div class="qf" id="cw-q2-f"></div></div>
+<div class="qb" id="cw-q3"><div class="qt">&#x1F914; Flash Attention reduces memory from O(n²) to O(n). How?</div><div class="qo">
+<div class="qp" onclick="cq('cw-q3',this,true)">Computes attention in tiles/blocks, never materializing the full n×n matrix in memory</div>
+<div class="qp" onclick="cq('cw-q3',this,false)">Uses approximation that loses accuracy</div>
+<div class="qp" onclick="cq('cw-q3',this,false)">Skips attention for some tokens</div>
+</div><div class="qf" id="cw-q3-f"></div></div></div>`;
+rq('cw-q1',10);rq('cw-q2',10);rq('cw-q3',10);updateCW();}},
+
+// ═══════════════════════════════════════════
+// 7: RAG
+// ═══════════════════════════════════════════
+{fn:'rag_pipeline.py',fd:'Retrieval-Augmented Generation',t:'\u{1F4DA} RAG',su:'Giving LLMs access to external knowledge to reduce hallucination',
+code:`# RAG - Retrieval-Augmented Generation
+# ======================================
+# Problem: LLMs only know what they were
+# trained on. They can't access new info!
+#
+# Solution: RETRIEVE relevant documents,
+# then GENERATE using them as context.
+#
+# Pipeline:
+#   1. User asks a question
+#   2. RETRIEVE: search a knowledge base
+#      for relevant documents
+#   3. AUGMENT: add retrieved docs to prompt
+#   4. GENERATE: LLM answers using the docs
+#
+# Step 1: Index documents (offline)
+def build_index(documents):
+    embeddings = []
+    for doc in documents:
+        # Convert each doc to a vector
+        emb = embed_model.encode(doc)
+        embeddings.append(emb)
+    return vector_store.add(embeddings)
+
+# Step 2: Retrieve (at query time)
+def retrieve(query, top_k=3):
+    query_emb = embed_model.encode(query)
+    # Find most similar documents
+    results = vector_store.search(
+        query_emb, top_k=top_k
+    )
+    return results
+
+# Step 3: Augment prompt
+def augment_prompt(query, retrieved_docs):
+    context = "\\n".join(retrieved_docs)
+    return f"""Use the following context to
+answer the question. If the answer is not
+in the context, say "I don't know."
+
+Context: {context}
+
+Question: {query}
+Answer:"""
+
+# Step 4: Generate
+def rag_answer(query):
+    docs = retrieve(query)
+    prompt = augment_prompt(query, docs)
+    return llm.generate(prompt)
+
+# WHY RAG WORKS:
+# - LLM sees relevant facts IN the prompt
+# - Can cite sources
+# - Easy to update (just update the docs!)
+# - Reduces hallucination dramatically`,
+gm:function(c){c.innerHTML=`
+<div class="s"><h3>\u{1F4DA} Understanding RAG</h3>
+<div class="eb g"><p><strong>\u{1F4DA} Library Analogy:</strong> Without RAG, the LLM answers from memory (which might be wrong). With RAG, it first goes to the library, finds relevant books, reads them, THEN answers. Much more accurate!</p></div>
+<div class="eb y"><p><strong>Pipeline:</strong> Question \u2192 Search knowledge base \u2192 Get relevant docs \u2192 Add to prompt \u2192 LLM generates answer using the docs as context.</p></div></div>
+<div class="s"><h3><span class="bd bd-g">GAME</span> RAG Simulator</h3>
+<p>Pick a question, select which documents are relevant, then see the augmented prompt!</p>
+<div class="ia">
+<h4>Select a question:</h4>
+<div id="ragQuestions" style="display:flex;flex-direction:column;gap:4px;margin:6px 0;"></div>
+<h4 style="margin-top:10px;">Retrieved documents (pick the relevant ones):</h4>
+<div id="ragDocs" style="display:flex;flex-direction:column;gap:4px;margin:6px 0;"></div>
+<button class="btn bp" onclick="ragGenerate()" style="margin-top:6px;">Generate with RAG \u27A1</button>
+<div id="ragOutput" style="margin-top:8px;"></div></div></div>
+<div class="s"><h3><span class="bd bd-q">QUIZ</span> RAG Challenge</h3>
+<div class="qb" id="rg-q1"><div class="qt">\u{1F914} Why does RAG reduce hallucination?</div><div class="qo">
+<div class="qp" onclick="cq('rg-q1',this,true)">The LLM can reference actual documents in its context instead of relying on potentially incorrect memorized information</div>
+<div class="qp" onclick="cq('rg-q1',this,false)">RAG makes the model smarter</div>
+<div class="qp" onclick="cq('rg-q1',this,false)">RAG removes the model's ability to generate text</div>
+</div><div class="qf" id="rg-q1-f"></div></div>
+<div class="qb" id="rg-q2"><div class="qt">\u{1F914} What's a key advantage of RAG over fine-tuning for adding new knowledge?</div><div class="qo">
+<div class="qp" onclick="cq('rg-q2',this,false)">RAG is always more accurate</div>
+<div class="qp" onclick="cq('rg-q2',this,true)">You can update the knowledge base without retraining the model — just add or modify documents</div>
+<div class="qp" onclick="cq('rg-q2',this,false)">RAG doesn't require any documents</div>
+</div><div class="qf" id="rg-q2-f"></div></div>
+<div class="qb" id="rg-q3"><div class="qt">&#x1F914; RAG vs fine-tuning: when to use which?</div><div class="qo">
+<div class="qp" onclick="cq('rg-q3',this,true)">RAG for factual/up-to-date knowledge (documents change). Fine-tuning for style/behavior changes (permanent).</div>
+<div class="qp" onclick="cq('rg-q3',this,false)">Always use fine-tuning, RAG is obsolete</div>
+<div class="qp" onclick="cq('rg-q3',this,false)">They do the same thing</div>
+</div><div class="qf" id="rg-q3-f"></div></div></div>`;
+rq('rg-q1',10);rq('rg-q2',10);rq('rg-q3',10);initRAG();}},
+
+// ═══════════════════════════════════════════
+// 8: HALLUCINATION & SAFETY
+// ═══════════════════════════════════════════
+{fn:'safety.py',fd:'Why LLMs make things up',t:'\u{1F6E1} Hallucination & Safety',su:'Why LLMs hallucinate, and techniques to make them safer',
+code:`# HALLUCINATION & SAFETY
+# ========================
+# WHY LLMs HALLUCINATE:
+# LLMs predict the most LIKELY next token.
+# "Likely" != "True"!
+#
+# Example:
+#   "The capital of Freedonia is"
+#   -> Model predicts "Freedomville" (sounds right!)
+#   -> But Freedonia is fictional!
+#
+# The model doesn't KNOW facts. It learned
+# statistical patterns from text. If a pattern
+# looks plausible, it generates it confidently.
+#
+# TYPES OF HALLUCINATION:
+# 1. Factual: wrong facts stated confidently
+#    "Einstein invented the telephone"
+# 2. Fabrication: made-up sources/citations
+#    "According to Smith et al. (2023)..."
+# 3. Inconsistency: contradicting itself
+#    "X is true" then later "X is false"
+#
+# SAFETY TECHNIQUES:
+#
+# 1. System Prompts
+system = """You are a helpful assistant.
+If you don't know something, say so.
+Never make up facts or citations."""
+#
+# 2. Output Filtering
+def filter_output(response):
+    # Check for known harmful patterns
+    # Check for made-up citations
+    # Verify factual claims if possible
+    return cleaned_response
+#
+# 3. Constitutional AI (Anthropic)
+#    Train the model to self-critique:
+#    "Is my response harmful?"
+#    "Am I making claims I can't verify?"
+#    Model learns to refuse unsafe requests
+#
+# 4. RLHF (covered in Adult level)
+#    Human feedback teaches model to be:
+#    - Helpful (answer questions well)
+#    - Harmless (refuse dangerous requests)
+#    - Honest (admit uncertainty)
+#
+# 5. Grounding (RAG, tool use)
+#    Give model access to real data sources
+#    so it doesn't have to guess!`,
+gm:function(c){c.innerHTML=`
+<div class="s"><h3>\u{1F6E1} Understanding Hallucination</h3>
+<div class="eb r"><p><strong>\u{1F3AD} Actor Analogy:</strong> An LLM is like a very convincing actor who has read millions of scripts. When you ask it a question, it performs the most "script-like" answer. Sometimes the script is factually correct. Sometimes it's pure fiction delivered with total confidence!</p></div>
+<div class="eb b"><p><strong>Key Insight:</strong> LLMs don't have a "truth detector." They predict likely tokens. "Einstein invented the telephone" has high probability because the sentence structure is plausible, even though it's wrong.</p></div></div>
+<div class="s"><h3><span class="bd bd-g">GAME</span> Spot the Hallucination</h3>
+<p>Read each LLM output and identify which ones contain hallucinated facts:</p>
+<div class="ia" id="halGame"></div></div>
+<div class="s"><h3><span class="bd bd-q">QUIZ</span> Safety Challenge</h3>
+<div class="qb" id="hl-q1"><div class="qt">\u{1F914} Why do LLMs hallucinate?</div><div class="qo">
+<div class="qp" onclick="cq('hl-q1',this,false)">They have bugs in their code</div>
+<div class="qp" onclick="cq('hl-q1',this,false)">They intentionally lie to confuse users</div>
+<div class="qp" onclick="cq('hl-q1',this,true)">They predict statistically likely tokens, not verified facts — plausible-sounding text isn't necessarily true</div>
+</div><div class="qf" id="hl-q1-f"></div></div>
+<div class="qb" id="hl-q2"><div class="qt">\u{1F914} Which safety technique involves the model learning to critique its own outputs?</div><div class="qo">
+<div class="qp" onclick="cq('hl-q2',this,false)">Output filtering</div>
+<div class="qp" onclick="cq('hl-q2',this,true)">Constitutional AI — the model is trained to evaluate whether its responses are harmful or dishonest</div>
+<div class="qp" onclick="cq('hl-q2',this,false)">System prompts</div>
+</div><div class="qf" id="hl-q2-f"></div></div>
+<div class="qb" id="hl-q3"><div class="qt">&#x1F914; Constitutional AI works by:</div><div class="qo">
+<div class="qp" onclick="cq('hl-q3',this,true)">Having the model critique and revise its own outputs based on a set of principles — self-improvement without human feedback</div>
+<div class="qp" onclick="cq('hl-q3',this,false)">Training on government documents</div>
+<div class="qp" onclick="cq('hl-q3',this,false)">Blocking all controversial topics</div>
+</div><div class="qf" id="hl-q3-f"></div></div></div>`;
+rq('hl-q1',10);rq('hl-q2',10);rq('hl-q3',10);initHal();}},
+
+// ═══════════════════════════════════════════
+// 9: COMPLETE MAP
+// ═══════════════════════════════════════════
+{fn:'complete_map.py',fd:'The full learning path',t:'\u{1F5FA} Complete Learning Map',su:'Every concept across all 4 levels + gaps — the full picture',
+code:`# ============================================
+# THE COMPLETE LLM LEARNING PATH
+# ============================================
+#
+# LEVEL 1 - BABY LLM (Foundations)
+# --------------------------------
+# Data Preparation
+# Character Tokenization
+# Token Embeddings
+# Position Embeddings
+# Self-Attention (Q, K, V)
+# Multi-Head Attention
+# Feed-Forward Network
+# Transformer Block
+# Training Loop
+# Text Generation (Greedy, Top-k)
+# + GAPS FILLED:
+#   Backpropagation & Chain Rule
+#   Cross-Entropy Loss
+#   Softmax & Temperature
+#
+# LEVEL 2 - TEENAGE LLM (Intermediate)
+# -------------------------------------
+# BPE Tokenization
+# Dropout Regularization
+# GELU Activation
+# LayerNorm
+# Cosine LR Scheduler
+# Top-p (Nucleus) Sampling
+# KV-Cache
+# + GAPS FILLED:
+#   Overfitting & Data Splits
+#   Special Tokens (BOS, EOS, PAD)
+#
+# LEVEL 3 - ADULT LLM (Production)
+# ---------------------------------
+# RoPE (Rotary Position Embeddings)
+# GQA (Grouped-Query Attention)
+# SwiGLU Activation
+# Flash Attention
+# Beam Search
+# RMSNorm
+# Mixed Precision (FP16/BF16)
+# RLHF
+# Weight Tying
+# + GAPS FILLED:
+#   Context Window & Sliding Window
+#
+# LEVEL 4 - EXPERT LLM (Advanced)
+# --------------------------------
+# LoRA (Low-Rank Adaptation)
+# Quantization (INT8/INT4)
+# Mixture of Experts (MoE)
+# DPO (Direct Preference Optimization)
+# Scaling Laws
+# Speculative Decoding
+# + GAPS FILLED:
+#   RAG (Retrieval-Augmented Generation)
+#   Hallucination & Safety
+#
+# TOTAL: 38 concepts mastered!
+# You now have COMPLETE LLM knowledge!`,
+gm:function(c){c.innerHTML=`
+<div class="s"><h3>\u{1F5FA} The Complete LLM Learning Map</h3>
+<p>Every concept covered across all files. <span class="map-node done">Green</span> = main curriculum, <span class="map-node gap-filled">Blue</span> = gaps filled by this file.</p></div>
+<div class="s"><h3>\u{1F37C} Level 1 — Baby LLM</h3>
+<div style="display:flex;flex-wrap:wrap;gap:2px;">
+<span class="map-node done">Data Prep</span>
+<span class="map-node done">Char Tokenizer</span>
+<span class="map-node done">Token Embeddings</span>
+<span class="map-node done">Position Embeddings</span>
+<span class="map-node done">Self-Attention</span>
+<span class="map-node done">Multi-Head Attn</span>
+<span class="map-node done">Feed-Forward</span>
+<span class="map-node done">Transformer Block</span>
+<span class="map-node done">Training Loop</span>
+<span class="map-node done">Generation</span>
+<span class="map-node gap-filled">Backpropagation</span>
+<span class="map-node gap-filled">Cross-Entropy</span>
+<span class="map-node gap-filled">Softmax+Temp</span></div></div>
+<div class="s"><h3>\u{1F9D1}\u200D\u{1F393} Level 2 — Teenage LLM</h3>
+<div style="display:flex;flex-wrap:wrap;gap:2px;">
+<span class="map-node done">BPE Tokenizer</span>
+<span class="map-node done">Dropout</span>
+<span class="map-node done">GELU</span>
+<span class="map-node done">LayerNorm</span>
+<span class="map-node done">Cosine LR</span>
+<span class="map-node done">Top-p Sampling</span>
+<span class="map-node done">KV-Cache</span>
+<span class="map-node gap-filled">Overfitting</span>
+<span class="map-node gap-filled">Special Tokens</span></div></div>
+<div class="s"><h3>\u{1F393} Level 3 — Adult LLM</h3>
+<div style="display:flex;flex-wrap:wrap;gap:2px;">
+<span class="map-node done">RoPE</span>
+<span class="map-node done">GQA</span>
+<span class="map-node done">SwiGLU</span>
+<span class="map-node done">Flash Attention</span>
+<span class="map-node done">Beam Search</span>
+<span class="map-node done">RMSNorm</span>
+<span class="map-node done">Mixed Precision</span>
+<span class="map-node done">RLHF</span>
+<span class="map-node done">Weight Tying</span>
+<span class="map-node gap-filled">Context Window</span></div></div>
+<div class="s"><h3>\u{1F9E0} Level 4 — Expert LLM</h3>
+<div style="display:flex;flex-wrap:wrap;gap:2px;">
+<span class="map-node done">LoRA</span>
+<span class="map-node done">Quantization</span>
+<span class="map-node done">MoE</span>
+<span class="map-node done">DPO</span>
+<span class="map-node done">Scaling Laws</span>
+<span class="map-node done">Spec. Decoding</span>
+<span class="map-node gap-filled">RAG</span>
+<span class="map-node gap-filled">Hallucination</span></div></div>
+<div class="s"><div class="eb g" style="text-align:center;">
+<h3 style="color:var(--green);font-size:20px;">\u{1F389}\u{1F3C6} Congratulations! \u{1F3C6}\u{1F389}</h3>
+<p style="margin-top:8px;font-size:14px;">You've completed the <strong>ENTIRE</strong> LLM curriculum!</p>
+<p style="margin-top:6px;font-size:13px;">38 concepts across 4 levels + 8 gap-fillers.</p>
+<p style="margin-top:6px;font-size:13px;">From character tokenization to RAG pipelines,<br>from backpropagation to speculative decoding.</p>
+<p style="margin-top:10px;font-size:12px;color:var(--dim);">You now understand every major concept behind modern LLMs like GPT-4, Claude, LLaMA, and Mistral.</p>
+</div></div>
+<div class="s"><h3><span class="bd bd-q">QUIZ</span> Final Challenge</h3>
+<div class="qb" id="mp-q1"><div class="qt">\u{1F914} Put these in order: the 3 stages of training a chat model</div><div class="qo">
+<div class="qp" onclick="cq('mp-q1',this,true)">Pre-training (learn language) \u2192 SFT (learn to follow instructions) \u2192 RLHF/DPO (learn human preferences)</div>
+<div class="qp" onclick="cq('mp-q1',this,false)">RLHF \u2192 Pre-training \u2192 SFT</div>
+<div class="qp" onclick="cq('mp-q1',this,false)">SFT \u2192 RLHF \u2192 Pre-training</div>
+</div><div class="qf" id="mp-q1-f"></div></div>
+<div class="qb" id="mp-q2"><div class="qt">\u{1F914} Which technique lets you update an LLM's knowledge without retraining?</div><div class="qo">
+<div class="qp" onclick="cq('mp-q2',this,false)">LoRA fine-tuning</div>
+<div class="qp" onclick="cq('mp-q2',this,true)">RAG — just update the document database and the model can reference new information</div>
+<div class="qp" onclick="cq('mp-q2',this,false)">Quantization</div>
+</div><div class="qf" id="mp-q2-f"></div></div></div>`;
+rq('mp-q1',10);rq('mp-q2',10);}}
+];
+
+
+// ═══════════════════════════════════════════
+// GAME FUNCTIONS
+// ═══════════════════════════════════════════
+
+// ─── BACKPROPAGATION GAME ───
+let bpNodes=[
+  {name:'Input',val:2.0,grad:null,w:null},
+  {name:'h1',val:1.0,grad:null,w:0.5},
+  {name:'h2',val:-1.0,grad:null,w:-1.0},
+  {name:'Output',val:-2.0,grad:null,w:2.0},
+  {name:'Loss',val:9.0,grad:1.0,w:null}
+];
+let bpStep_i=4;
+function bpReset(){
+  bpNodes=[
+    {name:'Input',val:2.0,grad:null,w:null},
+    {name:'h1',val:1.0,grad:null,w:0.5},
+    {name:'h2',val:-1.0,grad:null,w:-1.0},
+    {name:'Output',val:-2.0,grad:null,w:2.0},
+    {name:'Loss',val:9.0,grad:1.0,w:null}
+  ];
+  bpStep_i=4;
+  renderBP();
+  const info=document.getElementById('bpInfo');
+  if(info)info.innerHTML='<span style="color:var(--dim);">Forward pass complete. Loss = 9.0. Click "Backward Step" to see gradients flow back!</span>';
+}
+function bpStep(){
+  if(bpStep_i<=0)return;
+  bpStep_i--;
+  const n=bpNodes[bpStep_i];
+  if(bpStep_i===3){n.grad=-6.0;}// dL/dout = 2*(out-target) = 2*(-2-1)=-6
+  else if(bpStep_i===2){n.grad=-12.0;}// dL/dh2 = dL/dout * w3 = -6*2=-12
+  else if(bpStep_i===1){n.grad=12.0;}// dL/dh1 = dL/dh2 * w2 = -12*-1=12
+  else if(bpStep_i===0){n.grad=24.0;}// dL/dx = dL/dh1 * w1... but we show dL/dw1
+  renderBP();
+  const info=document.getElementById('bpInfo');
+  const explanations=[
+    '<span style="color:var(--yellow);">dL/dw1 = dL/dh1 \u00D7 x = 12.0 \u00D7 2.0 = <strong>24.0</strong></span> \u2014 Gradient reached the first weight! Update: w1 = 0.5 - 0.01\u00D724 = 0.26',
+    '<span style="color:var(--yellow);">dL/dh1 = dL/dh2 \u00D7 w2 = -12.0 \u00D7 -1.0 = <strong>12.0</strong></span> \u2014 Chain rule: multiply upstream gradient by local weight',
+    '<span style="color:var(--yellow);">dL/dh2 = dL/dout \u00D7 w3 = -6.0 \u00D7 2.0 = <strong>-12.0</strong></span> \u2014 Gradient flows through w3',
+    '<span style="color:var(--yellow);">dL/dout = 2\u00D7(out - target) = 2\u00D7(-2.0 - 1.0) = <strong>-6.0</strong></span> \u2014 Starting from the loss!'
+  ];
+  if(info)info.innerHTML=explanations[bpStep_i];
+  if(bpStep_i===0)asc('bp-game',15);
+}
+function renderBP(){
+  const el=document.getElementById('bpChain');if(!el)return;
+  let html='';
+  bpNodes.forEach((n,i)=>{
+    const cls=n.grad!==null?(bpStep_i===i?'active':'done'):'';
+    html+=`<div class="node-box ${cls}">
+      <div style="font-size:10px;color:var(--dim);">${n.name}</div>
+      <div style="font-size:14px;font-weight:900;">${n.val.toFixed(1)}</div>
+      ${n.grad!==null?'<div style="font-size:10px;color:var(--green);">\u2207 '+n.grad.toFixed(1)+'</div>':'<div style="font-size:10px;color:var(--dim);">\u2207 ?</div>'}
+      ${n.w!==null?'<div style="font-size:9px;color:var(--accent);">w='+n.w+'</div>':''}
+    </div>`;
+    if(i<bpNodes.length-1)html+='<span class="node-arrow">\u2192</span>';
+  });
+  el.innerHTML=html;
+  rq('bp-game',15);
+}
+
+// ─── CROSS-ENTROPY GAME ───
+function updateCE(){
+  const pct=parseInt(document.getElementById('ceSlider').value);
+  const p=pct/100;
+  document.getElementById('ceProb').textContent=p.toFixed(2);
+  const loss=-Math.log(Math.max(p,0.001));
+  document.getElementById('ceLoss').textContent=loss.toFixed(3);
+  document.getElementById('ceLoss').style.color=loss<0.5?'var(--green)':loss<2?'var(--yellow)':'var(--red)';
+  let verdict='',color='';
+  if(loss<0.1){verdict='\u{1F389} Perfect!';color='var(--green)';}
+  else if(loss<0.5){verdict='\u{1F44D} Good';color='var(--green)';}
+  else if(loss<1.5){verdict='\u{1F914} Okay';color='var(--yellow)';}
+  else if(loss<3){verdict='\u{1F61F} Bad';color='var(--red)';}
+  else{verdict='\u{1F4A5} Terrible!';color='var(--red)';}
+  document.getElementById('ceVerdict').textContent=verdict;
+  document.getElementById('ceVerdict').style.color=color;
+  // Bar chart
+  const chart=document.getElementById('ceChart');
+  const labels=['the','cat','sat','on','mat'];
+  const correctIdx=1;// "cat" is correct
+  const remaining=1-p;
+  const others=labels.map((_,i)=>i===correctIdx?p:remaining/(labels.length-1));
+  let html='';
+  labels.forEach((l,i)=>{
+    const h=Math.max(2,others[i]*100);
+    const col=i===correctIdx?'var(--green)':'var(--bg3)';
+    const border=i===correctIdx?'2px solid var(--green)':'1px solid rgba(255,255,255,0.1)';
+    html+=`<div class="bar-col"><div class="bar-val">${others[i].toFixed(2)}</div><div class="bar" style="height:${h}%;background:${col};border:${border};"></div><div class="bar-label">${l}${i===correctIdx?' \u2705':''}</div></div>`;
+  });
+  chart.innerHTML=html;
+  document.getElementById('ceExplain').textContent=`Loss = -log(${p.toFixed(2)}) = ${loss.toFixed(3)}. ${p>0.8?'High confidence on correct answer = low loss!':p>0.4?'Moderate confidence = moderate loss.':'Low confidence on correct answer = high loss!'}`;
+}
+
+// ─── SOFTMAX GAME ───
+function updateSM(){
+  const logits=[];
+  for(let i=0;i<5;i++){
+    const v=parseInt(document.getElementById('sm'+i).value)/10;
+    logits.push(v);
+    document.getElementById('smv'+i).textContent=v.toFixed(1);
+  }
+  const temp=parseInt(document.getElementById('smTemp').value)/10;
+  document.getElementById('smTempV').textContent=temp.toFixed(1);
+  const scaled=logits.map(x=>x/temp);
+  const maxS=Math.max(...scaled);
+  const exps=scaled.map(x=>Math.exp(x-maxS));
+  const sum=exps.reduce((a,b)=>a+b,0);
+  const probs=exps.map(e=>e/sum);
+  const labels=['A','B','C','D','E'];
+  const colors=['var(--accent)','var(--green)','var(--purple)','var(--yellow)','var(--red)'];
+  const chart=document.getElementById('smChart');
+  let html='';
+  labels.forEach((l,i)=>{
+    const h=Math.max(2,probs[i]*100);
+    html+=`<div class="bar-col"><div class="bar-val">${probs[i].toFixed(3)}</div><div class="bar" style="height:${h}%;background:${colors[i]};border-radius:4px 4px 0 0;"></div><div class="bar-label">${l} (${logits[i].toFixed(1)})</div></div>`;
+  });
+  chart.innerHTML=html;
+  const maxP=Math.max(...probs);
+  const entropy=-probs.reduce((s,p)=>s+(p>0.001?p*Math.log(p):0),0);
+  document.getElementById('smInfo').innerHTML=`Temperature: ${temp.toFixed(1)} | Max prob: ${maxP.toFixed(3)} | Entropy: ${entropy.toFixed(3)} | ${temp<0.5?'\u2744\uFE0F Very peaked (deterministic)':temp<1.5?'\u{1F321}\uFE0F Normal':'\u{1F525} Very flat (random)'}`;
+}
+
+// ─── OVERFITTING GAME ───
+let ofData={train:[],val:[],type:'overfit',clicked:false};
+function ofScenario(type){
+  ofData.type=type;ofData.clicked=false;
+  ofData.train=[];ofData.val=[];
+  for(let i=0;i<30;i++){
+    const t=i/30;
+    if(type==='overfit'){
+      ofData.train.push(2.5*Math.exp(-3*t)+0.05+Math.random()*0.05);
+      ofData.val.push(t<0.4?2.5*Math.exp(-3*t)+0.1+Math.random()*0.08:0.4+1.8*(t-0.4)+Math.random()*0.1);
+    }else if(type==='underfit'){
+      ofData.train.push(2.0-0.3*t+Math.random()*0.08);
+      ofData.val.push(2.2-0.25*t+Math.random()*0.1);
+    }else{
+      ofData.train.push(2.5*Math.exp(-3*t)+0.15+Math.random()*0.05);
+      ofData.val.push(2.5*Math.exp(-2.8*t)+0.25+Math.random()*0.06);
+    }
+  }
+  drawOF();
+  const r=document.getElementById('ofResult');
+  if(r)r.innerHTML=type==='overfit'?'<span style="color:var(--accent);">Click on the chart where overfitting begins!</span>':type==='underfit'?'<span style="color:var(--yellow);">\u26A0 Underfitting: both losses are high. Model is too simple!</span>':'<span style="color:var(--green);">\u2705 Good fit: both losses are low and close together!</span>';
+}
+function drawOF(){
+  const canvas=document.getElementById('ofCanvas');if(!canvas)return;
+  const ctx=canvas.getContext('2d'),W=canvas.width,H=canvas.height;
+  ctx.clearRect(0,0,W,H);
+  const pad={l:40,r:10,t:10,b:30};
+  const pw=W-pad.l-pad.r,ph=H-pad.t-pad.b;
+  const maxY=3.0;
+  const mapX=i=>pad.l+(i/(ofData.train.length-1))*pw;
+  const mapY=v=>pad.t+(1-v/maxY)*ph;
+  // Axes
+  ctx.strokeStyle='rgba(255,255,255,0.1)';ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(pad.l,pad.t);ctx.lineTo(pad.l,H-pad.b);ctx.lineTo(W-pad.r,H-pad.b);ctx.stroke();
+  ctx.fillStyle='var(--dim)';ctx.font='10px Fira Code';ctx.textAlign='right';
+  [0,1,2,3].forEach(v=>{ctx.fillText(v.toFixed(0),pad.l-4,mapY(v)+3);});
+  ctx.textAlign='center';ctx.fillText('Epoch',W/2,H-4);
+  // Train loss
+  ctx.strokeStyle='var(--blue)';ctx.lineWidth=2;ctx.beginPath();
+  ofData.train.forEach((v,i)=>{i===0?ctx.moveTo(mapX(i),mapY(v)):ctx.lineTo(mapX(i),mapY(v));});ctx.stroke();
+  // Val loss
+  ctx.strokeStyle='var(--red)';ctx.lineWidth=2;ctx.beginPath();
+  ofData.val.forEach((v,i)=>{i===0?ctx.moveTo(mapX(i),mapY(v)):ctx.lineTo(mapX(i),mapY(v));});ctx.stroke();
+}
+function ofClick(e){
+  if(ofData.type!=='overfit'||ofData.clicked)return;
+  ofData.clicked=true;
+  const canvas=document.getElementById('ofCanvas');
+  const rect=canvas.getBoundingClientRect();
+  const x=(e.clientX-rect.left)*(canvas.width/rect.width);
+  const pad={l:40,r:10};
+  const pw=canvas.width-pad.l-pad.r;
+  const epoch=Math.round(((x-pad.l)/pw)*(ofData.train.length-1));
+  const correctEpoch=12;// around 40% of 30
+  const diff=Math.abs(epoch-correctEpoch);
+  const r=document.getElementById('ofResult');
+  if(diff<=3){
+    r.innerHTML=`<span style="color:var(--green);">\u2705 Great! You clicked epoch ~${epoch}. Overfitting starts around epoch ${correctEpoch} where val loss begins rising while train loss keeps falling!</span>`;
+    asc('of-game',15);
+  }else{
+    r.innerHTML=`<span style="color:var(--yellow);">\u{1F914} You clicked epoch ~${epoch}. Look for where the red line (val loss) starts going UP while the blue line (train loss) keeps going down. That's around epoch ${correctEpoch}.</span>`;
+  }
+  rq('of-game',15);
+}
+
+// ─── SPECIAL TOKENS GAME ───
+let tokenPieces=[];
+let tokenTarget=[];
+function resetTokens(){
+  tokenPieces=[
+    {id:'t-bos',text:'[BOS]',type:'special',placed:false},
+    {id:'t-sep',text:'[SEP]',type:'special',placed:false},
+    {id:'t-eos',text:'[EOS]',type:'special',placed:false},
+    {id:'t-pad1',text:'[PAD]',type:'special',placed:false},
+    {id:'t-pad2',text:'[PAD]',type:'special',placed:false},
+    {id:'t-q',text:'What is Python?',type:'normal',placed:false},
+    {id:'t-a',text:'Python is a programming language.',type:'normal',placed:false}
+  ];
+  tokenTarget=[];
+  renderTokenBank();
+  renderTokenTarget();
+  const r=document.getElementById('tokenResult');if(r)r.innerHTML='';
+}
+function renderTokenBank(){
+  const bank=document.getElementById('tokenBank');if(!bank)return;
+  bank.innerHTML='';
+  tokenPieces.forEach(p=>{
+    if(!p.placed){
+      const chip=document.createElement('div');
+      chip.className='token-chip '+(p.type==='special'?'special':'normal');
+      chip.textContent=p.text;
+      chip.draggable=true;
+      chip.setAttribute('data-id',p.id);
+      chip.addEventListener('dragstart',e=>{e.dataTransfer.setData('text/plain',p.id);});
+      chip.addEventListener('click',()=>{
+        p.placed=true;
+        tokenTarget.push(p);
+        renderTokenBank();
+        renderTokenTarget();
+      });
+      bank.appendChild(chip);
+    }
+  });
+}
+function renderTokenTarget(){
+  const tgt=document.getElementById('tokenTarget');if(!tgt)return;
+  tgt.innerHTML='';
+  tokenTarget.forEach((p,i)=>{
+    const chip=document.createElement('div');
+    chip.className='token-chip '+(p.type==='special'?'special':'normal');
+    chip.textContent=p.text;
+    chip.style.cursor='pointer';
+    chip.title='Click to remove';
+    chip.addEventListener('click',()=>{
+      p.placed=false;
+      tokenTarget.splice(i,1);
+      renderTokenBank();
+      renderTokenTarget();
+    });
+    tgt.appendChild(chip);
+  });
+  // Drop zone
+  tgt.addEventListener('dragover',e=>{e.preventDefault();tgt.classList.add('over');});
+  tgt.addEventListener('dragleave',()=>{tgt.classList.remove('over');});
+  tgt.addEventListener('drop',e=>{
+    e.preventDefault();tgt.classList.remove('over');
+    const id=e.dataTransfer.getData('text/plain');
+    const piece=tokenPieces.find(p=>p.id===id);
+    if(piece&&!piece.placed){piece.placed=true;tokenTarget.push(piece);renderTokenBank();renderTokenTarget();}
+  });
+}
+function checkTokens(){
+  const correct=['[BOS]','What is Python?','[SEP]','Python is a programming language.','[EOS]','[PAD]','[PAD]'];
+  const user=tokenTarget.map(t=>t.text);
+  const r=document.getElementById('tokenResult');
+  if(user.length!==correct.length){r.innerHTML='<span style="color:var(--yellow);">\u{1F914} You have '+user.length+' tokens, expected '+correct.length+'. Keep going!</span>';return;}
+  let match=true;
+  for(let i=0;i<correct.length;i++){if(user[i]!==correct[i]){match=false;break;}}
+  if(match){
+    r.innerHTML='<span style="color:var(--green);">\u2705 Perfect! [BOS] starts the sequence, [SEP] separates prompt from response, [EOS] marks the end, and [PAD] fills the remaining space!</span>';
+    asc('st-game',15);
+  }else{
+    r.innerHTML='<span style="color:var(--red);">\u274C Not quite. Expected: [BOS] Question [SEP] Answer [EOS] [PAD] [PAD]. Click Reset to try again!</span>';
+  }
+  rq('st-game',15);
+}
+
+// ─── CONTEXT WINDOW GAME ───
+function updateCW(){
+  const wSize=parseInt(document.getElementById('cwSize').value);
+  const pos=parseInt(document.getElementById('cwPos').value);
+  document.getElementById('cwSizeV').textContent=wSize;
+  document.getElementById('cwPosV').textContent=pos;
+  const totalTokens=20;
+  const words=['The','quick','brown','fox','jumps','over','the','lazy','dog','and','then','runs','back','to','its','cozy','warm','little','den','today'];
+  const viz=document.getElementById('cwViz');
+  let html='<div style="display:flex;flex-wrap:wrap;gap:3px;">';
+  for(let i=0;i<totalTokens;i++){
+    const inWindow=i>=Math.max(0,pos-wSize+1)&&i<=pos;
+    const isCurrent=i===pos;
+    const bg=isCurrent?'var(--accent)':inWindow?'rgba(72,202,228,0.2)':'var(--bg4)';
+    const border=isCurrent?'2px solid var(--accent)':inWindow?'1px solid var(--accent)':'1px solid rgba(255,255,255,0.05)';
+    const color=isCurrent?'#fff':inWindow?'var(--accent)':'var(--dim)';
+    html+=`<div style="padding:4px 8px;border-radius:6px;background:${bg};border:${border};font-size:11px;font-weight:600;color:${color};">${i}:${words[i]}</div>`;
+  }
+  html+='</div>';
+  viz.innerHTML=html;
+  // Memory comparison
+  const N=totalTokens;
+  const fullMem=N*N;
+  const slideMem=N*wSize;
+  document.getElementById('cwFull').textContent=fullMem+' ops';
+  document.getElementById('cwSlide').textContent=slideMem+' ops';
+  const saving=((1-slideMem/fullMem)*100).toFixed(0);
+  document.getElementById('cwInfo').innerHTML=`Window covers tokens ${Math.max(0,pos-wSize+1)} to ${pos} (${Math.min(wSize,pos+1)} tokens visible) | Sliding window saves ${saving}% memory vs full attention`;
+}
+
+// ─── RAG GAME ───
+const ragData={
+  questions:[
+    {q:'What is the population of Tokyo in 2024?',relevant:[0,2],answer:'Based on the retrieved documents, Tokyo\'s metropolitan area has approximately 37.4 million people as of 2024, making it the world\'s most populous metropolitan area.'},
+    {q:'How does photosynthesis work?',relevant:[1],answer:'Based on the retrieved documents, photosynthesis converts CO2 and water into glucose and oxygen using sunlight. The process occurs in chloroplasts and involves light-dependent reactions and the Calvin cycle.'},
+    {q:'What programming language is best for AI?',relevant:[2,0],answer:'Based on the retrieved documents, Python is the most popular language for AI/ML due to its rich ecosystem (PyTorch, TensorFlow, scikit-learn) and readable syntax, though performance-critical components often use C++.'}
+  ],
+  docs:[
+    {title:'World Population Report 2024',text:'Tokyo metropolitan area: 37.4M people. Delhi: 32.9M. Shanghai: 29.2M. Python is used by 67% of data scientists worldwide.'},
+    {title:'Biology Textbook Ch.5',text:'Photosynthesis occurs in chloroplasts. Light reactions split water molecules. The Calvin cycle fixes CO2 into glucose. 6CO2 + 6H2O → C6H12O6 + 6O2.'},
+    {title:'Tech Industry Survey 2024',text:'Python leads AI/ML with 78% adoption. Tokyo hosts 3 major AI research labs. JavaScript dominates web development. Rust is growing for systems programming.'}
+  ],
+  currentQ:0,
+  selectedDocs:new Set()
+};
+function initRAG(){
+  ragData.currentQ=0;ragData.selectedDocs=new Set();
+  renderRAG();
+}
+function renderRAG(){
+  const qDiv=document.getElementById('ragQuestions');
+  const dDiv=document.getElementById('ragDocs');
+  if(!qDiv||!dDiv)return;
+  qDiv.innerHTML='';
+  ragData.questions.forEach((q,i)=>{
+    const active=i===ragData.currentQ;
+    qDiv.innerHTML+=`<div style="padding:8px 12px;border-radius:8px;background:${active?'rgba(72,202,228,0.15)':'var(--bg4)'};border:2px solid ${active?'var(--accent)':'transparent'};cursor:pointer;font-size:12px;font-weight:${active?'700':'600'};" onclick="ragData.currentQ=${i};ragData.selectedDocs=new Set();renderRAG();document.getElementById('ragOutput').innerHTML='';">${q.q}</div>`;
+  });
+  dDiv.innerHTML='';
+  ragData.docs.forEach((d,i)=>{
+    const sel=ragData.selectedDocs.has(i);
+    dDiv.innerHTML+=`<div style="padding:8px 12px;border-radius:8px;background:${sel?'rgba(6,214,160,0.15)':'var(--bg4)'};border:2px solid ${sel?'var(--green)':'transparent'};cursor:pointer;font-size:12px;transition:all .2s;" onclick="ragToggleDoc(${i})">
+    <strong style="color:${sel?'var(--green)':'var(--accent)'};">${sel?'\u2705 ':'\u{1F4C4} '}${d.title}</strong><br>
+    <span style="color:var(--dim);font-size:11px;">${d.text}</span></div>`;
+  });
+}
+function ragToggleDoc(i){
+  if(ragData.selectedDocs.has(i))ragData.selectedDocs.delete(i);
+  else ragData.selectedDocs.add(i);
+  renderRAG();
+  document.getElementById('ragOutput').innerHTML='';
+}
+function ragGenerate(){
+  const q=ragData.questions[ragData.currentQ];
+  const out=document.getElementById('ragOutput');
+  if(ragData.selectedDocs.size===0){out.innerHTML='<div class="eb r"><p>\u26A0 Select at least one document to retrieve!</p></div>';return;}
+  // Check if user picked the right docs
+  const correct=new Set(q.relevant);
+  const picked=ragData.selectedDocs;
+  const allCorrect=[...correct].every(d=>picked.has(d));
+  const noExtra=[...picked].every(d=>correct.has(d));
+  let html='<div class="ob" style="margin-top:8px;"><strong style="color:var(--accent);">Augmented Prompt:</strong><br><br>';
+  html+='<span style="color:var(--dim);">System: Use the following context to answer. If the answer is not in the context, say "I don\'t know."</span><br><br>';
+  html+='<span style="color:var(--green);">Context:</span><br>';
+  [...picked].forEach(i=>{html+='<span style="color:var(--yellow);">[Doc '+i+']</span> '+ragData.docs[i].text+'<br>';});
+  html+='<br><span style="color:var(--accent);">Question:</span> '+q.q+'<br>';
+  html+='<br><span style="color:var(--green);">Answer:</span> '+q.answer+'</div>';
+  if(allCorrect&&noExtra){
+    html+='<div style="color:var(--green);font-size:12px;margin-top:6px;">\u2705 Perfect document selection! You picked exactly the relevant documents.</div>';
+    asc('rag-game',15);
+  }else if(allCorrect){
+    html+='<div style="color:var(--yellow);font-size:12px;margin-top:6px;">\u{1F914} You got the relevant docs but also included some irrelevant ones. Extra docs waste context window space!</div>';
+  }else{
+    html+='<div style="color:var(--red);font-size:12px;margin-top:6px;">\u274C You missed some relevant documents. Try again!</div>';
+  }
+  out.innerHTML=html;
+  rq('rag-game',15);
+}
+
+// ─── HALLUCINATION GAME ───
+const halItems=[
+  {text:'The Great Wall of China is visible from space with the naked eye. It was built over 2,000 years ago during the Qin Dynasty to protect against invasions from the north.',
+   hallucinated:true,
+   explanation:'The Great Wall is NOT visible from space with the naked eye — this is a common myth. Astronauts have confirmed it\'s too narrow to see. The model generated this because it\'s a widely repeated "fact" in training data.',
+   highlight:'visible from space with the naked eye'},
+  {text:'Python was created by Guido van Rossum and first released in 1991. It emphasizes code readability and uses significant whitespace indentation.',
+   hallucinated:false,
+   explanation:'This is entirely correct! Python was indeed created by Guido van Rossum, released in 1991, and is known for its readability and whitespace-based indentation.',
+   highlight:''},
+  {text:'According to a 2023 study by Dr. James Mitchell published in the Journal of Computational Linguistics, transformer models achieve 99.7% accuracy on all natural language tasks when scaled beyond 100B parameters.',
+   hallucinated:true,
+   explanation:'This citation is completely fabricated! The author, journal reference, and statistic are all made up. LLMs frequently generate plausible-sounding but fake citations because the PATTERN of "Author et al., Journal Name" has high probability.',
+   highlight:'Dr. James Mitchell published in the Journal of Computational Linguistics'}
+];
+let halIdx=0,halScore=0;
+function initHal(){
+  halIdx=0;halScore=0;showHal();
+}
+function showHal(){
+  const g=document.getElementById('halGame');if(!g)return;
+  if(halIdx>=halItems.length){
+    g.innerHTML=`<div style="text-align:center;padding:16px;">
+    <div style="font-size:24px;">${halScore>=2?'\u{1F389}':'\u{1F914}'}</div>
+    <p style="font-size:14px;font-weight:700;">You spotted ${halScore}/${halItems.length} correctly!</p>
+    <p style="font-size:12px;color:var(--dim);margin-top:4px;">Remember: LLMs predict likely tokens, not true facts. Always verify important claims!</p></div>`;
+    if(halScore>=2)asc('hal-game',15);
+    return;
+  }
+  const item=halItems[halIdx];
+  g.innerHTML=`<h4>LLM Output ${halIdx+1}/${halItems.length}:</h4>
+  <div class="ob" style="margin:8px 0;font-size:13px;line-height:1.7;">${esc(item.text)}</div>
+  <p style="font-size:12px;margin-bottom:6px;">Is this output factually correct or does it contain hallucination?</p>
+  <div style="display:flex;gap:8px;">
+  <button class="btn bg" onclick="halPick(false)" style="flex:1;">\u2705 Factually Correct</button>
+  <button class="btn" onclick="halPick(true)" style="flex:1;background:var(--red);color:#fff;">\u{1F6A8} Contains Hallucination</button></div>
+  <div id="halFb" style="margin-top:8px;font-size:12px;"></div>`;
+  rq('hal-game',15);
+}
+function halPick(userSaysHallucinated){
+  const item=halItems[halIdx];
+  const correct=userSaysHallucinated===item.hallucinated;
+  if(correct)halScore++;
+  const fb=document.getElementById('halFb');
+  fb.innerHTML=`<div class="eb ${correct?'g':'r'}">
+  <p><strong>${correct?'\u2705 Correct!':'\u274C Wrong!'}</strong></p>
+  <p style="margin-top:4px;">${item.explanation}</p>
+  ${item.highlight?'<p style="margin-top:4px;color:var(--yellow);">Key issue: "'+esc(item.highlight)+'"</p>':''}
+  </div>`;
+  setTimeout(()=>{halIdx++;showHal();},3000);
+}
+
+// ═══ INIT ═══
+go(0);
+</script>
+</body>
+</html>

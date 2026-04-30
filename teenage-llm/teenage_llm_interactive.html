@@ -1,0 +1,994 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Teenage LLM - Level 2 Interactive Learning</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fira+Code:wght@400;500;600&display=swap');
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{--bg:#0a0a14;--bg2:#12121f;--bg3:#1a1a2e;--bg4:#16213e;--accent:#a855f7;--green:#06d6a0;--red:#e94560;--yellow:#ffd166;--blue:#00b4d8;--orange:#f97316;--text:#e8e8f0;--dim:#6b7294;--code-bg:#0d1117;}
+body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);overflow:hidden;height:100vh;}
+.topbar{height:52px;background:var(--bg2);display:flex;align-items:center;padding:0 16px;border-bottom:1px solid rgba(255,255,255,0.05);gap:6px;z-index:100;overflow-x:auto;}
+.topbar .logo{font-weight:900;font-size:16px;background:linear-gradient(135deg,var(--accent),var(--orange));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-right:12px;white-space:nowrap;}
+.step-tab{padding:5px 12px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;transition:all .3s;background:transparent;border:1px solid transparent;color:var(--dim);white-space:nowrap;}
+.step-tab:hover{color:var(--text);background:var(--bg3);}
+.step-tab.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+.step-tab.completed::after{content:" \2713";color:var(--green);}
+.score-display{margin-left:auto;font-size:13px;font-weight:700;color:var(--yellow);white-space:nowrap;}
+.main{display:flex;height:calc(100vh - 52px);}
+.code-panel{width:48%;background:var(--code-bg);border-right:1px solid rgba(255,255,255,0.05);display:flex;flex-direction:column;overflow:hidden;}
+.code-header{padding:10px 16px;background:var(--bg2);border-bottom:1px solid rgba(255,255,255,0.05);display:flex;align-items:center;gap:10px;}
+.code-header .filename{font-family:'Fira Code',monospace;font-size:12px;color:var(--accent);font-weight:600;}
+.code-header .filedesc{font-size:11px;color:var(--dim);}
+.code-scroll{flex:1;overflow-y:auto;padding:0;}
+.code-content{font-family:'Fira Code',monospace;font-size:12px;line-height:1.85;padding:12px 0;}
+.code-line{display:flex;padding:0 12px 0 0;min-height:22px;}
+.code-line:hover{background:rgba(255,255,255,0.02);}
+.line-num{min-width:40px;text-align:right;padding-right:12px;color:var(--dim);user-select:none;font-size:11px;}
+.line-text{white-space:pre;flex:1;}
+.kw{color:#ff79c6;}.str{color:#f1fa8c;}.cm{color:#6272a4;font-style:italic;}.fn{color:#50fa7b;}.num{color:#bd93f9;}.dec{color:#ffb86c;}
+.game-panel{width:52%;display:flex;flex-direction:column;overflow:hidden;}
+.game-header{padding:12px 20px;background:var(--bg2);border-bottom:1px solid rgba(255,255,255,0.05);}
+.game-header h2{font-size:18px;font-weight:800;}
+.game-header p{font-size:12px;color:var(--dim);margin-top:2px;}
+.game-scroll{flex:1;overflow-y:auto;padding:20px;}
+.section{margin-bottom:24px;}
+.section h3{font-size:16px;font-weight:800;margin-bottom:8px;display:flex;align-items:center;gap:6px;}
+.section p,.section li{font-size:14px;line-height:1.65;}
+.explain-box{background:var(--bg3);border-radius:10px;padding:14px 18px;margin:8px 0;border-left:4px solid var(--accent);font-size:14px;}
+.explain-box.green{border-left-color:var(--green);}.explain-box.yellow{border-left-color:var(--yellow);}.explain-box.red{border-left-color:var(--red);}.explain-box.blue{border-left-color:var(--blue);}.explain-box.orange{border-left-color:var(--orange);}
+.quiz-box{background:var(--bg3);border-radius:12px;padding:16px;margin:12px 0;border:2px solid var(--bg4);}
+.quiz-box.correct{border-color:var(--green);background:rgba(6,214,160,0.05);}
+.quiz-box.wrong{border-color:var(--red);background:rgba(233,69,96,0.05);}
+.quiz-title{font-size:14px;font-weight:800;margin-bottom:10px;}
+.quiz-options{display:flex;flex-direction:column;gap:6px;}
+.quiz-opt{padding:8px 14px;border-radius:8px;background:var(--bg4);cursor:pointer;font-size:13px;font-weight:600;transition:all .2s;border:2px solid transparent;}
+.quiz-opt:hover{background:rgba(168,85,247,0.1);border-color:var(--accent);}
+.quiz-opt.selected-correct{background:rgba(6,214,160,0.15);border-color:var(--green);color:var(--green);}
+.quiz-opt.selected-wrong{background:rgba(233,69,96,0.15);border-color:var(--red);color:var(--red);}
+.quiz-opt.disabled{pointer-events:none;opacity:0.6;}
+.quiz-opt.show-correct{border-color:var(--green);opacity:1!important;}
+.quiz-feedback{margin-top:8px;padding:8px 12px;border-radius:6px;font-size:12px;font-weight:600;display:none;}
+.quiz-feedback.show{display:block;}
+.quiz-feedback.correct{background:rgba(6,214,160,0.1);color:var(--green);}
+.quiz-feedback.wrong{background:rgba(233,69,96,0.1);color:var(--red);}
+.interactive-area{background:var(--bg3);border-radius:12px;padding:16px;margin:12px 0;border:2px solid var(--bg4);}
+.interactive-area h4{font-size:14px;font-weight:800;margin-bottom:10px;}
+.btn{padding:8px 16px;border:none;border-radius:8px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;}
+.btn:hover{transform:translateY(-1px);}
+.btn-primary{background:var(--accent);color:#fff;}.btn-success{background:var(--green);color:#000;}.btn-reset{background:var(--bg4);color:var(--text);}
+.output-box{background:var(--code-bg);border-radius:8px;padding:12px 16px;font-family:'Fira Code',monospace;font-size:13px;line-height:1.7;margin:8px 0;border:1px solid rgba(255,255,255,0.05);}
+.badge{display:inline-block;padding:2px 8px;border-radius:5px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;}
+.badge-game{background:rgba(168,85,247,0.15);color:var(--accent);}.badge-quiz{background:rgba(249,115,22,0.15);color:var(--orange);}.badge-new{background:rgba(233,69,96,0.15);color:var(--red);}
+.slider-row{display:flex;align-items:center;gap:10px;margin:8px 0;font-size:13px;}
+.slider-row input[type=range]{flex:1;accent-color:var(--accent);}
+.slider-val{font-family:'Fira Code',monospace;font-size:14px;font-weight:700;color:var(--yellow);min-width:40px;}
+.prob-bar-row{display:flex;align-items:center;gap:6px;margin:3px 0;font-size:12px;}
+.prob-bar-row .cl{width:50px;font-family:'Fira Code',monospace;font-weight:700;text-align:right;}
+.prob-bar-track{flex:1;height:18px;background:var(--bg4);border-radius:4px;overflow:hidden;}
+.prob-bar-fill{height:100%;border-radius:4px;transition:width .5s;}
+.prob-bar-row .pct{width:40px;text-align:right;font-family:'Fira Code',monospace;font-size:11px;color:var(--dim);}
+.merge-step{display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:8px;margin:4px 0;font-size:13px;font-family:'Fira Code',monospace;background:var(--bg4);transition:all .3s;cursor:pointer;}
+.merge-step:hover{background:rgba(168,85,247,0.1);}
+.merge-step.active{border-left:3px solid var(--accent);background:rgba(168,85,247,0.08);}
+.lr-chart{width:100%;height:120px;background:var(--bg4);border-radius:8px;position:relative;overflow:hidden;margin:8px 0;}
+.lr-dot{position:absolute;width:4px;height:4px;border-radius:50%;background:var(--accent);}
+.lr-line{position:absolute;bottom:0;width:2px;background:var(--yellow);opacity:0.5;}
+.dropout-grid{display:grid;grid-template-columns:repeat(8,36px);gap:4px;justify-content:center;margin:10px 0;}
+.dropout-cell{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;transition:all .3s;}
+.train-chart{display:flex;align-items:flex-end;gap:2px;height:100px;background:var(--bg4);border-radius:8px;padding:8px;margin:8px 0;}
+.train-bar{width:4px;border-radius:2px 2px 0 0;transition:height .2s;}
+.compare-table{width:100%;border-collapse:collapse;font-size:13px;margin:8px 0;}
+.compare-table th,.compare-table td{padding:8px 12px;text-align:left;border-bottom:1px solid rgba(255,255,255,0.05);}
+.compare-table th{color:var(--accent);font-weight:700;font-size:12px;}
+::-webkit-scrollbar{width:5px;}::-webkit-scrollbar-track{background:transparent;}::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:3px;}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="logo">&#x1F9D1;&#x200D;&#x1F393; Teenage LLM</div>
+  <div class="step-tab active" onclick="goStep(0)">Intro</div>
+  <div class="step-tab" onclick="goStep(1)">1.BPE</div>
+  <div class="step-tab" onclick="goStep(2)">2.Dropout</div>
+  <div class="step-tab" onclick="goStep(3)">3.GELU</div>
+  <div class="step-tab" onclick="goStep(4)">4.KV-Cache</div>
+  <div class="step-tab" onclick="goStep(5)">5.LR Schedule</div>
+  <div class="step-tab" onclick="goStep(6)">6.Perplexity</div>
+  <div class="step-tab" onclick="goStep(7)">7.Top-p</div>
+  <div class="step-tab" onclick="goStep(8)">8.GradClip</div>
+  <div class="score-display">&#x2B50; <span id="totalScore">0</span>/<span id="maxScore">0</span></div>
+</div>
+<div class="main">
+  <div class="code-panel">
+    <div class="code-header"><span class="filename" id="codeFilename">intro</span><span class="filedesc" id="codeFiledesc"></span></div>
+    <div class="code-scroll"><div class="code-content" id="codeContent"></div></div>
+  </div>
+  <div class="game-panel">
+    <div class="game-header"><h2 id="gameTitle"></h2><p id="gameSubtitle"></p></div>
+    <div class="game-scroll"><div id="gameContent"></div></div>
+  </div>
+</div>
+<script>
+let currentStep=0,score=0,maxScore=0,answered={};
+function addScore(id,pts){if(answered[id])return;answered[id]=true;score+=pts;document.getElementById('totalScore').textContent=score;}
+function regQuiz(id,pts){if(!answered['_r_'+id]){answered['_r_'+id]=true;maxScore+=pts;document.getElementById('maxScore').textContent=maxScore;}}
+function checkQuiz(qid,el,ok){const box=document.getElementById(qid);if(box.classList.contains('correct')||box.classList.contains('wrong'))return;const fb=document.getElementById(qid+'-fb'),opts=box.querySelectorAll('.quiz-opt');if(ok){el.classList.add('selected-correct');box.classList.add('correct');fb.className='quiz-feedback show correct';fb.textContent='\u2705 Correct! +10 points';addScore(qid,10);}else{el.classList.add('selected-wrong');box.classList.add('wrong');fb.className='quiz-feedback show wrong';fb.textContent='\u274C Not quite! Correct answer highlighted.';}opts.forEach(o=>{o.classList.add('disabled');if(o!==el&&o.getAttribute('onclick')&&o.getAttribute('onclick').includes('true'))o.classList.add('show-correct');});}
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function hl(line){if(line.trimStart().startsWith('#'))return'<span class="cm">'+line+'</span>';line=line.replace(/(""".*?"""|".*?"|'.*?')/g,'<span class="str">$1</span>');['def','class','return','for','in','if','import','from','self','None','True','False','super','not','and','or','range','print','with','as','else','elif','while','break','pass'].forEach(k=>{line=line.replace(new RegExp('\\\\b('+k+')\\\\b','g'),'<span class="kw">$1</span>');});line=line.replace(/\\b(\\d+\\.?\\d*)\\b/g,'<span class="num">$1</span>');line=line.replace(/(@\\w+)/g,'<span class="dec">$1</span>');return line;}
+function renderCode(code){const c=document.getElementById('codeContent');c.innerHTML='';code.split('\\n').forEach((l,i)=>{const d=document.createElement('div');d.className='code-line';d.innerHTML='<span class="line-num">'+(i+1)+'</span><span class="line-text">'+hl(esc(l))+'</span>';c.appendChild(d);});}
+function goStep(n){currentStep=n;const s=STEPS[n];document.querySelectorAll('.step-tab').forEach((t,i)=>t.classList.toggle('active',i===n));document.getElementById('codeFilename').textContent=s.fn;document.getElementById('codeFiledesc').textContent=s.fd;renderCode(s.code);document.getElementById('gameTitle').innerHTML=s.title;document.getElementById('gameSubtitle').textContent=s.sub;const gc=document.getElementById('gameContent');gc.innerHTML='';s.game(gc);document.querySelector('.game-scroll').scrollTop=0;document.querySelector('.code-scroll').scrollTop=0;}
+
+const STEPS=[
+// ── 0: INTRO ──
+{fn:'overview',fd:'Level 2 concepts',title:'\u{1F9D1}\u200D\u{1F393} Welcome to Teenage LLM!',sub:'Level up from Baby LLM with real-world techniques',
+code:`# ============================================
+# TEENAGE LLM - Level 2!
+# ============================================
+# You've mastered the Baby LLM basics:
+#   - Tokenizer, Embeddings, Attention
+#   - Transformer, Training, Generation
+#
+# Now let's learn what makes REAL LLMs work:
+#
+# NEW CONCEPTS:
+# =============
+# 1. BPE Tokenizer    - How GPT actually tokenizes
+# 2. Dropout           - Prevent memorization
+# 3. GELU Activation   - Better than ReLU
+# 4. KV-Cache          - 10x faster generation
+# 5. LR Scheduling     - Warmup + cosine decay
+# 6. Perplexity        - Measure model quality
+# 7. Top-p Sampling    - Smarter text generation
+# 8. Gradient Clipping - Prevent training explosions
+#
+# BABY LLM vs TEENAGE LLM:
+# ========================
+# Baby:    64 embd, 4 layers, 205K params
+# Teenage: 128 embd, 6 layers, 1.2M params
+#
+# Baby:    Character tokenizer (34 vocab)
+# Teenage: BPE tokenizer (84 vocab)
+#
+# Baby:    Fixed LR, no dropout, ReLU
+# Teenage: LR schedule, dropout, GELU
+#
+# Same foundation, professional techniques!`,
+game:function(c){c.innerHTML=`
+<div class="section"><h3>\u{1F4CA} Baby vs Teenage LLM</h3>
+<table class="compare-table"><tr><th>Feature</th><th>\u{1F37C} Baby</th><th>\u{1F9D1}\u200D\u{1F393} Teenage</th></tr>
+<tr><td>Tokenizer</td><td>Character (34)</td><td style="color:var(--accent);">BPE (84)</td></tr>
+<tr><td>Embedding</td><td>64</td><td style="color:var(--accent);">128</td></tr>
+<tr><td>Layers</td><td>4</td><td style="color:var(--accent);">6</td></tr>
+<tr><td>Parameters</td><td>205K</td><td style="color:var(--accent);">1.2M</td></tr>
+<tr><td>Activation</td><td>ReLU</td><td style="color:var(--accent);">GELU</td></tr>
+<tr><td>Dropout</td><td>None</td><td style="color:var(--accent);">0.1</td></tr>
+<tr><td>LR Schedule</td><td>Fixed</td><td style="color:var(--accent);">Warmup+Cosine</td></tr>
+<tr><td>Sampling</td><td>Top-k only</td><td style="color:var(--accent);">Top-k + Top-p</td></tr>
+<tr><td>Evaluation</td><td>Loss only</td><td style="color:var(--accent);">Perplexity</td></tr></table></div>
+<div class="section"><h3><span class="badge badge-quiz">QUIZ</span> Prerequisite Check</h3>
+<div class="quiz-box" id="intro-q1"><div class="quiz-title">\u{1F914} In Baby LLM, what did Self-Attention do?</div><div class="quiz-options">
+<div class="quiz-opt" onclick="checkQuiz('intro-q1',this,true)">Let each character look at previous characters to find important patterns</div>
+<div class="quiz-opt" onclick="checkQuiz('intro-q1',this,false)">Made the model pay attention to the user</div>
+<div class="quiz-opt" onclick="checkQuiz('intro-q1',this,false)">Sorted characters alphabetically</div>
+</div><div class="quiz-feedback" id="intro-q1-fb"></div></div>
+<div class="quiz-box" id="intro-q2"><div class="quiz-title">\u{1F914} What is the training loop order?</div><div class="quiz-options">
+<div class="quiz-opt" onclick="checkQuiz('intro-q2',this,false)">Backward \u2192 Forward \u2192 Update</div>
+<div class="quiz-opt" onclick="checkQuiz('intro-q2',this,true)">Forward \u2192 Loss \u2192 Backward \u2192 Update weights</div>
+<div class="quiz-opt" onclick="checkQuiz('intro-q2',this,false)">Update \u2192 Forward \u2192 Loss</div>
+</div><div class="quiz-feedback" id="intro-q2-fb"></div></div></div>`;
+regQuiz('intro-q1',10);regQuiz('intro-q2',10);}},
+
+// ── 1: BPE ──
+{fn:'bpe_tokenizer.py',fd:'How GPT actually tokenizes text',title:'\u{1F524} BPE Tokenizer',sub:'Byte-Pair Encoding \u2014 the real deal!',
+code:`# BPE (Byte-Pair Encoding) Tokenizer
+# ====================================
+# Baby LLM: character-level
+#   "hello" -> ['h','e','l','l','o'] (5 tokens)
+#
+# Teenage LLM: BPE (subword-level)
+#   "hello" -> ['hel','lo'] (2 tokens!)
+#
+# HOW BPE WORKS:
+# 1. Start with individual characters
+# 2. Find most frequent PAIR of adjacent tokens
+# 3. MERGE that pair into a new token
+# 4. Repeat until desired vocab size
+#
+# Example: "low lower lowest"
+# Step 0: [l,o,w, ,l,o,w,e,r, ,l,o,w,e,s,t]
+# Frequent pair: (l,o) -> merge to "lo"
+# Step 1: [lo,w, ,lo,w,e,r, ,lo,w,e,s,t]
+# Frequent pair: (lo,w) -> merge to "low"
+# Step 2: [low, ,low,e,r, ,low,e,s,t]
+
+class BPETokenizer:
+    def train(self, text, num_merges=50):
+        # Start with characters
+        chars = sorted(set(text))
+        self.vocab = {i: ch for i, ch in
+                      enumerate(chars)}
+        tokens = [self.inverse_vocab[ch]
+                  for ch in text]
+
+        for step in range(num_merges):
+            # Count all adjacent pairs
+            pairs = self._get_pairs(tokens)
+            if not pairs:
+                break
+
+            # Find most frequent pair
+            best = max(pairs, key=pairs.get)
+
+            # Create new merged token
+            new_str = self.vocab[best[0]] + \\
+                      self.vocab[best[1]]
+            self.vocab[next_id] = new_str
+
+            # Replace all occurrences
+            tokens = self._merge_pair(
+                tokens, best, next_id
+            )
+            next_id += 1
+
+    # Result: "the little cat" becomes
+    # ['the ','little ','cat'] instead of
+    # ['t','h','e',' ','l','i','t','t','l','e',...]
+    # 3 tokens instead of 14!`,
+game:function(c){c.innerHTML=`
+<div class="section"><h3>\u{1F524} Understanding BPE</h3>
+<div class="explain-box orange"><p><strong>\u{1F355} Pizza Upgrade:</strong> In Baby LLM we cut pizza into tiny crumbs (characters). BPE cuts into proper slices (subwords). Fewer pieces = easier to eat!</p></div>
+<div class="explain-box blue"><p><strong>Why BPE?</strong> Characters are too small (many steps per word). Full words are too big (huge vocabulary). BPE finds the sweet spot: <strong>common subwords</strong>!</p></div></div>
+<div class="section"><h3><span class="badge badge-game">GAME</span> BPE Merge Simulator!</h3>
+<p>Watch BPE learn merges step by step. Click "Next Merge" to see each one:</p>
+<div class="interactive-area">
+<h4>Text: "the cat the cat the dog"</h4>
+<div id="bpeTokens" class="output-box" style="font-size:14px;min-height:40px;"></div>
+<div style="margin:8px 0;display:flex;gap:8px;align-items:center;">
+<button class="btn btn-primary" onclick="bpeNextMerge()">Next Merge \u27A1</button>
+<button class="btn btn-reset" onclick="bpeReset()">Reset</button>
+<span id="bpeMergeInfo" style="font-size:12px;color:var(--dim);"></span></div>
+<h4 style="margin-top:10px;">Merge History:</h4>
+<div id="bpeMergeLog" style="max-height:120px;overflow-y:auto;"></div>
+<div id="bpeStats" class="output-box" style="font-size:12px;"></div></div></div>
+<div class="section"><h3><span class="badge badge-quiz">QUIZ</span> BPE Challenge</h3>
+<div class="quiz-box" id="bpe-q1"><div class="quiz-title">\u{1F914} After BPE training, "the little cat" might become:</div><div class="quiz-options">
+<div class="quiz-opt" onclick="checkQuiz('bpe-q1',this,false)">['t','h','e',' ','l','i','t','t','l','e',' ','c','a','t'] (14 tokens)</div>
+<div class="quiz-opt" onclick="checkQuiz('bpe-q1',this,true)">['the ','little ','cat'] (3 tokens)</div>
+<div class="quiz-opt" onclick="checkQuiz('bpe-q1',this,false)">['the little cat'] (1 token)</div>
+</div><div class="quiz-feedback" id="bpe-q1-fb"></div></div>
+<div class="quiz-box" id="bpe-q2"><div class="quiz-title">\u{1F914} BPE merges the MOST FREQUENT pair first. Why?</div><div class="quiz-options">
+<div class="quiz-opt" onclick="checkQuiz('bpe-q2',this,true)">Common pairs become single tokens, reducing total token count the most</div>
+<div class="quiz-opt" onclick="checkQuiz('bpe-q2',this,false)">Rare pairs are more important</div>
+<div class="quiz-opt" onclick="checkQuiz('bpe-q2',this,false)">It's random, frequency doesn't matter</div>
+</div><div class="quiz-feedback" id="bpe-q2-fb"></div></div></div>`;
+regQuiz('bpe-q1',10);regQuiz('bpe-q2',10);bpeReset();}},
+
+// ── 2: DROPOUT ──
+{fn:'advanced_model.py',fd:'Preventing memorization',title:'\u{1F3B2} Dropout',sub:'Randomly turning off neurons to prevent overfitting',
+code:`# DROPOUT - Prevent Memorization!
+# =================================
+# Problem: Model might MEMORIZE training data
+# instead of learning PATTERNS.
+# This is called "overfitting".
+#
+# Solution: During training, randomly "turn off"
+# some neurons (set them to 0).
+#
+# Like studying with random pages missing:
+#   - Forces you to understand the CONCEPT
+#   - Not just memorize specific answers!
+#
+# dropout=0.1 means 10% of neurons are
+# randomly zeroed each forward pass.
+
+class ImprovedAttentionHead(nn.Module):
+    def __init__(self, n_embd, head_size,
+                 block_size, dropout=0.1):
+        super().__init__()
+        self.query = nn.Linear(n_embd, head_size)
+        self.key = nn.Linear(n_embd, head_size)
+        self.value = nn.Linear(n_embd, head_size)
+
+        # NEW: Dropout on attention weights
+        self.attn_dropout = nn.Dropout(dropout)
+
+    def forward(self, x):
+        # ... compute attention weights ...
+        weights = F.softmax(scores, dim=-1)
+
+        # Randomly zero out some attention!
+        # Forces model to not rely on any
+        # single position too heavily
+        weights = self.attn_dropout(weights)
+
+        out = weights @ v
+        return out
+
+# IMPORTANT: Dropout is ONLY active during
+# training! During generation (eval mode),
+# all neurons are active.
+# model.train()  -> dropout ON
+# model.eval()   -> dropout OFF`,
+game:function(c){c.innerHTML=`
+<div class="section"><h3>\u{1F3B2} Understanding Dropout</h3>
+<div class="explain-box red"><p><strong>\u{1F4DA} Study Analogy:</strong> Imagine studying for an exam, but random pages of your textbook are blacked out each time. You can't just memorize \u2014 you have to truly <strong>understand</strong> the concepts!</p></div>
+<div class="explain-box"><p><strong>Key Rule:</strong> Dropout is ON during training, OFF during generation. The model learns to be robust, then uses full power when generating!</p></div></div>
+<div class="section"><h3><span class="badge badge-game">GAME</span> Dropout Simulator!</h3>
+<p>Click "Apply Dropout" to randomly turn off 10% of neurons. See how the network still works!</p>
+<div class="interactive-area">
+<h4>Neural Network Layer (64 neurons shown as 8x8 grid):</h4>
+<div class="dropout-grid" id="dropoutGrid"></div>
+<div style="display:flex;gap:8px;margin-top:8px;align-items:center;">
+<button class="btn btn-primary" onclick="applyDropout()">Apply Dropout (10%)</button>
+<button class="btn btn-success" onclick="applyDropout50()">Heavy Dropout (50%)</button>
+<button class="btn btn-reset" onclick="resetDropout()">Reset (All ON)</button></div>
+<div id="dropoutStats" style="margin-top:8px;font-size:13px;color:var(--dim);"></div></div></div>
+<div class="section"><h3><span class="badge badge-quiz">QUIZ</span> Dropout Challenge</h3>
+<div class="quiz-box" id="drop-q1"><div class="quiz-title">\u{1F914} When is dropout active?</div><div class="quiz-options">
+<div class="quiz-opt" onclick="checkQuiz('drop-q1',this,false)">Always (training and generation)</div>
+<div class="quiz-opt" onclick="checkQuiz('drop-q1',this,true)">Only during training (turned off for generation)</div>
+<div class="quiz-opt" onclick="checkQuiz('drop-q1',this,false)">Only during generation</div>
+</div><div class="quiz-feedback" id="drop-q1-fb"></div></div>
+<div class="quiz-box" id="drop-q2"><div class="quiz-title">\u{1F914} What problem does dropout solve?</div><div class="quiz-options">
+<div class="quiz-opt" onclick="checkQuiz('drop-q2',this,false)">Makes the model faster</div>
+<div class="quiz-opt" onclick="checkQuiz('drop-q2',this,true)">Prevents overfitting (memorizing training data instead of learning patterns)</div>
+<div class="quiz-opt" onclick="checkQuiz('drop-q2',this,false)">Reduces the model size</div>
+</div><div class="quiz-feedback" id="drop-q2-fb"></div></div></div>`;
+regQuiz('drop-q1',10);regQuiz('drop-q2',10);resetDropout();}},
+
+// ── 3: GELU ──
+{fn:'advanced_model.py',fd:'Smoother activation function',title:'\u{1F4C8} GELU Activation',sub:'The smooth upgrade from ReLU used by GPT',
+code:`# GELU vs ReLU
+# ==============
+# Baby LLM used ReLU:
+#   ReLU(x) = max(0, x)
+#   If x > 0: keep it
+#   If x < 0: make it 0 (hard cutoff!)
+#
+# Teenage LLM uses GELU:
+#   GELU(x) = x * phi(x)
+#   (phi = cumulative normal distribution)
+#   Smooth curve, allows small negatives!
+#
+# WHY GELU?
+# - Smoother gradients (easier to train)
+# - Small negative values can pass through
+# - Used by GPT-2, GPT-3, GPT-4, BERT!
+#
+# Visual comparison:
+#   Input:  -2  -1   0   1   2
+#   ReLU:    0   0   0   1   2
+#   GELU: -0.04 -0.16 0 0.84 1.96
+#
+# Notice: GELU is smooth, ReLU has a sharp
+# corner at 0.
+
+class ImprovedFeedForward(nn.Module):
+    def __init__(self, n_embd, dropout=0.1):
+        super().__init__()
+        self.net = nn.Sequential(
+            nn.Linear(n_embd, 4 * n_embd),
+            nn.GELU(),  # <-- GELU not ReLU!
+            nn.Linear(4 * n_embd, n_embd),
+            nn.Dropout(dropout),
+        )
+
+# The smooth curve of GELU helps gradients
+# flow better during backpropagation.
+# Sharp corners (like ReLU at 0) can cause
+# "dead neurons" that never activate again.`,
+game:function(c){c.innerHTML=`
+<div class="section"><h3>\u{1F4C8} ReLU vs GELU</h3>
+<div class="explain-box green"><p><strong>\u{1F6E3} Road Analogy:</strong> ReLU is like a road with a sharp cliff at 0 \u2014 you either drive or you fall off. GELU is like a smooth hill \u2014 gentle transitions, no sudden drops!</p></div></div>
+<div class="section"><h3><span class="badge badge-game">GAME</span> Activation Function Explorer!</h3>
+<p>Move the slider to see how ReLU and GELU transform different input values:</p>
+<div class="interactive-area">
+<div class="slider-row"><span style="width:60px;">Input x:</span><input type="range" id="geluSlider" min="-30" max="30" value="0" oninput="updateGelu()"><span class="slider-val" id="geluInput">0.0</span></div>
+<div style="display:flex;gap:16px;margin-top:10px;">
+<div style="flex:1;text-align:center;padding:12px;background:var(--bg4);border-radius:8px;">
+<div style="font-size:12px;color:var(--dim);">ReLU(x) = max(0, x)</div>
+<div id="reluOut" style="font-size:28px;font-weight:900;color:var(--blue);margin-top:4px;">0.00</div></div>
+<div style="flex:1;text-align:center;padding:12px;background:var(--bg4);border-radius:8px;">
+<div style="font-size:12px;color:var(--dim);">GELU(x) = x\u00B7\u03A6(x)</div>
+<div id="geluOut" style="font-size:28px;font-weight:900;color:var(--accent);margin-top:4px;">0.00</div></div></div>
+<h4 style="margin-top:12px;">Visual Comparison (x from -3 to 3):</h4>
+<canvas id="geluCanvas" width="500" height="160" style="width:100%;background:var(--bg4);border-radius:8px;margin-top:4px;"></canvas>
+<p style="font-size:11px;color:var(--dim);margin-top:4px;"><span style="color:var(--blue);">\u2588</span> ReLU &nbsp; <span style="color:var(--accent);">\u2588</span> GELU &nbsp; <span style="color:var(--yellow);">\u25CF</span> Current x</p></div></div>
+<div class="section"><h3><span class="badge badge-quiz">QUIZ</span> GELU Challenge</h3>
+<div class="quiz-box" id="gelu-q1"><div class="quiz-title">\u{1F914} What happens to x = -0.5 with ReLU vs GELU?</div><div class="quiz-options">
+<div class="quiz-opt" onclick="checkQuiz('gelu-q1',this,false)">Both output 0</div>
+<div class="quiz-opt" onclick="checkQuiz('gelu-q1',this,true)">ReLU outputs 0 (hard cutoff), GELU outputs a small negative value (~-0.15)</div>
+<div class="quiz-opt" onclick="checkQuiz('gelu-q1',this,false)">Both output -0.5</div>
+</div><div class="quiz-feedback" id="gelu-q1-fb"></div></div>
+<div class="quiz-box" id="gelu-q2"><div class="quiz-title">\u{1F914} Why is GELU's smoothness important?</div><div class="quiz-options">
+<div class="quiz-opt" onclick="checkQuiz('gelu-q2',this,true)">Smoother gradients help backpropagation and prevent "dead neurons"</div>
+<div class="quiz-opt" onclick="checkQuiz('gelu-q2',this,false)">It makes the model run faster</div>
+<div class="quiz-opt" onclick="checkQuiz('gelu-q2',this,false)">It uses less memory</div>
+</div><div class="quiz-feedback" id="gelu-q2-fb"></div></div></div>`;
+regQuiz('gelu-q1',10);regQuiz('gelu-q2',10);updateGelu();drawGeluChart();}},
+
+// ── 4: KV-CACHE ──
+{fn:'advanced_model.py',fd:'Making generation 10x faster',title:'\u26A1 KV-Cache',sub:'Cache Key and Value to avoid redundant computation',
+code:`# KV-CACHE - Speed Up Generation!
+# =================================
+# Problem: When generating text, at each step
+# we recompute K,V for ALL previous tokens.
+#
+# Step 1: compute K,V for [The]
+# Step 2: compute K,V for [The, little]
+# Step 3: compute K,V for [The, little, cat]
+# ...redundant! We already computed K,V for
+# "The" and "little" in previous steps!
+#
+# Solution: CACHE the K,V values!
+# Step 1: compute K,V for [The] -> cache it
+# Step 2: compute K,V for [little] only,
+#          append to cache
+# Step 3: compute K,V for [cat] only,
+#          append to cache
+#
+# Result: Only compute K,V for the NEW token!
+
+class ImprovedAttentionHead(nn.Module):
+    def forward(self, x, use_cache=False):
+        q = self.query(x)
+        k = self.key(x)
+        v = self.value(x)
+
+        # KV-CACHE: append to cached K,V
+        if use_cache and self._cache_k is not None:
+            k = torch.cat([self._cache_k, k], dim=1)
+            v = torch.cat([self._cache_v, v], dim=1)
+
+        if use_cache:
+            self._cache_k = k.detach()
+            self._cache_v = v.detach()
+
+        # Now Q is just the new token (size 1)
+        # But K,V contain ALL history!
+        scores = q @ k.transpose(-2, -1)
+        # ... rest of attention ...
+
+# Without cache: O(n^2) per step, O(n^3) total
+# With cache:    O(n) per step, O(n^2) total
+# For 1000 tokens: 1000x faster!`,
+game:function(c){c.innerHTML=`
+<div class="section"><h3>\u26A1 Understanding KV-Cache</h3>
+<div class="explain-box yellow"><p><strong>\u{1F4DD} Note-Taking Analogy:</strong> Without cache: every time the teacher asks a question, you re-read ALL your notes from scratch. With cache: you keep your notes open and just add new ones!</p></div></div>
+<div class="section"><h3><span class="badge badge-game">GAME</span> KV-Cache Speed Comparison!</h3>
+<p>Click "Generate Token" and compare the work done with and without cache:</p>
+<div class="interactive-area">
+<div style="display:flex;gap:12px;">
+<button class="btn btn-primary" onclick="kvGenToken()">Generate Next Token</button>
+<button class="btn btn-reset" onclick="kvReset()">Reset</button></div>
+<div style="display:flex;gap:16px;margin-top:12px;">
+<div style="flex:1;"><h4 style="color:var(--red);">\u274C Without Cache</h4>
+<div id="kvNoCache" class="output-box" style="font-size:11px;min-height:80px;"></div>
+<div id="kvNoCacheOps" style="font-size:13px;font-weight:700;color:var(--red);margin-top:4px;"></div></div>
+<div style="flex:1;"><h4 style="color:var(--green);">\u2705 With KV-Cache</h4>
+<div id="kvWithCache" class="output-box" style="font-size:11px;min-height:80px;"></div>
+<div id="kvWithCacheOps" style="font-size:13px;font-weight:700;color:var(--green);margin-top:4px;"></div></div></div>
+<div id="kvSpeedup" style="text-align:center;font-size:16px;font-weight:800;margin-top:8px;color:var(--yellow);"></div></div></div>
+<div class="section"><h3><span class="badge badge-quiz">QUIZ</span> KV-Cache Challenge</h3>
+<div class="quiz-box" id="kv-q1"><div class="quiz-title">\u{1F914} With KV-Cache, when generating the 100th token, how many tokens' K,V do we compute?</div><div class="quiz-options">
+<div class="quiz-opt" onclick="checkQuiz('kv-q1',this,true)">Just 1 (the new token) \u2014 the other 99 are cached!</div>
+<div class="quiz-opt" onclick="checkQuiz('kv-q1',this,false)">All 100 tokens</div>
+<div class="quiz-opt" onclick="checkQuiz('kv-q1',this,false)">50 tokens (half)</div>
+</div><div class="quiz-feedback" id="kv-q1-fb"></div></div></div>`;
+regQuiz('kv-q1',10);kvReset();}},
+
+// ── 5: LR SCHEDULE ──
+{fn:'lr_scheduler.py',fd:'Warmup + Cosine Decay',title:'\u{1F4C9} LR Scheduling',sub:'Changing the learning rate over time for better training',
+code:`# LEARNING RATE SCHEDULING
+# =========================
+# Baby LLM: fixed LR = 3e-4 (constant)
+# Teenage LLM: warmup + cosine decay
+#
+# WHY?
+# - Start LOW: weights are random, big steps = chaos
+# - Go HIGH: model is stable, learn fast!
+# - Slowly DECREASE: fine-tune, don't overshoot
+#
+# Schedule:
+#   LR ^
+#      |     /\\
+#      |    /  \\\\
+#      |   /    \\\\\\\\
+#      |  /      \\\\\\\\\\\\
+#      | /        \\\\\\\\\\\\\\\\\\\\
+#      +-------------------> Steps
+#      ^warmup^  ^cosine decay^
+
+class CosineScheduler:
+    def get_lr(self):
+        step = self.current_step
+
+        if step < self.warmup_steps:
+            # WARMUP: linear increase
+            return self.peak_lr * (
+                step / self.warmup_steps
+            )
+        else:
+            # COSINE DECAY: smooth decrease
+            progress = (step - self.warmup_steps) / \\
+                (self.total_steps - self.warmup_steps)
+            cosine = 0.5 * (1 + math.cos(
+                math.pi * progress
+            ))
+            return self.min_lr + \\
+                (self.peak_lr - self.min_lr) * cosine
+
+# Used by GPT-3, LLaMA, and most modern LLMs!
+# Warmup prevents early instability.
+# Cosine decay allows fine-tuning at the end.`,
+game:function(c){c.innerHTML=`
+<div class="section"><h3>\u{1F4C9} Understanding LR Scheduling</h3>
+<div class="explain-box blue"><p><strong>\u{1F697} Driving Analogy:</strong> Start slow in a school zone (warmup). Speed up on the highway (peak LR). Slow down as you approach your destination (cosine decay). Don't drive full speed the whole time!</p></div></div>
+<div class="section"><h3><span class="badge badge-game">GAME</span> LR Schedule Designer!</h3>
+<p>Adjust warmup and peak LR to see how the schedule changes:</p>
+<div class="interactive-area">
+<div class="slider-row"><span style="width:100px;">Warmup steps:</span><input type="range" id="lrWarmup" min="0" max="500" value="200" oninput="drawLRChart()"><span class="slider-val" id="lrWarmupVal">200</span></div>
+<div class="slider-row"><span style="width:100px;">Peak LR:</span><input type="range" id="lrPeak" min="1" max="10" value="3" oninput="drawLRChart()"><span class="slider-val" id="lrPeakVal">3e-4</span></div>
+<canvas id="lrCanvas" width="500" height="140" style="width:100%;background:var(--bg4);border-radius:8px;margin-top:8px;"></canvas>
+<p style="font-size:11px;color:var(--dim);margin-top:4px;">X-axis: training steps (0-2000) | Y-axis: learning rate</p></div></div>
+<div class="section"><h3><span class="badge badge-quiz">QUIZ</span> LR Schedule Challenge</h3>
+<div class="quiz-box" id="lr-q1"><div class="quiz-title">\u{1F914} Why do we start with a LOW learning rate (warmup)?</div><div class="quiz-options">
+<div class="quiz-opt" onclick="checkQuiz('lr-q1',this,true)">Weights are random at the start \u2014 big steps would cause chaos/instability</div>
+<div class="quiz-opt" onclick="checkQuiz('lr-q1',this,false)">To save electricity</div>
+<div class="quiz-opt" onclick="checkQuiz('lr-q1',this,false)">The model needs time to load</div>
+</div><div class="quiz-feedback" id="lr-q1-fb"></div></div>
+<div class="quiz-box" id="lr-q2"><div class="quiz-title">\u{1F914} Why decrease the LR at the end (decay)?</div><div class="quiz-options">
+<div class="quiz-opt" onclick="checkQuiz('lr-q2',this,false)">The model is tired</div>
+<div class="quiz-opt" onclick="checkQuiz('lr-q2',this,true)">Smaller steps allow fine-tuning without overshooting good solutions</div>
+<div class="quiz-opt" onclick="checkQuiz('lr-q2',this,false)">To reduce memory usage</div>
+</div><div class="quiz-feedback" id="lr-q2-fb"></div></div></div>`;
+regQuiz('lr-q1',10);regQuiz('lr-q2',10);setTimeout(drawLRChart,100);}},
+
+// ── 6: PERPLEXITY ──
+{fn:'evaluate.py',fd:'Measuring model quality',title:'\u{1F4CA} Perplexity',sub:'How "surprised" is the model by the text?',
+code:`# PERPLEXITY - Measuring Model Quality
+# ======================================
+# Baby LLM: we only looked at "loss"
+# Teenage LLM: we use PERPLEXITY
+#
+# Perplexity = exp(average_loss)
+#
+# Intuition: If perplexity = 10, the model
+# is as confused as choosing between 10
+# equally likely options at each step.
+#
+# Lower perplexity = better model!
+#
+# Examples:
+#   Loss=3.5 -> Perplexity=33.1 (very confused)
+#   Loss=2.0 -> Perplexity=7.4  (somewhat confused)
+#   Loss=1.0 -> Perplexity=2.7  (pretty good!)
+#   Loss=0.5 -> Perplexity=1.6  (very good!)
+#   Loss=0.2 -> Perplexity=1.2  (excellent!)
+
+def calculate_perplexity(model, data, block_size):
+    model.eval()
+    total_loss = 0
+    n_batches = 0
+
+    for batch in get_batches(data, block_size):
+        x, y = batch
+        _, loss = model(x, y)
+        total_loss += loss.item()
+        n_batches += 1
+
+    avg_loss = total_loss / n_batches
+    perplexity = math.exp(avg_loss)
+    return perplexity
+
+# Real-world perplexity benchmarks:
+# GPT-2 on WikiText: ~29
+# GPT-3 on WikiText: ~20
+# Our Teenage LLM:   ~1.5 (tiny data!)`,
+game:function(c){c.innerHTML=`
+<div class="section"><h3>\u{1F4CA} Understanding Perplexity</h3>
+<div class="explain-box green"><p><strong>\u{1F914} Surprise Analogy:</strong> Perplexity measures how "surprised" the model is. If you say "The cat sat on the ___" and the model thinks "mat" with 90% confidence, it's NOT surprised (low perplexity). If it has no idea, it's VERY surprised (high perplexity)!</p></div></div>
+<div class="section"><h3><span class="badge badge-game">GAME</span> Perplexity Calculator!</h3>
+<p>Adjust the loss and see the perplexity change:</p>
+<div class="interactive-area">
+<div class="slider-row"><span style="width:60px;">Loss:</span><input type="range" id="pplSlider" min="1" max="40" value="20" oninput="updatePPL()"><span class="slider-val" id="pplLoss">2.0</span></div>
+<div style="text-align:center;margin:12px 0;">
+<div style="font-size:14px;color:var(--dim);">Perplexity = e<sup>loss</sup></div>
+<div id="pplValue" style="font-size:48px;font-weight:900;color:var(--accent);margin:8px 0;">7.4</div>
+<div id="pplMeaning" style="font-size:14px;color:var(--dim);"></div></div>
+<h4>What does this perplexity mean?</h4>
+<div id="pplVisual" style="display:flex;gap:4px;flex-wrap:wrap;margin:8px 0;justify-content:center;"></div>
+<div id="pplExplain" class="output-box" style="font-size:13px;text-align:center;"></div></div></div>
+<div class="section"><h3><span class="badge badge-quiz">QUIZ</span> Perplexity Challenge</h3>
+<div class="quiz-box" id="ppl-q1"><div class="quiz-title">\u{1F914} A model has perplexity 5. What does this mean?</div><div class="quiz-options">
+<div class="quiz-opt" onclick="checkQuiz('ppl-q1',this,true)">At each step, the model is as confused as choosing between 5 equally likely options</div>
+<div class="quiz-opt" onclick="checkQuiz('ppl-q1',this,false)">The model made 5 mistakes</div>
+<div class="quiz-opt" onclick="checkQuiz('ppl-q1',this,false)">The model is 5x better than random</div>
+</div><div class="quiz-feedback" id="ppl-q1-fb"></div></div>
+<div class="quiz-box" id="ppl-q2"><div class="quiz-title">\u{1F914} Which is better: perplexity 2 or perplexity 20?</div><div class="quiz-options">
+<div class="quiz-opt" onclick="checkQuiz('ppl-q2',this,true)">Perplexity 2 (lower = less confused = better)</div>
+<div class="quiz-opt" onclick="checkQuiz('ppl-q2',this,false)">Perplexity 20 (higher = better)</div>
+</div><div class="quiz-feedback" id="ppl-q2-fb"></div></div>
+<div class="quiz-box" id="ppl-q3"><div class="quiz-title">\u{1F914} A random model over a vocab of 50,000 tokens has perplexity:</div><div class="quiz-options">
+<div class="quiz-opt" onclick="checkQuiz('ppl-q3',this,true)">50,000 \u2014 it's equally confused about all tokens (worst case)</div>
+<div class="quiz-opt" onclick="checkQuiz('ppl-q3',this,false)">1 \u2014 random is the baseline</div>
+</div><div class="quiz-feedback" id="ppl-q3-fb"></div></div></div>
+<div class="section"><div class="explain-box yellow"><p><strong>\u{1F4CA} Real-world perplexity:</strong> GPT-2 achieves ~20-30 perplexity on standard benchmarks. GPT-3 achieves ~15-20. State-of-the-art models get below 10. Our tiny model might get 50-200 \u2014 still much better than random (50,000)!</p></div></div>`;
+regQuiz('ppl-q1',10);regQuiz('ppl-q2',10);regQuiz('ppl-q3',10);updatePPL();}},
+
+// ── 7: TOP-P ──
+{fn:'generate_advanced.py',fd:'Smarter text generation',title:'\u{1F3AF} Top-p Sampling',sub:'Nucleus sampling \u2014 adaptive token selection',
+code:`# TOP-P (NUCLEUS) SAMPLING
+# =========================
+# Baby LLM had top-k: pick from K most likely
+# Teenage LLM adds top-p: pick from smallest
+# set whose cumulative probability > p
+#
+# Example with p=0.9:
+#   Probs: [0.50, 0.25, 0.10, 0.08, 0.04, 0.03]
+#   Cumul: [0.50, 0.75, 0.85, 0.93, ...]
+#   Keep:  [0.50, 0.25, 0.10, 0.08] (sum>0.9)
+#
+# WHY TOP-P > TOP-K?
+# Top-k always keeps exactly K tokens.
+# But sometimes the model is very confident
+# (1 token has 95% prob) and sometimes unsure
+# (10 tokens each have 10% prob).
+#
+# Top-p ADAPTS:
+#   Confident -> keeps fewer tokens
+#   Uncertain -> keeps more tokens
+
+def generate_advanced(model, tokenizer, ...
+                      top_p=None):
+    # ... get logits ...
+
+    if top_p is not None:
+        sorted_logits, sorted_idx = torch.sort(
+            logits, descending=True
+        )
+        cumulative = torch.cumsum(
+            F.softmax(sorted_logits, dim=-1),
+            dim=-1
+        )
+        # Remove tokens above threshold
+        mask = cumulative - F.softmax(
+            sorted_logits, dim=-1
+        ) >= top_p
+        sorted_logits[mask] = float("-inf")
+
+    probs = F.softmax(logits, dim=-1)
+    next_token = torch.multinomial(probs, 1)`,
+game:function(c){c.innerHTML=`
+<div class="section"><h3>\u{1F3AF} Top-p vs Top-k</h3>
+<div class="explain-box orange"><p><strong>\u{1F3AA} Buffet Analogy:</strong> Top-k = "always take exactly 5 dishes." Top-p = "take dishes until your plate is 90% full." Top-p adapts \u2014 if one dish is huge, you take fewer. If dishes are small, you take more!</p></div></div>
+<div class="section"><h3><span class="badge badge-game">GAME</span> Top-p vs Top-k Visualizer!</h3>
+<p>See which tokens get selected with different settings:</p>
+<div class="interactive-area">
+<div class="slider-row"><span style="width:60px;">Top-p:</span><input type="range" id="toppSlider" min="1" max="10" value="9" oninput="updateTopP()"><span class="slider-val" id="toppVal">0.9</span></div>
+<div class="slider-row"><span style="width:60px;">Top-k:</span><input type="range" id="topkSlider" min="1" max="8" value="3" oninput="updateTopP()"><span class="slider-val" id="topkVal">3</span></div>
+<h4 style="margin-top:8px;">Token Probabilities (next char after "The little ca"):</h4>
+<div id="toppBars"></div>
+<div style="display:flex;gap:16px;margin-top:8px;font-size:12px;">
+<div><span style="color:var(--green);">\u25CF</span> Selected by Top-p</div>
+<div><span style="color:var(--blue);">\u25CF</span> Selected by Top-k</div>
+<div><span style="color:var(--dim);">\u25CF</span> Filtered out</div></div></div></div>
+<div class="section"><h3><span class="badge badge-quiz">QUIZ</span> Top-p Challenge</h3>
+<div class="quiz-box" id="topp-q1"><div class="quiz-title">\u{1F914} With top-p=0.9, if one token has 95% probability, how many tokens are kept?</div><div class="quiz-options">
+<div class="quiz-opt" onclick="checkQuiz('topp-q1',this,true)">Just 1 (it already exceeds 90%)</div>
+<div class="quiz-opt" onclick="checkQuiz('topp-q1',this,false)">Still keeps many tokens</div>
+<div class="quiz-opt" onclick="checkQuiz('topp-q1',this,false)">Keeps exactly 9 tokens</div>
+</div><div class="quiz-feedback" id="topp-q1-fb"></div></div>
+<div class="quiz-box" id="topp-q2"><div class="quiz-title">\u{1F914} Why is top-p better than top-k for generation?</div><div class="quiz-options">
+<div class="quiz-opt" onclick="checkQuiz('topp-q2',this,true)">It adapts: fewer choices when confident, more when uncertain</div>
+<div class="quiz-opt" onclick="checkQuiz('topp-q2',this,false)">It's faster</div>
+<div class="quiz-opt" onclick="checkQuiz('topp-q2',this,false)">It always produces the same output</div>
+</div><div class="quiz-feedback" id="topp-q2-fb"></div></div></div>`;
+regQuiz('topp-q1',10);regQuiz('topp-q2',10);updateTopP();}},
+
+// ── 8: GRADIENT CLIPPING ──
+{fn:'train_advanced.py',fd:'Preventing training explosions',title:'\u2702\uFE0F Gradient Clipping',sub:'Keeping gradients under control during training',
+code:`# GRADIENT CLIPPING
+# ==================
+# Problem: Sometimes gradients get HUGE
+# during backpropagation.
+# This is called "exploding gradients".
+#
+# Imagine adjusting a recipe:
+#   Normal: "add a pinch more salt"
+#   Exploding: "ADD 50 POUNDS OF SALT!!!"
+#
+# Gradient clipping = speed limit!
+# If gradient magnitude > max_norm,
+# scale it down proportionally.
+#
+# max_norm=1.0 is the standard choice.
+
+for step in range(n_steps):
+    logits, loss = model(x_batch, y_batch)
+
+    optimizer.zero_grad()
+    loss.backward()
+
+    # GRADIENT CLIPPING - the safety net!
+    # If any gradient > 1.0, scale ALL
+    # gradients down proportionally
+    torch.nn.utils.clip_grad_norm_(
+        model.parameters(),
+        max_norm=1.0  # speed limit!
+    )
+
+    optimizer.step()
+    lr = scheduler.step()
+
+# Without clipping:
+#   Gradients can be: [0.1, 500.0, 0.3, 200.0]
+#   Training goes haywire!
+#
+# With clipping (max_norm=1.0):
+#   Gradients become: [0.0002, 0.93, 0.0006, 0.37]
+#   Direction preserved, magnitude controlled!`,
+game:function(c){c.innerHTML=`
+<div class="section"><h3>\u2702\uFE0F Understanding Gradient Clipping</h3>
+<div class="explain-box red"><p><strong>\u{1F697} Speed Limit Analogy:</strong> Gradients are like car speeds. Without a speed limit, some cars go 500 mph and crash! Gradient clipping sets a speed limit (max_norm=1.0) \u2014 fast cars slow down, slow cars are unaffected.</p></div></div>
+<div class="section"><h3><span class="badge badge-game">GAME</span> Gradient Clipper!</h3>
+<p>Click "Generate Gradients" to see random gradients, then clip them!</p>
+<div class="interactive-area">
+<div style="display:flex;gap:8px;margin-bottom:10px;">
+<button class="btn btn-primary" onclick="genGradients()">Generate Gradients</button>
+<button class="btn btn-success" onclick="clipGradients()">Clip! (max_norm=1.0)</button>
+<button class="btn btn-reset" onclick="genGradients()">New Gradients</button></div>
+<div id="gradBars" style="display:flex;gap:6px;align-items:flex-end;height:140px;background:var(--bg4);border-radius:8px;padding:8px;"></div>
+<div id="gradInfo" style="margin-top:8px;font-size:13px;"></div></div></div>
+<div class="section"><h3><span class="badge badge-quiz">QUIZ</span> Gradient Clipping Challenge</h3>
+<div class="quiz-box" id="gc-q1"><div class="quiz-title">\u{1F914} What happens when gradients "explode"?</div><div class="quiz-options">
+<div class="quiz-opt" onclick="checkQuiz('gc-q1',this,true)">Weights get updated by huge amounts, destabilizing training (loss spikes or becomes NaN)</div>
+<div class="quiz-opt" onclick="checkQuiz('gc-q1',this,false)">The model gets better faster</div>
+<div class="quiz-opt" onclick="checkQuiz('gc-q1',this,false)">The computer overheats</div>
+</div><div class="quiz-feedback" id="gc-q1-fb"></div></div>
+<div class="quiz-box" id="gc-q2"><div class="quiz-title">\u{1F914} Does gradient clipping change the DIRECTION of gradients?</div><div class="quiz-options">
+<div class="quiz-opt" onclick="checkQuiz('gc-q2',this,true)">No \u2014 it only scales down the magnitude, direction is preserved</div>
+<div class="quiz-opt" onclick="checkQuiz('gc-q2',this,false)">Yes \u2014 it changes direction randomly</div>
+<div class="quiz-opt" onclick="checkQuiz('gc-q2',this,false)">It removes gradients entirely</div>
+</div><div class="quiz-feedback" id="gc-q2-fb"></div></div>
+<div class="quiz-box" id="gc-q3"><div class="quiz-title">\u{1F914} Gradient clipping is applied AFTER loss.backward() but BEFORE optimizer.step(). Why this order?</div><div class="quiz-options">
+<div class="quiz-opt" onclick="checkQuiz('gc-q3',this,true)">backward() computes gradients, clipping fixes them, then step() uses the fixed gradients to update weights</div>
+<div class="quiz-opt" onclick="checkQuiz('gc-q3',this,false)">The order doesn't matter</div>
+</div><div class="quiz-feedback" id="gc-q3-fb"></div></div></div>
+<div class="section"><div class="explain-box blue"><p><strong>\u{1F4CA} When do gradients explode?</strong> Common causes: very deep networks (100+ layers), large learning rates, rare training examples with unusual patterns, or numerical instability. Gradient clipping is cheap insurance \u2014 it costs almost nothing and prevents catastrophic failures.</p></div></div>
+<div class="section" style="margin-top:20px;">
+<div class="explain-box green" style="text-align:center;">
+<h3 style="color:var(--green);">\u{1F389} Level 2 Complete!</h3>
+<p style="margin-top:6px;">You now understand the advanced techniques that make real LLMs work. Run <code style="background:var(--code-bg);padding:2px 6px;border-radius:4px;">python run_teenage.py</code> to see it all in action!</p>
+<p style="margin-top:6px;font-size:13px;color:var(--dim);">Next level: Fine-tuning, RLHF, Mixture of Experts...</p></div></div></div>`;
+regQuiz('gc-q1',10);regQuiz('gc-q2',10);regQuiz('gc-q3',10);genGradients();}}
+];
+
+
+// ═══════════════════════════════════════════════════════════
+// BPE GAME
+// ═══════════════════════════════════════════════════════════
+let bpeTokens=[],bpeMerges=[],bpeMergeIdx=0,bpeVocab={};
+function bpeReset(){
+  const text="the cat the cat the dog";
+  bpeTokens=text.split('');bpeMerges=[];bpeMergeIdx=0;
+  bpeVocab={};bpeTokens.forEach(c=>bpeVocab[c]=c);
+  renderBPE();
+}
+function bpeGetPairs(){
+  const p={};for(let i=0;i<bpeTokens.length-1;i++){const k=bpeTokens[i]+'|'+bpeTokens[i+1];p[k]=(p[k]||0)+1;}return p;
+}
+function bpeNextMerge(){
+  const pairs=bpeGetPairs();if(!Object.keys(pairs).length)return;
+  let best='',bestC=0;Object.entries(pairs).forEach(([k,v])=>{if(v>bestC){bestC=v;best=k;}});
+  if(bestC<2){document.getElementById('bpeMergeInfo').textContent='No more pairs with count >= 2!';return;}
+  const[a,b]=best.split('|');const merged=a+b;
+  bpeMerges.push({a,b,merged,count:bestC});
+  const newTokens=[];let i=0;
+  while(i<bpeTokens.length){
+    if(i<bpeTokens.length-1&&bpeTokens[i]===a&&bpeTokens[i+1]===b){newTokens.push(merged);i+=2;}
+    else{newTokens.push(bpeTokens[i]);i++;}
+  }
+  bpeTokens=newTokens;bpeMergeIdx++;renderBPE();
+}
+function renderBPE(){
+  const colors=['#e94560','#a855f7','#00b4d8','#06d6a0','#ffd166','#f97316','#ec4899','#8b5cf6'];
+  const unique=[...new Set(bpeTokens)];
+  const td=document.getElementById('bpeTokens');
+  td.innerHTML=bpeTokens.map(t=>{const ci=unique.indexOf(t)%colors.length;const c=colors[ci];return`<span style="background:${c}20;color:${c};padding:2px 6px;border-radius:4px;border:1px solid ${c}40;margin:1px;">${t===' '?'\u2423':esc(t)}</span>`;}).join(' ');
+  const log=document.getElementById('bpeMergeLog');
+  log.innerHTML=bpeMerges.map((m,i)=>`<div class="merge-step${i===bpeMerges.length-1?' active':''}"><span style="color:var(--dim);">#${i+1}</span> "${esc(m.a)}" + "${esc(m.b)}" \u2192 "<span style="color:var(--accent);">${esc(m.merged)}</span>" <span style="color:var(--dim);">(${m.count}x)</span></div>`).join('');
+  document.getElementById('bpeStats').innerHTML=`Tokens: <strong style="color:var(--accent);">${bpeTokens.length}</strong> | Unique: <strong>${unique.length}</strong> | Merges: <strong>${bpeMerges.length}</strong>`;
+  document.getElementById('bpeMergeInfo').textContent=`Step ${bpeMergeIdx}`;
+}
+
+// ═══════════════════════════════════════════════════════════
+// DROPOUT GAME
+// ═══════════════════════════════════════════════════════════
+function resetDropout(){
+  const g=document.getElementById('dropoutGrid');if(!g)return;g.innerHTML='';
+  for(let i=0;i<64;i++){const c=document.createElement('div');c.className='dropout-cell';c.style.background='rgba(6,214,160,0.3)';c.style.color='var(--green)';c.textContent='\u2713';c.dataset.active='1';g.appendChild(c);}
+  document.getElementById('dropoutStats').textContent='64/64 neurons active (100%)';
+}
+function applyDropout(){doDropout(0.1);}
+function applyDropout50(){doDropout(0.5);}
+function doDropout(rate){
+  const cells=document.querySelectorAll('.dropout-cell');let off=0;
+  cells.forEach(c=>{c.dataset.active='1';c.style.background='rgba(6,214,160,0.3)';c.style.color='var(--green)';c.textContent='\u2713';});
+  cells.forEach(c=>{if(Math.random()<rate){c.dataset.active='0';c.style.background='rgba(233,69,96,0.3)';c.style.color='var(--red)';c.textContent='\u2717';off++;}});
+  document.getElementById('dropoutStats').textContent=`${64-off}/64 neurons active (${((64-off)/64*100).toFixed(0)}%) \u2014 ${off} dropped out (${(rate*100).toFixed(0)}% rate)`;
+}
+
+// ═══════════════════════════════════════════════════════════
+// GELU GAME
+// ═══════════════════════════════════════════════════════════
+function gelu(x){return 0.5*x*(1+Math.tanh(Math.sqrt(2/Math.PI)*(x+0.044715*x*x*x)));}
+function updateGelu(){
+  const x=parseInt(document.getElementById('geluSlider').value)/10;
+  document.getElementById('geluInput').textContent=x.toFixed(1);
+  document.getElementById('reluOut').textContent=Math.max(0,x).toFixed(2);
+  document.getElementById('geluOut').textContent=gelu(x).toFixed(2);
+  drawGeluChart(x);
+}
+function drawGeluChart(cx){
+  const canvas=document.getElementById('geluCanvas');if(!canvas)return;
+  const ctx=canvas.getContext('2d');const W=canvas.width,H=canvas.height;
+  ctx.clearRect(0,0,W,H);
+  const mapX=x=>(x+3)/6*W,mapY=y=>H-(y+1)/4*H;
+  // Axes
+  ctx.strokeStyle='rgba(255,255,255,0.1)';ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(mapX(-3),mapY(0));ctx.lineTo(mapX(3),mapY(0));ctx.stroke();
+  ctx.beginPath();ctx.moveTo(mapX(0),0);ctx.lineTo(mapX(0),H);ctx.stroke();
+  // ReLU
+  ctx.strokeStyle='#00b4d8';ctx.lineWidth=2;ctx.beginPath();
+  for(let x=-3;x<=3;x+=0.05){const y=Math.max(0,x);const px=mapX(x),py=mapY(y);x===-3?ctx.moveTo(px,py):ctx.lineTo(px,py);}ctx.stroke();
+  // GELU
+  ctx.strokeStyle='#a855f7';ctx.lineWidth=2;ctx.beginPath();
+  for(let x=-3;x<=3;x+=0.05){const y=gelu(x);const px=mapX(x),py=mapY(y);x===-3?ctx.moveTo(px,py):ctx.lineTo(px,py);}ctx.stroke();
+  // Current point
+  if(cx!==undefined){
+    ctx.fillStyle='#ffd166';ctx.beginPath();ctx.arc(mapX(cx),mapY(Math.max(0,cx)),5,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#ffd166';ctx.beginPath();ctx.arc(mapX(cx),mapY(gelu(cx)),5,0,Math.PI*2);ctx.fill();
+    ctx.strokeStyle='rgba(255,209,102,0.3)';ctx.setLineDash([4,4]);ctx.beginPath();ctx.moveTo(mapX(cx),0);ctx.lineTo(mapX(cx),H);ctx.stroke();ctx.setLineDash([]);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// KV-CACHE GAME
+// ═══════════════════════════════════════════════════════════
+let kvStep=0,kvTotalNoCache=0,kvTotalWithCache=0;
+const kvWords=['The','little','cat','loved','to','play','in','the','garden'];
+function kvReset(){kvStep=0;kvTotalNoCache=0;kvTotalWithCache=0;
+  document.getElementById('kvNoCache').innerHTML='<span style="color:var(--dim);">Click "Generate Next Token"</span>';
+  document.getElementById('kvWithCache').innerHTML='<span style="color:var(--dim);">Click "Generate Next Token"</span>';
+  document.getElementById('kvNoCacheOps').textContent='';document.getElementById('kvWithCacheOps').textContent='';document.getElementById('kvSpeedup').textContent='';}
+function kvGenToken(){
+  if(kvStep>=kvWords.length)return;kvStep++;
+  const noC=kvStep*kvStep;kvTotalNoCache+=noC;
+  const wiC=kvStep;kvTotalWithCache+=wiC;
+  const nc=document.getElementById('kvNoCache');
+  nc.innerHTML='';for(let s=1;s<=kvStep;s++){
+    let ops='';for(let i=0;i<s;i++)ops+='\u2588';
+    nc.innerHTML+=`<div style="font-size:10px;">Step ${s}: compute K,V for ${ops} (${s} tokens)</div>`;}
+  const wc=document.getElementById('kvWithCache');
+  wc.innerHTML='';for(let s=1;s<=kvStep;s++){
+    wc.innerHTML+=`<div style="font-size:10px;">Step ${s}: compute K,V for <span style="color:var(--green);">\u2588</span> (1 new) + cache(${s-1})</div>`;}
+  document.getElementById('kvNoCacheOps').textContent=`Total ops: ${kvTotalNoCache}`;
+  document.getElementById('kvWithCacheOps').textContent=`Total ops: ${kvTotalWithCache}`;
+  const speedup=(kvTotalNoCache/kvTotalWithCache).toFixed(1);
+  document.getElementById('kvSpeedup').textContent=`\u26A1 KV-Cache is ${speedup}x faster! (${kvTotalWithCache} vs ${kvTotalNoCache} operations)`;
+}
+
+// ═══════════════════════════════════════════════════════════
+// LR SCHEDULE CHART
+// ═══════════════════════════════════════════════════════════
+function drawLRChart(){
+  const canvas=document.getElementById('lrCanvas');if(!canvas)return;
+  const warmup=parseInt(document.getElementById('lrWarmup').value);
+  const peakMul=parseInt(document.getElementById('lrPeak').value);
+  const peak=peakMul*1e-4;
+  document.getElementById('lrWarmupVal').textContent=warmup;
+  document.getElementById('lrPeakVal').textContent=peakMul+'e-4';
+  const ctx=canvas.getContext('2d');const W=canvas.width,H=canvas.height;
+  ctx.clearRect(0,0,W,H);
+  const total=2000,minLR=1e-5;
+  function getLR(step){
+    if(step<warmup)return peak*(step/Math.max(warmup,1));
+    const p=(step-warmup)/Math.max(total-warmup,1);
+    return minLR+(peak-minLR)*0.5*(1+Math.cos(Math.PI*Math.min(p,1)));
+  }
+  // Grid
+  ctx.strokeStyle='rgba(255,255,255,0.05)';ctx.lineWidth=1;
+  for(let i=0;i<=4;i++){const y=H-i/4*H;ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}
+  // Warmup line
+  ctx.strokeStyle='rgba(255,209,102,0.2)';ctx.setLineDash([4,4]);
+  const wx=warmup/total*W;ctx.beginPath();ctx.moveTo(wx,0);ctx.lineTo(wx,H);ctx.stroke();ctx.setLineDash([]);
+  ctx.fillStyle='rgba(255,209,102,0.5)';ctx.font='11px Nunito';ctx.fillText('warmup',wx+4,12);
+  // LR curve
+  ctx.strokeStyle='var(--accent)';ctx.lineWidth=2;ctx.beginPath();
+  for(let s=0;s<=total;s+=4){const lr=getLR(s);const x=s/total*W;const y=H-(lr/peak)*H*0.9;s===0?ctx.moveTo(x,y):ctx.lineTo(x,y);}ctx.stroke();
+  // Fill
+  ctx.globalAlpha=0.1;ctx.fillStyle='var(--accent)';ctx.beginPath();
+  for(let s=0;s<=total;s+=4){const lr=getLR(s);const x=s/total*W;const y=H-(lr/peak)*H*0.9;s===0?ctx.moveTo(x,y):ctx.lineTo(x,y);}
+  ctx.lineTo(W,H);ctx.lineTo(0,H);ctx.fill();ctx.globalAlpha=1;
+}
+
+// ═══════════════════════════════════════════════════════════
+// PERPLEXITY GAME
+// ═══════════════════════════════════════════════════════════
+function updatePPL(){
+  const loss=parseInt(document.getElementById('pplSlider').value)/10;
+  document.getElementById('pplLoss').textContent=loss.toFixed(1);
+  const ppl=Math.exp(loss);
+  document.getElementById('pplValue').textContent=ppl.toFixed(1);
+  const n=Math.min(Math.round(ppl),20);
+  const vis=document.getElementById('pplVisual');vis.innerHTML='';
+  for(let i=0;i<n;i++){vis.innerHTML+=`<div style="width:28px;height:28px;border-radius:6px;background:var(--bg4);display:flex;align-items:center;justify-content:center;font-size:14px;">${['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t'][i%20]}</div>`;}
+  const ex=document.getElementById('pplExplain');
+  if(ppl<2)ex.innerHTML='\u{1F31F} Excellent! Model is very confident \u2014 almost always knows the next token.';
+  else if(ppl<5)ex.innerHTML='\u2705 Good! Model chooses between ~'+n+' options on average.';
+  else if(ppl<15)ex.innerHTML='\u{1F914} Decent. Model is somewhat confused \u2014 ~'+n+' equally likely choices.';
+  else ex.innerHTML='\u274C Poor. Model is very confused \u2014 like guessing between '+n+' random options!';
+  document.getElementById('pplMeaning').textContent='The model is as confused as choosing between '+n+' equally likely options';
+}
+
+// ═══════════════════════════════════════════════════════════
+// TOP-P GAME
+// ═══════════════════════════════════════════════════════════
+function updateTopP(){
+  const p=parseInt(document.getElementById('toppSlider').value)/10;
+  const k=parseInt(document.getElementById('topkSlider').value);
+  document.getElementById('toppVal').textContent=p.toFixed(1);
+  document.getElementById('topkVal').textContent=k;
+  const tokens=[{ch:'t',prob:0.50},{ch:'s',prob:0.20},{ch:'n',prob:0.12},{ch:'r',prob:0.08},{ch:'l',prob:0.04},{ch:'d',prob:0.03},{ch:'b',prob:0.02},{ch:'x',prob:0.01}];
+  let cumul=0;const container=document.getElementById('toppBars');container.innerHTML='';
+  tokens.forEach((t,i)=>{
+    cumul+=t.prob;const inTopP=cumul-t.prob<p;const inTopK=i<k;
+    let color='var(--dim)';let opacity=0.3;
+    if(inTopP&&inTopK){color='var(--green)';opacity=1;}
+    else if(inTopP){color='var(--green)';opacity=0.7;}
+    else if(inTopK){color='var(--blue)';opacity=0.7;}
+    container.innerHTML+=`<div class="prob-bar-row"><span class="cl" style="color:${color};opacity:${opacity};">"${t.ch}"</span><div class="prob-bar-track"><div class="prob-bar-fill" style="width:${t.prob*100*2}%;background:${color};opacity:${opacity};"></div></div><span class="pct" style="opacity:${opacity};">${(t.prob*100).toFixed(0)}%</span><span style="font-size:10px;width:60px;color:${color};opacity:${opacity};">${inTopP?'top-p \u2713':''}${inTopK?' top-k \u2713':''}</span></div>`;
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+// GRADIENT CLIPPING GAME
+// ═══════════════════════════════════════════════════════════
+let gradients=[];
+function genGradients(){
+  gradients=[];for(let i=0;i<12;i++){
+    const v=(Math.random()-0.3)*4;gradients.push(v);}
+  // Add some "exploding" ones
+  gradients[2]=8+Math.random()*5;gradients[7]=-6-Math.random()*4;gradients[10]=10+Math.random()*3;
+  renderGradients(false);
+}
+function clipGradients(){
+  const norm=Math.sqrt(gradients.reduce((a,g)=>a+g*g,0));
+  if(norm>1){const scale=1/norm;gradients=gradients.map(g=>g*scale);}
+  renderGradients(true);
+}
+function renderGradients(clipped){
+  const container=document.getElementById('gradBars');container.innerHTML='';
+  const maxAbs=Math.max(...gradients.map(Math.abs),1);
+  gradients.forEach((g,i)=>{
+    const h=Math.abs(g)/maxAbs*120;const isExploding=Math.abs(g)>2&&!clipped;
+    const color=clipped?'var(--green)':isExploding?'var(--red)':'var(--blue)';
+    container.innerHTML+=`<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:130px;">
+      <div style="font-size:9px;color:${color};margin-bottom:2px;">${g.toFixed(2)}</div>
+      <div style="width:100%;height:${h}px;background:${color};border-radius:3px 3px 0 0;transition:height .5s;${isExploding?'animation:pulse 0.5s infinite;':''}"></div></div>`;
+  });
+  const norm=Math.sqrt(gradients.reduce((a,g)=>a+g*g,0));
+  const info=document.getElementById('gradInfo');
+  if(clipped)info.innerHTML=`\u2705 <strong style="color:var(--green);">Clipped!</strong> Gradient norm: ${norm.toFixed(4)} (max_norm=1.0). Direction preserved, magnitude controlled!`;
+  else info.innerHTML=`Gradient norm: <strong style="color:${norm>1?'var(--red)':'var(--green)'};">${norm.toFixed(2)}</strong> ${norm>1?'\u26A0 Exceeds max_norm=1.0! Click Clip!':'\u2705 Within limits'}`;
+}
+
+// ═══════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════
+goStep(0);
+</script>
+</body>
+</html>

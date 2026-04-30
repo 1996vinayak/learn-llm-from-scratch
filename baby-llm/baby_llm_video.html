@@ -1,0 +1,1457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Baby LLM - Learn How Language Models Work!</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fira+Code:wght@400;500&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg-dark: #0f0f1a;
+    --bg-card: #1a1a2e;
+    --bg-card2: #16213e;
+    --accent1: #e94560;
+    --accent2: #0f3460;
+    --accent3: #533483;
+    --accent4: #00b4d8;
+    --accent5: #06d6a0;
+    --accent6: #ffd166;
+    --text: #eaeaea;
+    --text-dim: #8892b0;
+    --code-bg: #0d1117;
+  }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: var(--bg-dark);
+    color: var(--text);
+    overflow: hidden;
+    height: 100vh;
+    width: 100vw;
+  }
+
+  /* ── SLIDE CONTAINER ── */
+  .slideshow {
+    width: 100vw;
+    height: 100vh;
+    position: relative;
+  }
+
+  .slide {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 60px;
+    opacity: 0;
+    transform: translateX(80px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+    pointer-events: none;
+    overflow-y: auto;
+  }
+
+  .slide.active {
+    opacity: 1;
+    transform: translateX(0);
+    pointer-events: all;
+  }
+
+  .slide.exit-left {
+    opacity: 0;
+    transform: translateX(-80px);
+  }
+
+  /* ── TYPOGRAPHY ── */
+  .slide-number {
+    position: absolute;
+    top: 20px; left: 30px;
+    font-size: 14px;
+    color: var(--text-dim);
+    font-weight: 600;
+  }
+
+  .step-badge {
+    display: inline-block;
+    padding: 6px 18px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  h1 {
+    font-size: 52px;
+    font-weight: 900;
+    margin-bottom: 10px;
+    background: linear-gradient(135deg, var(--accent4), var(--accent5));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-align: center;
+  }
+
+  h2 {
+    font-size: 38px;
+    font-weight: 800;
+    margin-bottom: 8px;
+    text-align: center;
+  }
+
+  h3 {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    color: var(--accent4);
+  }
+
+  .subtitle {
+    font-size: 22px;
+    color: var(--text-dim);
+    margin-bottom: 30px;
+    text-align: center;
+  }
+
+  p, li {
+    font-size: 18px;
+    line-height: 1.7;
+    max-width: 900px;
+  }
+
+  .emoji-big {
+    font-size: 80px;
+    margin-bottom: 20px;
+  }
+
+  /* ── CARDS & BOXES ── */
+  .card-row {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 20px;
+  }
+
+  .card {
+    background: var(--bg-card);
+    border-radius: 16px;
+    padding: 24px 28px;
+    border: 1px solid rgba(255,255,255,0.06);
+    max-width: 380px;
+    flex: 1;
+    min-width: 260px;
+  }
+
+  .card.highlight {
+    border-color: var(--accent4);
+    box-shadow: 0 0 20px rgba(0,180,216,0.15);
+  }
+
+  .info-box {
+    background: var(--bg-card);
+    border-left: 4px solid var(--accent4);
+    border-radius: 0 12px 12px 0;
+    padding: 20px 28px;
+    margin: 16px 0;
+    max-width: 800px;
+    width: 100%;
+  }
+
+  .info-box.green { border-left-color: var(--accent5); }
+  .info-box.red { border-left-color: var(--accent1); }
+  .info-box.yellow { border-left-color: var(--accent6); }
+  .info-box.purple { border-left-color: var(--accent3); }
+
+  /* ── CODE BLOCKS ── */
+  .code-block {
+    background: var(--code-bg);
+    border-radius: 12px;
+    padding: 20px 24px;
+    font-family: 'Fira Code', monospace;
+    font-size: 15px;
+    line-height: 1.8;
+    margin: 16px 0;
+    max-width: 800px;
+    width: 100%;
+    overflow-x: auto;
+    border: 1px solid rgba(255,255,255,0.05);
+  }
+
+  .code-block .keyword { color: #ff79c6; }
+  .code-block .string { color: #f1fa8c; }
+  .code-block .comment { color: #6272a4; }
+  .code-block .number { color: #bd93f9; }
+  .code-block .func { color: #50fa7b; }
+  .code-block .arrow { color: #ff79c6; }
+
+  /* ── ANIMATION DIAGRAM ── */
+  .diagram {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    margin: 20px 0;
+  }
+
+  .diagram-box {
+    padding: 14px 32px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 16px;
+    text-align: center;
+    min-width: 260px;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.5s ease;
+  }
+
+  .diagram-box.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .diagram-arrow {
+    font-size: 24px;
+    color: var(--accent4);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+  }
+
+  .diagram-arrow.visible { opacity: 1; }
+
+  .flow-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 8px 0;
+  }
+
+  .flow-row .arrow-right {
+    font-size: 28px;
+    color: var(--accent4);
+  }
+
+  /* ── ANIMATED ELEMENTS ── */
+  .fade-in {
+    opacity: 0;
+    transform: translateY(25px);
+    transition: all 0.6s ease;
+  }
+
+  .slide.active .fade-in.show {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* stagger delays */
+  .delay-1 { transition-delay: 0.2s; }
+  .delay-2 { transition-delay: 0.4s; }
+  .delay-3 { transition-delay: 0.6s; }
+  .delay-4 { transition-delay: 0.8s; }
+  .delay-5 { transition-delay: 1.0s; }
+  .delay-6 { transition-delay: 1.2s; }
+  .delay-7 { transition-delay: 1.4s; }
+  .delay-8 { transition-delay: 1.6s; }
+  .delay-9 { transition-delay: 1.8s; }
+
+  /* ── TOKENIZER ANIMATION ── */
+  .token-anim {
+    display: flex;
+    gap: 4px;
+    margin: 16px 0;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .token-char {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    opacity: 0;
+    transform: scale(0.5);
+    transition: all 0.4s ease;
+  }
+
+  .token-char.visible {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  .token-letter {
+    width: 44px; height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    font-size: 22px;
+    font-weight: 800;
+    font-family: 'Fira Code', monospace;
+  }
+
+  .token-id {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--accent6);
+    font-family: 'Fira Code', monospace;
+  }
+
+  /* ── ATTENTION GRID ── */
+  .attn-grid {
+    display: grid;
+    gap: 4px;
+    margin: 16px auto;
+  }
+
+  .attn-cell {
+    width: 48px; height: 48px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
+    opacity: 0;
+    transform: scale(0.3);
+    transition: all 0.3s ease;
+  }
+
+  .attn-cell.visible {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  /* ── TRAINING ANIMATION ── */
+  .loss-bar-container {
+    width: 100%;
+    max-width: 600px;
+    margin: 10px 0;
+  }
+
+  .loss-bar-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    margin-bottom: 4px;
+  }
+
+  .loss-bar-track {
+    height: 28px;
+    background: var(--bg-card);
+    border-radius: 14px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .loss-bar-fill {
+    height: 100%;
+    border-radius: 14px;
+    transition: width 1s ease;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: 10px;
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  /* ── TEMPERATURE DEMO ── */
+  .temp-demo {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 16px;
+  }
+
+  .temp-card {
+    background: var(--bg-card);
+    border-radius: 14px;
+    padding: 20px;
+    width: 260px;
+    text-align: center;
+    border: 2px solid transparent;
+  }
+
+  .temp-card.cold { border-color: #48cae4; }
+  .temp-card.warm { border-color: #ffd166; }
+  .temp-card.hot { border-color: #e94560; }
+
+  .temp-bars {
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 4px;
+    height: 80px;
+    margin: 12px 0;
+  }
+
+  .temp-bar {
+    width: 20px;
+    border-radius: 4px 4px 0 0;
+    transition: height 1s ease;
+  }
+
+  /* ── NAVIGATION ── */
+  .nav {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 30px;
+    background: linear-gradient(transparent, rgba(15,15,26,0.95));
+    z-index: 100;
+  }
+
+  .nav button {
+    padding: 12px 28px;
+    border: none;
+    border-radius: 12px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .nav .btn-prev {
+    background: var(--bg-card);
+    color: var(--text);
+  }
+
+  .nav .btn-next {
+    background: linear-gradient(135deg, var(--accent4), var(--accent5));
+    color: #000;
+  }
+
+  .nav button:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+  .nav button:disabled { opacity: 0.3; cursor: default; transform: none; }
+
+  .progress-bar {
+    flex: 1;
+    height: 6px;
+    background: var(--bg-card);
+    border-radius: 3px;
+    margin: 0 24px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent4), var(--accent5));
+    border-radius: 3px;
+    transition: width 0.4s ease;
+  }
+
+  /* ── AUTOPLAY TOGGLE ── */
+  .autoplay-toggle {
+    position: fixed;
+    top: 18px;
+    right: 24px;
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .autoplay-toggle label {
+    font-size: 14px;
+    color: var(--text-dim);
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .toggle-switch {
+    width: 44px; height: 24px;
+    background: var(--bg-card);
+    border-radius: 12px;
+    position: relative;
+    cursor: pointer;
+    transition: background 0.3s;
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+
+  .toggle-switch.on { background: var(--accent5); }
+
+  .toggle-knob {
+    width: 18px; height: 18px;
+    background: white;
+    border-radius: 50%;
+    position: absolute;
+    top: 2px; left: 3px;
+    transition: left 0.3s;
+  }
+
+  .toggle-switch.on .toggle-knob { left: 23px; }
+
+  /* ── KEYBOARD HINT ── */
+  .key-hint {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 13px;
+    color: var(--text-dim);
+    z-index: 200;
+  }
+
+  kbd {
+    background: var(--bg-card);
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+
+  /* ── MISC ── */
+  .comparison-table {
+    border-collapse: collapse;
+    margin: 16px 0;
+    font-size: 16px;
+  }
+
+  .comparison-table th, .comparison-table td {
+    padding: 10px 20px;
+    text-align: left;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+
+  .comparison-table th {
+    color: var(--accent4);
+    font-weight: 700;
+  }
+
+  ul { list-style: none; padding: 0; }
+  ul li::before { content: ""; }
+
+  .pulse {
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+
+  .float { animation: float 3s ease-in-out infinite; }
+
+  @keyframes typing {
+    from { width: 0; }
+    to { width: 100%; }
+  }
+
+  .typewriter {
+    overflow: hidden;
+    white-space: nowrap;
+    border-right: 3px solid var(--accent4);
+    animation: typing 2s steps(30) forwards, blink 0.8s step-end infinite;
+    display: inline-block;
+    max-width: fit-content;
+  }
+
+  @keyframes blink {
+    50% { border-color: transparent; }
+  }
+</style>
+</head>
+<body>
+
+<div class="key-hint">Use <kbd>&larr;</kbd> <kbd>&rarr;</kbd> arrow keys or click buttons to navigate</div>
+
+<div class="autoplay-toggle">
+  <label for="autoplay">Auto-play</label>
+  <div class="toggle-switch" id="autoplayToggle" onclick="toggleAutoplay()">
+    <div class="toggle-knob"></div>
+  </div>
+</div>
+
+<div class="slideshow" id="slideshow">
+
+  <!-- ════════════════════════════════════════════════════════ -->
+  <!-- SLIDE 0: TITLE -->
+  <!-- ════════════════════════════════════════════════════════ -->
+  <div class="slide active" id="slide-0">
+    <div class="slide-number">1 / 15</div>
+    <div class="emoji-big float">&#x1F37C;</div>
+    <h1 class="fade-in show">Baby LLM</h1>
+    <p class="subtitle fade-in show delay-1">Build Your Own Language Model From Scratch</p>
+    <div class="card-row fade-in show delay-2">
+      <div class="card" style="text-align:center;">
+        <p style="font-size:48px; margin-bottom:8px;">&#x1F9E0;</p>
+        <h3 style="font-size:18px;">7 Steps</h3>
+        <p style="font-size:15px; color:var(--text-dim);">Every building block of a real LLM</p>
+      </div>
+      <div class="card" style="text-align:center;">
+        <p style="font-size:48px; margin-bottom:8px;">&#x1F476;</p>
+        <h3 style="font-size:18px;">Child-Friendly</h3>
+        <p style="font-size:15px; color:var(--text-dim);">Explained with fun analogies</p>
+      </div>
+      <div class="card" style="text-align:center;">
+        <p style="font-size:48px; margin-bottom:8px;">&#x1F680;</p>
+        <h3 style="font-size:18px;">Real Code</h3>
+        <p style="font-size:15px; color:var(--text-dim);">Working Python + PyTorch</p>
+      </div>
+    </div>
+    <p class="fade-in show delay-3" style="margin-top:30px; color:var(--text-dim); font-size:16px;">
+      The SAME concepts behind ChatGPT, Claude &amp; Gemini &#x2014; just tiny!
+    </p>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════ -->
+  <!-- SLIDE 1: WHAT IS AN LLM? -->
+  <!-- ════════════════════════════════════════════════════════ -->
+  <div class="slide" id="slide-1">
+    <div class="slide-number">2 / 15</div>
+    <div class="emoji-big float">&#x1F99C;</div>
+    <h2 class="fade-in">What is an LLM?</h2>
+    <p class="subtitle fade-in delay-1">Large Language Model = A Super Smart Parrot</p>
+
+    <div class="info-box fade-in delay-2">
+      <h3>&#x1F4A1; The Simple Idea</h3>
+      <p>An LLM reads LOTS of text, learns patterns, and then <strong>predicts what comes next</strong>.</p>
+      <br>
+      <p>That's it! The whole magic is just: <em>"Given these words, what word probably comes next?"</em></p>
+    </div>
+
+    <div class="card-row fade-in delay-3">
+      <div class="card">
+        <p style="font-size:36px; text-align:center;">&#x1F4DA;</p>
+        <h3 style="font-size:16px;">1. Read Everything</h3>
+        <p style="font-size:15px; color:var(--text-dim);">Books, websites, Wikipedia, code...</p>
+      </div>
+      <div class="card">
+        <p style="font-size:36px; text-align:center;">&#x1F50D;</p>
+        <h3 style="font-size:16px;">2. Learn Patterns</h3>
+        <p style="font-size:15px; color:var(--text-dim);">"After 'hel' usually comes 'lo'"</p>
+      </div>
+      <div class="card">
+        <p style="font-size:36px; text-align:center;">&#x270D;&#xFE0F;</p>
+        <h3 style="font-size:16px;">3. Predict Next</h3>
+        <p style="font-size:15px; color:var(--text-dim);">Generate new text, one piece at a time!</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════ -->
+  <!-- SLIDE 2: THE BIG PICTURE -->
+  <!-- ════════════════════════════════════════════════════════ -->
+  <div class="slide" id="slide-2">
+    <div class="slide-number">3 / 15</div>
+    <span class="step-badge" style="background:var(--accent2); color:var(--accent4);">OVERVIEW</span>
+    <h2 class="fade-in">The 7 Building Blocks</h2>
+    <p class="subtitle fade-in delay-1">Every LLM has these same pieces</p>
+
+    <div class="diagram">
+      <div class="diagram-box fade-in delay-1" style="background:linear-gradient(135deg,#1a1a2e,#16213e); border:2px solid var(--accent6);">
+        &#x1F4D6; Step 1: Training Data
+      </div>
+      <div class="diagram-arrow fade-in delay-2">&#x2B07;</div>
+      <div class="diagram-box fade-in delay-2" style="background:linear-gradient(135deg,#1a1a2e,#16213e); border:2px solid var(--accent4);">
+        &#x1F524; Step 2: Tokenizer
+      </div>
+      <div class="diagram-arrow fade-in delay-3">&#x2B07;</div>
+      <div class="diagram-box fade-in delay-3" style="background:linear-gradient(135deg,#1a1a2e,#16213e); border:2px solid var(--accent5);">
+        &#x1F4CA; Step 3: Embeddings
+      </div>
+      <div class="diagram-arrow fade-in delay-4">&#x2B07;</div>
+      <div class="diagram-box fade-in delay-4" style="background:linear-gradient(135deg,#1a1a2e,#16213e); border:2px solid var(--accent1);">
+        &#x1F440; Step 4: Self-Attention
+      </div>
+      <div class="diagram-arrow fade-in delay-5">&#x2B07;</div>
+      <div class="diagram-box fade-in delay-5" style="background:linear-gradient(135deg,#1a1a2e,#16213e); border:2px solid var(--accent3);">
+        &#x1F9E0; Step 5: Transformer
+      </div>
+      <div class="diagram-arrow fade-in delay-6">&#x2B07;</div>
+      <div class="diagram-box fade-in delay-6" style="background:linear-gradient(135deg,#1a1a2e,#16213e); border:2px solid #e07c24;">
+        &#x1F3CB; Step 6: Training
+      </div>
+      <div class="diagram-arrow fade-in delay-7">&#x2B07;</div>
+      <div class="diagram-box fade-in delay-7" style="background:linear-gradient(135deg,#1a1a2e,#16213e); border:2px solid #2ecc71;">
+        &#x270D;&#xFE0F; Step 7: Generate Text!
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════ -->
+  <!-- SLIDE 3: STEP 1 - TRAINING DATA -->
+  <!-- ════════════════════════════════════════════════════════ -->
+  <div class="slide" id="slide-3">
+    <div class="slide-number">4 / 15</div>
+    <span class="step-badge" style="background:rgba(255,209,102,0.15); color:var(--accent6);">STEP 1</span>
+    <h2 class="fade-in">&#x1F4D6; Training Data</h2>
+    <p class="subtitle fade-in delay-1">The "Recipe Book" our model learns from</p>
+
+    <div class="info-box yellow fade-in delay-2">
+      <h3>&#x1F373; Cooking Analogy</h3>
+      <p>Training data is like a <strong>recipe book</strong>. The model reads it over and over until it memorizes the patterns. If you give it Italian recipes, it learns Italian cooking!</p>
+    </div>
+
+    <div class="code-block fade-in delay-3">
+      <span class="comment"># Our tiny training story (step1_data.py)</span><br>
+      <span class="string">"Once upon a time there was a little cat.</span><br>
+      <span class="string">&nbsp;The little cat loved to play in the garden.</span><br>
+      <span class="string">&nbsp;Every day the little cat would chase butterflies.</span><br>
+      <span class="string">&nbsp;The butterflies would fly high in the sky..."</span>
+    </div>
+
+    <div class="card-row fade-in delay-4">
+      <div class="card">
+        <h3 style="font-size:16px;">&#x1F4CF; Our Data</h3>
+        <p style="font-size:28px; font-weight:900; color:var(--accent6);">1,042 characters</p>
+        <p style="font-size:14px; color:var(--text-dim);">186 words, 34 unique characters</p>
+      </div>
+      <div class="card">
+        <h3 style="font-size:16px;">&#x1F30D; GPT-4's Data</h3>
+        <p style="font-size:28px; font-weight:900; color:var(--accent1);">~13 Trillion tokens</p>
+        <p style="font-size:14px; color:var(--text-dim);">The entire internet, books, code...</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════ -->
+  <!-- SLIDE 4: STEP 2 - TOKENIZER CONCEPT -->
+  <!-- ════════════════════════════════════════════════════════ -->
+  <div class="slide" id="slide-4">
+    <div class="slide-number">5 / 15</div>
+    <span class="step-badge" style="background:rgba(0,180,216,0.15); color:var(--accent4);">STEP 2</span>
+    <h2 class="fade-in">&#x1F524; Tokenizer</h2>
+    <p class="subtitle fade-in delay-1">Cutting text into pieces &amp; giving each a number</p>
+
+    <div class="info-box fade-in delay-2">
+      <h3>&#x1F355; Pizza Analogy</h3>
+      <p>You can't eat a whole pizza at once! You cut it into <strong>slices</strong> (tokens). Each slice gets a <strong>number</strong>. Now you can eat it piece by piece!</p>
+    </div>
+
+    <div class="fade-in delay-3" style="text-align:center;">
+      <h3 style="margin-bottom:12px;">Watch: "the cat" gets tokenized!</h3>
+      <div class="token-anim" id="tokenAnim">
+        <!-- filled by JS -->
+      </div>
+    </div>
+
+    <div class="card-row fade-in delay-4">
+      <div class="card">
+        <h3 style="font-size:15px;">&#x1F1E6; Character-Level (Ours)</h3>
+        <p style="font-size:14px; color:var(--text-dim);">Each letter = 1 token<br>"hello" = 5 tokens<br>Vocab: ~34 characters</p>
+      </div>
+      <div class="card">
+        <h3 style="font-size:15px;">&#x1F1E6;&#x1F1E7; Subword (GPT)</h3>
+        <p style="font-size:14px; color:var(--text-dim);">Chunks of letters = 1 token<br>"hello" = 1 token<br>Vocab: ~50,000 tokens</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════ -->
+  <!-- SLIDE 5: STEP 2 - TOKENIZER CODE -->
+  <!-- ════════════════════════════════════════════════════════ -->
+  <div class="slide" id="slide-5">
+    <div class="slide-number">6 / 15</div>
+    <span class="step-badge" style="background:rgba(0,180,216,0.15); color:var(--accent4);">STEP 2</span>
+    <h2 class="fade-in">&#x1F524; Tokenizer &#x2014; The Code</h2>
+    <p class="subtitle fade-in delay-1">Two simple operations: Encode &amp; Decode</p>
+
+    <div class="code-block fade-in delay-2" style="max-width:700px;">
+      <span class="keyword">class</span> <span class="func">BabyTokenizer</span>:<br>
+      <br>
+      &nbsp;&nbsp;<span class="keyword">def</span> <span class="func">encode</span>(self, text):<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;<span class="comment"># Text &rarr; Numbers</span><br>
+      &nbsp;&nbsp;&nbsp;&nbsp;<span class="comment"># "cat" &rarr; [13, 11, 29]</span><br>
+      &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span> [self.char_to_idx[ch] <span class="keyword">for</span> ch <span class="keyword">in</span> text]<br>
+      <br>
+      &nbsp;&nbsp;<span class="keyword">def</span> <span class="func">decode</span>(self, indices):<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;<span class="comment"># Numbers &rarr; Text</span><br>
+      &nbsp;&nbsp;&nbsp;&nbsp;<span class="comment"># [13, 11, 29] &rarr; "cat"</span><br>
+      &nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span> <span class="string">""</span>.join([self.idx_to_char[i] <span class="keyword">for</span> i <span class="keyword">in</span> indices])
+    </div>
+
+    <div class="info-box green fade-in delay-3">
+      <p><strong>&#x1F4C1; File:</strong> step2_tokenizer.py</p>
+      <p style="margin-top:8px;">The tokenizer builds a lookup table: each unique character gets a unique number. That's the entire "vocabulary" of our model!</p>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════ -->
+  <!-- SLIDE 6: STEP 3 - EMBEDDINGS -->
+  <!-- ════════════════════════════════════════════════════════ -->
+  <div class="slide" id="slide-6">
+    <div class="slide-number">7 / 15</div>
+    <span class="step-badge" style="background:rgba(6,214,160,0.15); color:var(--accent5);">STEP 3</span>
+    <h2 class="fade-in">&#x1F4CA; Embeddings</h2>
+    <p class="subtitle fade-in delay-1">Giving each character a "personality" in numbers</p>
+
+    <div class="info-box green fade-in delay-2">
+      <h3>&#x1F3A8; Color Analogy</h3>
+      <p>"Red" is just a label. But <strong>[255, 0, 0]</strong> tells you the EXACT shade (RGB). Embeddings are like RGB values for characters &#x2014; rich number profiles instead of simple IDs!</p>
+    </div>
+
+    <div class="fade-in delay-3" style="text-align:center;">
+      <h3>Character ID &rarr; Rich Embedding Vector</h3>
+      <div style="display:flex; align-items:center; justify-content:center; gap:20px; margin:20px 0; flex-wrap:wrap;">
+        <div style="background:var(--bg-card); padding:16px 24px; border-radius:12px; text-align:center;">
+          <div style="font-size:32px; font-weight:900; color:var(--accent6);">5</div>
+          <div style="font-size:13px; color:var(--text-dim);">Just a number</div>
+        </div>
+        <div style="font-size:36px; color:var(--accent4);">&#x27A1;</div>
+        <div style="background:var(--bg-card); padding:16px 24px; border-radius:12px; text-align:center;">
+          <div style="font-size:18px; font-weight:700; color:var(--accent5); font-family:'Fira Code',monospace;">[0.2, -0.5, 0.8, 0.1, ...]</div>
+          <div style="font-size:13px; color:var(--text-dim);">64 numbers = "personality"</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card-row fade-in delay-4">
+      <div class="card">
+        <h3 style="font-size:15px;">&#x1F194; Token Embedding</h3>
+        <p style="font-size:14px; color:var(--text-dim);">"WHAT character am I?"<br>Each character has a unique vector</p>
+      </div>
+      <div class="card">
+        <h3 style="font-size:15px;">&#x1F4CD; Position Embedding</h3>
+        <p style="font-size:14px; color:var(--text-dim);">"WHERE am I in the sentence?"<br>Order matters! "cat the" &#x2260; "the cat"</p>
+      </div>
+      <div class="card">
+        <h3 style="font-size:15px;">&#x2795; Final Embedding</h3>
+        <p style="font-size:14px; color:var(--text-dim);">Token + Position = Complete picture<br>Identity + Location combined!</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════ -->
+  <!-- SLIDE 7: STEP 4 - ATTENTION CONCEPT -->
+  <!-- ════════════════════════════════════════════════════════ -->
+  <div class="slide" id="slide-7">
+    <div class="slide-number">8 / 15</div>
+    <span class="step-badge" style="background:rgba(233,69,96,0.15); color:var(--accent1);">STEP 4</span>
+    <h2 class="fade-in">&#x1F440; Self-Attention</h2>
+    <p class="subtitle fade-in delay-1">The SECRET SAUCE of all modern AI!</p>
+
+    <div class="info-box red fade-in delay-2">
+      <h3>&#x1F3EB; Classroom Analogy</h3>
+      <p>Imagine you're in class and the teacher asks a question. You look around:<br>
+      &#x2022; "Alice knows math &#x2014; she might help!" <strong>(high attention)</strong><br>
+      &#x2022; "Bob is sleeping..." <strong>(low attention)</strong><br>
+      Each character does the same &#x2014; it "looks at" other characters and decides which are important!</p>
+    </div>
+
+    <div class="card-row fade-in delay-3">
+      <div class="card highlight">
+        <h3 style="font-size:16px;">&#x1F50D; Query (Q)</h3>
+        <p style="font-size:15px;">"What am I looking for?"</p>
+        <p style="font-size:13px; color:var(--text-dim); margin-top:6px;">You walk into a library with a question</p>
+      </div>
+      <div class="card highlight">
+        <h3 style="font-size:16px;">&#x1F3F7; Key (K)</h3>
+        <p style="font-size:15px;">"What does each book contain?"</p>
+        <p style="font-size:13px; color:var(--text-dim); margin-top:6px;">Each book has a label on its spine</p>
+      </div>
+      <div class="card highlight">
+        <h3 style="font-size:16px;">&#x1F4D6; Value (V)</h3>
+        <p style="font-size:15px;">"What's actually inside?"</p>
+        <p style="font-size:13px; color:var(--text-dim); margin-top:6px;">The actual information in the book</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════ -->
+  <!-- SLIDE 8: STEP 4 - ATTENTION MASK VISUAL -->
+  <!-- ════════════════════════════════════════════════════════ -->
+  <div class="slide" id="slide-8">
+    <div class="slide-number">9 / 15</div>
+    <span class="step-badge" style="background:rgba(233,69,96,0.15); color:var(--accent1);">STEP 4</span>
+    <h2 class="fade-in">&#x1F3AD; The Causal Mask</h2>
+    <p class="subtitle fade-in delay-1">Rule: You can only look BACKWARDS, never at the future!</p>
+
+    <div class="info-box red fade-in delay-2">
+      <p>When predicting the next character, the model can only see <strong>previous</strong> characters. It's like covering future answers on a test!</p>
+    </div>
+
+    <div class="fade-in delay-3" style="text-align:center;">
+      <h3>Attention Mask for "the cat"</h3>
+      <p style="color:var(--text-dim); font-size:14px; margin-bottom:12px;">&#x2705; = can see &nbsp;&nbsp; &#x274C; = hidden (future)</p>
+      <div class="attn-grid" id="attnGrid" style="grid-template-columns: repeat(8, 48px); justify-content: center;">
+        <!-- filled by JS -->
+      </div>
+    </div>
+
+    <div class="info-box purple fade-in delay-5">
+      <h3>&#x1F3AD; Multi-Head Attention</h3>
+      <p>Instead of ONE person searching, send <strong>4 researchers</strong> (heads), each looking for different patterns. Then combine their findings! Our model uses <strong>4 heads</strong>.</p>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════ -->
+  <!-- SLIDE 9: STEP 5 - TRANSFORMER -->
+  <!-- ════════════════════════════════════════════════════════ -->
+  <div class="slide" id="slide-9">
+    <div class="slide-number">10 / 15</div>
+    <span class="step-badge" style="background:rgba(83,52,131,0.2); color:var(--accent3);">STEP 5</span>
+    <h2 class="fade-in">&#x1F9E0; The Transformer</h2>
+    <p class="subtitle fade-in delay-1">Stacking blocks to build the "brain"</p>
+
+    <div style="display:flex; gap:40px; align-items:flex-start; flex-wrap:wrap; justify-content:center;">
+      <div class="diagram fade-in delay-2">
+        <div class="diagram-box" style="background:var(--bg-card); border:2px solid var(--accent4); min-width:220px;">
+          &#x1F4CA; Embeddings
+        </div>
+        <div class="diagram-arrow">&#x2B07;</div>
+        <div class="diagram-box" style="background:linear-gradient(135deg,#1a1a2e,#0f3460); border:2px solid var(--accent1); min-width:220px;">
+          &#x1F504; Block 1<br><small>Attention + FeedForward</small>
+        </div>
+        <div class="diagram-arrow">&#x2B07;</div>
+        <div class="diagram-box" style="background:linear-gradient(135deg,#1a1a2e,#0f3460); border:2px solid var(--accent1); min-width:220px;">
+          &#x1F504; Block 2
+        </div>
+        <div class="diagram-arrow">&#x2B07;</div>
+        <div class="diagram-box" style="background:linear-gradient(135deg,#1a1a2e,#0f3460); border:2px solid var(--accent1); min-width:220px;">
+          &#x1F504; Block 3
+        </div>
+        <div class="diagram-arrow">&#x2B07;</div>
+        <div class="diagram-box" style="background:linear-gradient(135deg,#1a1a2e,#0f3460); border:2px solid var(--accent1); min-width:220px;">
+          &#x1F504; Block 4
+        </div>
+        <div class="diagram-arrow">&#x2B07;</div>
+        <div class="diagram-box" style="background:var(--bg-card); border:2px solid var(--accent5); min-width:220px;">
+          &#x1F3AF; Predict Next Character
+        </div>
+      </div>
+
+      <div class="fade-in delay-4" style="max-width:360px;">
+        <div class="info-box" style="margin-top:0;">
+          <h3 style="font-size:16px;">Inside Each Block:</h3>
+          <p style="font-size:14px;">
+            <strong>1. Self-Attention</strong><br>
+            &nbsp;&nbsp;"Gather info from others"<br><br>
+            <strong>2. Feed-Forward</strong><br>
+            &nbsp;&nbsp;"Think about what you gathered"<br>
+            &nbsp;&nbsp;Linear &rarr; ReLU &rarr; Linear<br><br>
+            <strong>3. Layer Norm</strong><br>
+            &nbsp;&nbsp;"Keep numbers stable"<br><br>
+            <strong>4. Residual Connection</strong><br>
+            &nbsp;&nbsp;"Don't forget what you knew!"<br>
+            &nbsp;&nbsp;output = input + new_info
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════ -->
+  <!-- SLIDE 10: STEP 5 - MODEL SIZE COMPARISON -->
+  <!-- ════════════════════════════════════════════════════════ -->
+  <div class="slide" id="slide-10">
+    <div class="slide-number">11 / 15</div>
+    <span class="step-badge" style="background:rgba(83,52,131,0.2); color:var(--accent3);">STEP 5</span>
+    <h2 class="fade-in">&#x1F4CF; Size Comparison</h2>
+    <p class="subtitle fade-in delay-1">Our Baby vs. The Giants</p>
+
+    <table class="comparison-table fade-in delay-2">
+      <tr>
+        <th></th>
+        <th>&#x1F37C; Baby LLM</th>
+        <th>&#x1F916; GPT-3</th>
+        <th>&#x1F9E0; GPT-4</th>
+      </tr>
+      <tr>
+        <td style="color:var(--accent4);">Parameters</td>
+        <td><strong>~205,000</strong></td>
+        <td>175 Billion</td>
+        <td>~1.8 Trillion*</td>
+      </tr>
+      <tr>
+        <td style="color:var(--accent4);">Embedding Size</td>
+        <td><strong>64</strong></td>
+        <td>12,288</td>
+        <td>~12,288</td>
+      </tr>
+      <tr>
+        <td style="color:var(--accent4);">Attention Heads</td>
+        <td><strong>4</strong></td>
+        <td>96</td>
+        <td>~120</td>
+      </tr>
+      <tr>
+        <td style="color:var(--accent4);">Layers</td>
+        <td><strong>4</strong></td>
+        <td>96</td>
+        <td>~120</td>
+      </tr>
+      <tr>
+        <td style="color:var(--accent4);">Vocabulary</td>
+        <td><strong>34 chars</strong></td>
+        <td>50,257 tokens</td>
+        <td>100,000+ tokens</td>
+      </tr>
+      <tr>
+        <td style="color:var(--accent4);">Training Data</td>
+        <td><strong>1 KB</strong></td>
+        <td>~570 GB</td>
+        <td>~13 TB</td>
+      </tr>
+    </table>
+
+    <div class="info-box green fade-in delay-3">
+      <p>&#x1F3AF; <strong>Same architecture, same concepts!</strong> The only difference is scale. You now understand the foundation of ALL modern LLMs.</p>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════ -->
+  <!-- SLIDE 11: STEP 6 - TRAINING -->
+  <!-- ════════════════════════════════════════════════════════ -->
+  <div class="slide" id="slide-11">
+    <div class="slide-number">12 / 15</div>
+    <span class="step-badge" style="background:rgba(224,124,36,0.15); color:#e07c24;">STEP 6</span>
+    <h2 class="fade-in">&#x1F3CB; Training</h2>
+    <p class="subtitle fade-in delay-1">Practice makes perfect!</p>
+
+    <div class="info-box yellow fade-in delay-2">
+      <h3>&#x1F3C0; Basketball Analogy</h3>
+      <p>1. <strong>Shoot</strong> the ball (forward pass)<br>
+         2. See where it landed &#x2014; too far left? (compute loss)<br>
+         3. Figure out what to adjust (backpropagation)<br>
+         4. Adjust your technique (update weights)<br>
+         5. Shoot again! (next iteration)</p>
+    </div>
+
+    <div class="fade-in delay-3" style="width:100%; max-width:650px;">
+      <h3 style="text-align:center; margin-bottom:16px;">Watch the Loss Go Down!</h3>
+
+      <div class="loss-bar-container">
+        <div class="loss-bar-label"><span>Step 0</span><span class="loss-val" data-target="3.65">Loss: 3.65</span></div>
+        <div class="loss-bar-track">
+          <div class="loss-bar-fill" id="lossBar0" style="width:91%; background:linear-gradient(90deg,#e94560,#ff6b6b);">3.65</div>
+        </div>
+      </div>
+
+      <div class="loss-bar-container" style="margin-top:8px;">
+        <div class="loss-bar-label"><span>Step 400</span><span>Loss: 1.29</span></div>
+        <div class="loss-bar-track">
+          <div class="loss-bar-fill" id="lossBar1" style="width:0%; background:linear-gradient(90deg,#e07c24,#ffd166);">1.29</div>
+        </div>
+      </div>
+
+      <div class="loss-bar-container" style="margin-top:8px;">
+        <div class="loss-bar-label"><span>Step 1000</span><span>Loss: 0.30</span></div>
+        <div class="loss-bar-track">
+          <div class="loss-bar-fill" id="lossBar2" style="width:0%; background:linear-gradient(90deg,#00b4d8,#48cae4);">0.30</div>
+        </div>
+      </div>
+
+      <div class="loss-bar-container" style="margin-top:8px;">
+        <div class="loss-bar-label"><span>Step 2000</span><span>Loss: 0.17 &#x2705;</span></div>
+        <div class="loss-bar-track">
+          <div class="loss-bar-fill" id="lossBar3" style="width:0%; background:linear-gradient(90deg,#06d6a0,#2ecc71);">0.17</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="info-box green fade-in delay-5" style="max-width:650px;">
+      <p><strong>Loss went from 3.65 &#x2192; 0.17!</strong> The model went from random guessing to actually understanding our story's patterns.</p>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════ -->
+  <!-- SLIDE 12: STEP 6 - TRAINING LOOP CODE -->
+  <!-- ════════════════════════════════════════════════════════ -->
+  <div class="slide" id="slide-12">
+    <div class="slide-number">13 / 15</div>
+    <span class="step-badge" style="background:rgba(224,124,36,0.15); color:#e07c24;">STEP 6</span>
+    <h2 class="fade-in">&#x1F504; The Training Loop</h2>
+    <p class="subtitle fade-in delay-1">4 lines that teach the model everything</p>
+
+    <div class="code-block fade-in delay-2" style="max-width:700px;">
+      <span class="keyword">for</span> step <span class="keyword">in</span> <span class="func">range</span>(<span class="number">2000</span>):<br>
+      <br>
+      &nbsp;&nbsp;<span class="comment"># 1. FORWARD: Feed data, get predictions</span><br>
+      &nbsp;&nbsp;logits, loss = <span class="func">model</span>(x_batch, y_batch)<br>
+      <br>
+      &nbsp;&nbsp;<span class="comment"># 2. BACKWARD: Which weights caused mistakes?</span><br>
+      &nbsp;&nbsp;optimizer.<span class="func">zero_grad</span>()&nbsp;&nbsp;<span class="comment"># Clear old gradients</span><br>
+      &nbsp;&nbsp;loss.<span class="func">backward</span>()&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment"># Compute new gradients</span><br>
+      <br>
+      &nbsp;&nbsp;<span class="comment"># 3. UPDATE: Nudge weights to reduce loss</span><br>
+      &nbsp;&nbsp;optimizer.<span class="func">step</span>()
+    </div>
+
+    <div class="card-row fade-in delay-3">
+      <div class="card">
+        <h3 style="font-size:15px; color:var(--accent4);">&#x27A1; Forward Pass</h3>
+        <p style="font-size:14px; color:var(--text-dim);">Data flows through the model. Each layer processes it. Output = predictions.</p>
+      </div>
+      <div class="card">
+        <h3 style="font-size:15px; color:var(--accent1);">&#x2B05; Backward Pass</h3>
+        <p style="font-size:14px; color:var(--text-dim);">Error flows backwards. Each weight learns how much it contributed to mistakes.</p>
+      </div>
+      <div class="card">
+        <h3 style="font-size:15px; color:var(--accent5);">&#x1F504; Update</h3>
+        <p style="font-size:14px; color:var(--text-dim);">Optimizer adjusts weights slightly. AdamW is the "smart coach" that decides how much.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════ -->
+  <!-- SLIDE 13: STEP 7 - GENERATION -->
+  <!-- ════════════════════════════════════════════════════════ -->
+  <div class="slide" id="slide-13">
+    <div class="slide-number">14 / 15</div>
+    <span class="step-badge" style="background:rgba(46,204,113,0.15); color:#2ecc71;">STEP 7</span>
+    <h2 class="fade-in">&#x270D;&#xFE0F; Text Generation</h2>
+    <p class="subtitle fade-in delay-1">The model writes its own story!</p>
+
+    <div class="info-box green fade-in delay-2">
+      <h3>&#x1F4DD; How It Works</h3>
+      <p>Generate ONE character at a time. Each new character depends on all previous ones. This is called <strong>"autoregressive generation"</strong>.</p>
+    </div>
+
+    <div class="fade-in delay-3" style="text-align:center; margin:16px 0;">
+      <h3>Watch it generate: "The little cat..."</h3>
+      <div style="background:var(--code-bg); border-radius:12px; padding:20px 28px; margin:12px auto; max-width:600px; min-height:60px; text-align:left;">
+        <span id="genText" style="font-family:'Fira Code',monospace; font-size:18px; color:var(--accent5);"></span>
+        <span id="genCursor" style="border-right:2px solid var(--accent4); animation:blink 0.8s step-end infinite;">&nbsp;</span>
+      </div>
+    </div>
+
+    <div class="fade-in delay-4">
+      <h3 style="text-align:center;">&#x1F321; Temperature Controls Creativity</h3>
+      <div class="temp-demo">
+        <div class="temp-card cold">
+          <div style="font-size:28px;">&#x1F9CA;</div>
+          <h3 style="font-size:16px; color:#48cae4;">Low (0.3)</h3>
+          <div class="temp-bars" id="tempBarsLow">
+            <!-- filled by JS -->
+          </div>
+          <p style="font-size:13px; color:var(--text-dim);">Safe &amp; repetitive<br>Always picks the top choice</p>
+        </div>
+        <div class="temp-card warm">
+          <div style="font-size:28px;">&#x2600;&#xFE0F;</div>
+          <h3 style="font-size:16px; color:#ffd166;">Medium (0.8)</h3>
+          <div class="temp-bars" id="tempBarsMed">
+            <!-- filled by JS -->
+          </div>
+          <p style="font-size:13px; color:var(--text-dim);">Balanced &amp; natural<br>Good mix of patterns</p>
+        </div>
+        <div class="temp-card hot">
+          <div style="font-size:28px;">&#x1F525;</div>
+          <h3 style="font-size:16px; color:#e94560;">High (1.5)</h3>
+          <div class="temp-bars" id="tempBarsHigh">
+            <!-- filled by JS -->
+          </div>
+          <p style="font-size:13px; color:var(--text-dim);">Wild &amp; creative<br>Unexpected choices!</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════ -->
+  <!-- SLIDE 14: CONGRATULATIONS -->
+  <!-- ════════════════════════════════════════════════════════ -->
+  <div class="slide" id="slide-14">
+    <div class="slide-number">15 / 15</div>
+    <div class="emoji-big pulse">&#x1F389;</div>
+    <h1 class="fade-in">You Built an LLM!</h1>
+    <p class="subtitle fade-in delay-1">Here's everything you learned</p>
+
+    <div class="card-row fade-in delay-2" style="max-width:900px;">
+      <div class="card" style="flex:1; min-width:200px; text-align:center; padding:16px;">
+        <div style="font-size:28px;">&#x1F4D6;</div>
+        <p style="font-size:13px; font-weight:700; margin-top:6px;">Training Data</p>
+        <p style="font-size:11px; color:var(--text-dim);">step1_data.py</p>
+      </div>
+      <div class="card" style="flex:1; min-width:200px; text-align:center; padding:16px;">
+        <div style="font-size:28px;">&#x1F524;</div>
+        <p style="font-size:13px; font-weight:700; margin-top:6px;">Tokenizer</p>
+        <p style="font-size:11px; color:var(--text-dim);">step2_tokenizer.py</p>
+      </div>
+      <div class="card" style="flex:1; min-width:200px; text-align:center; padding:16px;">
+        <div style="font-size:28px;">&#x1F4CA;</div>
+        <p style="font-size:13px; font-weight:700; margin-top:6px;">Embeddings</p>
+        <p style="font-size:11px; color:var(--text-dim);">step3_embeddings.py</p>
+      </div>
+      <div class="card" style="flex:1; min-width:200px; text-align:center; padding:16px;">
+        <div style="font-size:28px;">&#x1F440;</div>
+        <p style="font-size:13px; font-weight:700; margin-top:6px;">Attention</p>
+        <p style="font-size:11px; color:var(--text-dim);">step4_attention.py</p>
+      </div>
+    </div>
+    <div class="card-row fade-in delay-3" style="max-width:700px;">
+      <div class="card" style="flex:1; min-width:200px; text-align:center; padding:16px;">
+        <div style="font-size:28px;">&#x1F9E0;</div>
+        <p style="font-size:13px; font-weight:700; margin-top:6px;">Transformer</p>
+        <p style="font-size:11px; color:var(--text-dim);">step5_transformer.py</p>
+      </div>
+      <div class="card" style="flex:1; min-width:200px; text-align:center; padding:16px;">
+        <div style="font-size:28px;">&#x1F3CB;</div>
+        <p style="font-size:13px; font-weight:700; margin-top:6px;">Training</p>
+        <p style="font-size:11px; color:var(--text-dim);">step6_training.py</p>
+      </div>
+      <div class="card" style="flex:1; min-width:200px; text-align:center; padding:16px;">
+        <div style="font-size:28px;">&#x270D;&#xFE0F;</div>
+        <p style="font-size:13px; font-weight:700; margin-top:6px;">Generation</p>
+        <p style="font-size:11px; color:var(--text-dim);">step7_generate.py</p>
+      </div>
+    </div>
+
+    <div class="info-box green fade-in delay-4" style="text-align:center; max-width:700px;">
+      <p style="font-size:20px; font-weight:700;">&#x1F3AF; These are the EXACT same concepts in ChatGPT, Claude &amp; Gemini!</p>
+      <p style="font-size:16px; margin-top:8px;">Run <code style="background:var(--code-bg); padding:2px 8px; border-radius:4px;">python run_all.py</code> to see it all in action!</p>
+    </div>
+  </div>
+
+</div><!-- end slideshow -->
+
+<!-- ════════════════════════════════════════════════════════ -->
+<!-- NAVIGATION BAR -->
+<!-- ════════════════════════════════════════════════════════ -->
+<div class="nav">
+  <button class="btn-prev" id="btnPrev" onclick="prevSlide()">&#x2190; Previous</button>
+  <div class="progress-bar">
+    <div class="progress-fill" id="progressFill"></div>
+  </div>
+  <button class="btn-next" id="btnNext" onclick="nextSlide()">Next &#x2192;</button>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// SLIDESHOW ENGINE
+// ═══════════════════════════════════════════════════════════
+const TOTAL_SLIDES = 15;
+let current = 0;
+let autoplay = false;
+let autoplayTimer = null;
+
+function showSlide(n) {
+  const slides = document.querySelectorAll('.slide');
+  slides.forEach((s, i) => {
+    s.classList.remove('active', 'exit-left');
+    if (i < n) s.classList.add('exit-left');
+  });
+  slides[n].classList.add('active');
+
+  // Trigger fade-in animations
+  setTimeout(() => {
+    slides[n].querySelectorAll('.fade-in').forEach(el => el.classList.add('show'));
+  }, 100);
+
+  // Update nav
+  document.getElementById('btnPrev').disabled = (n === 0);
+  document.getElementById('btnNext').disabled = (n === TOTAL_SLIDES - 1);
+  document.getElementById('progressFill').style.width = ((n / (TOTAL_SLIDES - 1)) * 100) + '%';
+
+  // Trigger slide-specific animations
+  if (n === 4) animateTokenizer();
+  if (n === 8) animateAttentionGrid();
+  if (n === 11) animateLossBars();
+  if (n === 13) { animateGeneration(); animateTemperatureBars(); }
+
+  // Animate diagram boxes
+  if (n === 2 || n === 9) {
+    setTimeout(() => {
+      slides[n].querySelectorAll('.diagram-box, .diagram-arrow').forEach((el, i) => {
+        setTimeout(() => { el.classList.add('visible'); }, i * 200);
+      });
+    }, 300);
+  }
+}
+
+function nextSlide() {
+  if (current < TOTAL_SLIDES - 1) { current++; showSlide(current); }
+  resetAutoplay();
+}
+
+function prevSlide() {
+  if (current > 0) { current--; showSlide(current); }
+  resetAutoplay();
+}
+
+// Keyboard navigation
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); nextSlide(); }
+  if (e.key === 'ArrowLeft') { e.preventDefault(); prevSlide(); }
+});
+
+// Autoplay
+function toggleAutoplay() {
+  autoplay = !autoplay;
+  const toggle = document.getElementById('autoplayToggle');
+  toggle.classList.toggle('on', autoplay);
+  if (autoplay) {
+    autoplayTimer = setInterval(() => {
+      if (current < TOTAL_SLIDES - 1) nextSlide();
+      else { autoplay = false; toggle.classList.remove('on'); clearInterval(autoplayTimer); }
+    }, 6000);
+  } else {
+    clearInterval(autoplayTimer);
+  }
+}
+
+function resetAutoplay() {
+  if (autoplay) {
+    clearInterval(autoplayTimer);
+    autoplayTimer = setInterval(() => {
+      if (current < TOTAL_SLIDES - 1) nextSlide();
+      else { autoplay = false; document.getElementById('autoplayToggle').classList.remove('on'); clearInterval(autoplayTimer); }
+    }, 6000);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// TOKENIZER ANIMATION (Slide 4)
+// ═══════════════════════════════════════════════════════════
+function animateTokenizer() {
+  const container = document.getElementById('tokenAnim');
+  if (container.children.length > 0) return; // already animated
+
+  const text = "the cat";
+  const ids = [29, 18, 15, 1, 13, 11, 29];
+  const colors = ['#e94560','#ff6b6b','#ffd166','#48cae4','#06d6a0','#533483','#e94560'];
+
+  text.split('').forEach((ch, i) => {
+    const div = document.createElement('div');
+    div.className = 'token-char';
+    div.innerHTML = `
+      <div class="token-letter" style="background:${colors[i]}20; color:${colors[i]}; border:2px solid ${colors[i]};">
+        ${ch === ' ' ? '&#x2423;' : ch}
+      </div>
+      <div class="token-id">${ids[i]}</div>
+    `;
+    container.appendChild(div);
+    setTimeout(() => div.classList.add('visible'), 400 + i * 200);
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+// ATTENTION GRID ANIMATION (Slide 8)
+// ═══════════════════════════════════════════════════════════
+function animateAttentionGrid() {
+  const grid = document.getElementById('attnGrid');
+  if (grid.children.length > 0) return;
+
+  const chars = [' ', 't', 'h', 'e', ' ', 'c', 'a', 't'];
+  const labels = ['_', 't', 'h', 'e', '_', 'c', 'a', 't'];
+  const n = chars.length;
+
+  grid.style.gridTemplateColumns = `repeat(${n + 1}, 48px)`;
+
+  // Header row
+  const corner = document.createElement('div');
+  corner.className = 'attn-cell visible';
+  corner.style.background = 'transparent';
+  grid.appendChild(corner);
+
+  for (let j = 0; j < n; j++) {
+    const hdr = document.createElement('div');
+    hdr.className = 'attn-cell visible';
+    hdr.style.background = 'transparent';
+    hdr.style.color = 'var(--accent4)';
+    hdr.style.fontFamily = "'Fira Code', monospace";
+    hdr.textContent = labels[j];
+    grid.appendChild(hdr);
+  }
+
+  // Data rows
+  for (let i = 0; i < n; i++) {
+    // Row label
+    const rl = document.createElement('div');
+    rl.className = 'attn-cell visible';
+    rl.style.background = 'transparent';
+    rl.style.color = 'var(--accent4)';
+    rl.style.fontFamily = "'Fira Code', monospace";
+    rl.textContent = labels[i];
+    grid.appendChild(rl);
+
+    for (let j = 0; j < n; j++) {
+      const cell = document.createElement('div');
+      cell.className = 'attn-cell';
+      if (j <= i) {
+        const intensity = Math.random() * 0.6 + 0.2;
+        cell.style.background = `rgba(6,214,160,${intensity})`;
+        cell.textContent = (intensity > 0.5) ? '++' : '+';
+        cell.style.color = `rgba(255,255,255,${intensity})`;
+      } else {
+        cell.style.background = 'rgba(233,69,96,0.15)';
+        cell.textContent = 'X';
+        cell.style.color = 'rgba(233,69,96,0.5)';
+      }
+      grid.appendChild(cell);
+      setTimeout(() => cell.classList.add('visible'), 100 + (i * n + j) * 40);
+    }
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// LOSS BAR ANIMATION (Slide 11)
+// ═══════════════════════════════════════════════════════════
+function animateLossBars() {
+  const targets = [91, 32, 8, 4]; // percentages
+  const ids = ['lossBar0', 'lossBar1', 'lossBar2', 'lossBar3'];
+  ids.forEach((id, i) => {
+    setTimeout(() => {
+      document.getElementById(id).style.width = targets[i] + '%';
+    }, 300 + i * 500);
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+// TEXT GENERATION ANIMATION (Slide 13)
+// ═══════════════════════════════════════════════════════════
+function animateGeneration() {
+  const el = document.getElementById('genText');
+  if (el.dataset.done) return;
+  el.dataset.done = '1';
+
+  const text = "The little cat loved to play in the garden. Every day the little cat would chase butterflies.";
+  let i = 0;
+  const interval = setInterval(() => {
+    if (i < text.length) {
+      el.textContent += text[i];
+      i++;
+    } else {
+      clearInterval(interval);
+    }
+  }, 50);
+}
+
+// ═══════════════════════════════════════════════════════════
+// TEMPERATURE BARS ANIMATION (Slide 13)
+// ═══════════════════════════════════════════════════════════
+function animateTemperatureBars() {
+  const containers = {
+    'tempBarsLow':  { heights: [75, 8, 3, 2, 1], colors: '#48cae4' },
+    'tempBarsMed':  { heights: [45, 25, 15, 10, 5], colors: '#ffd166' },
+    'tempBarsHigh': { heights: [25, 22, 20, 18, 15], colors: '#e94560' },
+  };
+
+  Object.entries(containers).forEach(([id, data]) => {
+    const el = document.getElementById(id);
+    if (el.children.length > 0) return;
+
+    data.heights.forEach((h, i) => {
+      const bar = document.createElement('div');
+      bar.className = 'temp-bar';
+      bar.style.background = data.colors;
+      bar.style.height = '0px';
+      bar.style.opacity = 1 - i * 0.15;
+      el.appendChild(bar);
+      setTimeout(() => { bar.style.height = h + 'px'; }, 500 + i * 100);
+    });
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════
+showSlide(0);
+</script>
+
+</body>
+</html>

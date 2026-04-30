@@ -1,0 +1,1504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Build an AI Story Generator — Complete LLM Project</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fira+Code:wght@400;500;600&display=swap');
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{--bg:#0a0a14;--bg2:#12121f;--bg3:#1a1a2e;--bg4:#16213e;--accent:#00b4d8;--green:#06d6a0;--red:#e94560;--yellow:#ffd166;--purple:#a855f7;--orange:#f97316;--text:#e8e8f0;--dim:#6b7294;--code-bg:#0d1117;}
+body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);overflow:hidden;height:100vh;}
+.topbar{height:48px;background:var(--bg2);display:flex;align-items:center;padding:0 8px;border-bottom:1px solid rgba(255,255,255,0.05);gap:3px;z-index:100;overflow-x:auto;}
+.topbar .logo{font-weight:900;font-size:13px;background:linear-gradient(135deg,var(--accent),var(--red));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;margin-right:6px;white-space:nowrap;}
+.tab{padding:3px 7px;border-radius:6px;font-size:9px;font-weight:700;cursor:pointer;transition:all .3s;color:var(--dim);white-space:nowrap;border:1px solid transparent;}
+.tab:hover{color:var(--text);background:var(--bg3);}
+.tab.active{color:#000;}
+.tab.p1.active{background:var(--accent);border-color:var(--accent);}
+.tab.p2.active{background:var(--purple);color:#fff;border-color:var(--purple);}
+.tab.p3.active{background:var(--orange);border-color:var(--orange);}
+.tab.p4.active{background:var(--red);color:#fff;border-color:var(--red);}
+.sep{color:var(--dim);font-size:8px;padding:0 1px;user-select:none;}
+.sc{margin-left:auto;font-size:10px;font-weight:700;color:var(--yellow);white-space:nowrap;}
+.main{display:flex;height:calc(100vh - 48px);}
+.cp{width:44%;background:var(--code-bg);border-right:1px solid rgba(255,255,255,0.05);display:flex;flex-direction:column;}
+.ch{padding:6px 10px;background:var(--bg2);border-bottom:1px solid rgba(255,255,255,0.05);display:flex;align-items:center;gap:6px;}
+.ch .fn{font-family:'Fira Code',monospace;font-size:10px;color:var(--accent);font-weight:600;}
+.ch .fd{font-size:9px;color:var(--dim);}
+.cs{flex:1;overflow-y:auto;}
+.cc{font-family:'Fira Code',monospace;font-size:10.5px;line-height:1.75;padding:6px 0;}
+.cl{display:flex;padding:0 6px 0 0;min-height:16px;}
+.cl:hover{background:rgba(255,255,255,0.02);}
+.ln{min-width:28px;text-align:right;padding-right:6px;color:var(--dim);user-select:none;font-size:8px;}
+.lt{white-space:pre;flex:1;}
+.kw{color:#ff79c6;}.str{color:#f1fa8c;}.cm{color:#6272a4;font-style:italic;}.num{color:#bd93f9;}.dec{color:#ffb86c;}
+.gp{width:56%;display:flex;flex-direction:column;}
+.gh{padding:8px 14px;background:var(--bg2);border-bottom:1px solid rgba(255,255,255,0.05);}
+.gh h2{font-size:15px;font-weight:800;}
+.gh p{font-size:9px;color:var(--dim);margin-top:1px;}
+.gs{flex:1;overflow-y:auto;padding:14px;}
+.s{margin-bottom:16px;}
+.s h3{font-size:13px;font-weight:800;margin-bottom:5px;display:flex;align-items:center;gap:5px;}
+.s p,.s li{font-size:11px;line-height:1.55;}
+.eb{background:var(--bg3);border-radius:8px;padding:8px 12px;margin:5px 0;border-left:3px solid var(--accent);font-size:11px;line-height:1.55;}
+.eb.g{border-left-color:var(--green);}.eb.y{border-left-color:var(--yellow);}.eb.r{border-left-color:var(--red);}.eb.p{border-left-color:var(--purple);}.eb.o{border-left-color:var(--orange);}
+.qb{background:var(--bg3);border-radius:8px;padding:10px;margin:6px 0;border:2px solid var(--bg4);}
+.qb.ok{border-color:var(--green);background:rgba(6,214,160,0.05);}.qb.no{border-color:var(--red);background:rgba(233,69,96,0.05);}
+.qt{font-size:11px;font-weight:800;margin-bottom:5px;}
+.qo{display:flex;flex-direction:column;gap:3px;}
+.qp{padding:5px 8px;border-radius:6px;background:var(--bg4);cursor:pointer;font-size:10px;font-weight:600;transition:all .2s;border:2px solid transparent;}
+.qp:hover{border-color:var(--accent);}
+.qp.sc2{background:rgba(6,214,160,0.15);border-color:var(--green);color:var(--green);}
+.qp.sw{background:rgba(233,69,96,0.15);border-color:var(--red);color:var(--red);}
+.qp.dis{pointer-events:none;opacity:0.6;}.qp.shc{border-color:var(--green);opacity:1!important;}
+.qf{margin-top:4px;padding:4px 7px;border-radius:4px;font-size:9px;font-weight:600;display:none;}
+.qf.sh{display:block;}.qf.ok{background:rgba(6,214,160,0.1);color:var(--green);}.qf.no{background:rgba(233,69,96,0.1);color:var(--red);}
+.ia{background:var(--bg3);border-radius:8px;padding:10px;margin:6px 0;border:2px solid var(--bg4);}
+.ia h4{font-size:11px;font-weight:800;margin-bottom:5px;}
+.btn{padding:5px 10px;border:none;border-radius:6px;font-family:'Nunito',sans-serif;font-size:10px;font-weight:700;cursor:pointer;transition:all .2s;}
+.btn:hover{transform:translateY(-1px);}
+.bp{background:var(--accent);color:#000;}.bgr{background:var(--green);color:#000;}.br{background:var(--bg4);color:var(--text);}.bpu{background:var(--purple);color:#fff;}.bor{background:var(--orange);color:#000;}.bre{background:var(--red);color:#fff;}
+.ob{background:var(--code-bg);border-radius:6px;padding:7px 10px;font-family:'Fira Code',monospace;font-size:10px;line-height:1.5;margin:4px 0;border:1px solid rgba(255,255,255,0.05);}
+.bd{display:inline-block;padding:1px 5px;border-radius:4px;font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;}
+.bd-g{background:rgba(168,85,247,0.15);color:var(--purple);}.bd-q{background:rgba(249,115,22,0.15);color:var(--orange);}.bd-c{background:rgba(0,180,216,0.15);color:var(--accent);}.bd-n{background:rgba(233,69,96,0.15);color:var(--red);}
+.sr{display:flex;align-items:center;gap:5px;margin:4px 0;font-size:10px;}
+.sr input[type=range]{flex:1;accent-color:var(--accent);}
+.sv{font-family:'Fira Code',monospace;font-size:11px;font-weight:700;color:var(--yellow);min-width:28px;}
+.ct{width:100%;border-collapse:collapse;font-size:10px;margin:4px 0;}
+.ct th,.ct td{padding:4px 6px;text-align:left;border-bottom:1px solid rgba(255,255,255,0.05);}
+.ct th{color:var(--accent);font-weight:700;font-size:9px;}
+.prob-row{display:flex;align-items:center;gap:5px;margin:2px 0;font-size:10px;}
+.prob-label{width:44px;font-family:'Fira Code',monospace;font-weight:700;text-align:right;}
+.prob-track{flex:1;height:16px;background:var(--bg4);border-radius:3px;overflow:hidden;}
+.prob-fill{height:100%;border-radius:3px;transition:width .5s;}
+.prob-pct{width:32px;text-align:right;font-family:'Fira Code',monospace;font-size:9px;color:var(--dim);}
+canvas{border-radius:6px;border:1px solid rgba(255,255,255,0.05);}
+input[type=number],input[type=text]{outline:none;}
+.lb{display:inline-block;padding:1px 6px;border-radius:8px;font-size:8px;font-weight:800;letter-spacing:0.3px;margin-right:3px;}
+.lb1{background:rgba(0,180,216,0.2);color:var(--accent);}.lb2{background:rgba(168,85,247,0.2);color:var(--purple);}.lb3{background:rgba(249,115,22,0.2);color:var(--orange);}.lb4{background:rgba(233,69,96,0.2);color:var(--red);}
+::-webkit-scrollbar{width:4px;}::-webkit-scrollbar-track{background:transparent;}::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:2px;}
+</style>
+</head>
+<body>
+<div class="topbar">
+<div class="logo">&#x1F680; AI Story Generator</div>
+<div class="tab p1 active" onclick="go(0)">Intro</div>
+<div class="sep">P1&#x25B8;</div>
+<div class="tab p1" onclick="go(1)">1.Vec</div>
+<div class="tab p1" onclick="go(2)">2.Mat</div>
+<div class="tab p1" onclick="go(3)">3.Grad</div>
+<div class="tab p1" onclick="go(4)">4.Prob</div>
+<div class="sep">P2&#x25B8;</div>
+<div class="tab p2" onclick="go(5)">5.Neuron</div>
+<div class="tab p2" onclick="go(6)">6.Attn</div>
+<div class="tab p2" onclick="go(7)">7.Block</div>
+<div class="tab p2" onclick="go(8)">8.Model</div>
+<div class="sep">P3&#x25B8;</div>
+<div class="tab p3" onclick="go(9)">9.Token</div>
+<div class="tab p3" onclick="go(10)">10.Train</div>
+<div class="tab p3" onclick="go(11)">11.Reg</div>
+<div class="tab p3" onclick="go(12)">12.Eval</div>
+<div class="sep">P4&#x25B8;</div>
+<div class="tab p4" onclick="go(13)">13.AdvAttn</div>
+<div class="tab p4" onclick="go(14)">14.Gen</div>
+<div class="tab p4" onclick="go(15)">15.Scale</div>
+<div class="tab p4" onclick="go(16)">16.Align</div>
+<div class="sc">&#x2B50;<span id="ts">0</span>/<span id="ms">0</span></div>
+</div>
+<div class="main">
+<div class="cp"><div class="ch"><span class="fn" id="cfn"></span><span class="fd" id="cfd"></span></div><div class="cs"><div class="cc" id="ccc"></div></div></div>
+<div class="gp"><div class="gh"><h2 id="gt"></h2><p id="gsu"></p></div><div class="gs"><div id="gc"></div></div></div>
+</div>
+<script>
+let cur=0,sc=0,mx=0,ans={};
+function asc(id,p){if(ans[id])return;ans[id]=1;sc+=p;document.getElementById('ts').textContent=sc;}
+function rq(id,p){if(!ans['_'+id]){ans['_'+id]=1;mx+=p;document.getElementById('ms').textContent=mx;}}
+function cq(qid,el,ok){const b=document.getElementById(qid);if(b.classList.contains('ok')||b.classList.contains('no'))return;const f=document.getElementById(qid+'-f');const os=b.querySelectorAll('.qp');if(ok){el.classList.add('sc2');b.classList.add('ok');f.className='qf sh ok';f.textContent='\u2705 Correct! +10';asc(qid,10);}else{el.classList.add('sw');b.classList.add('no');f.className='qf sh no';f.textContent='\u274C Not quite!';}os.forEach(o=>{o.classList.add('dis');if(o!==el&&o.getAttribute('onclick')&&o.getAttribute('onclick').includes(',true)'))o.classList.add('shc');});}
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function hl(l){if(l.trimStart().startsWith('#'))return'<span class="cm">'+l+'</span>';l=l.replace(/(""".*?"""|".*?"|'.*?')/g,'<span class="str">$1</span>');['def','class','return','for','in','if','import','from','self','None','True','False','super','not','and','or','range','print','with','as','else','elif','while','break','pass','assert','lambda','yield','try','except','raise','finally'].forEach(k=>{l=l.replace(new RegExp('\\b('+k+')\\b','g'),'<span class="kw">$1</span>');});l=l.replace(/\b(\d+\.?\d*)\b/g,'<span class="num">$1</span>');return l;}
+function rc(code){const c=document.getElementById('ccc');c.innerHTML='';code.split('\n').forEach((l,i)=>{const d=document.createElement('div');d.className='cl';d.innerHTML='<span class="ln">'+(i+1)+'</span><span class="lt">'+hl(esc(l))+'</span>';c.appendChild(d);});}
+function go(n){cur=n;const s=S[n];document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',i===n));document.getElementById('cfn').textContent=s.fn;document.getElementById('cfd').textContent=s.fd;rc(s.code);document.getElementById('gt').innerHTML=s.t;document.getElementById('gsu').textContent=s.su;const g=document.getElementById('gc');g.innerHTML='';s.gm(g);document.querySelector('.gs').scrollTop=0;document.querySelector('.cs').scrollTop=0;}
+function softmax(a,t){const s=a.map(x=>x/(t||1));const m=Math.max(...s);const e=s.map(x=>Math.exp(x-m));const sm=e.reduce((a,b)=>a+b,0);return e.map(x=>x/sm);}
+function mkI(id,w){return '<input type="number" id="'+id+'" style="width:'+w+'px;padding:3px;border-radius:4px;border:2px solid var(--bg4);background:var(--code-bg);color:var(--text);font-family:Fira Code,monospace;text-align:center;font-size:10px;" placeholder="?">';}
+
+const S=[
+// ═══ 0: INTRO ═══
+{fn:'project.py',fd:'AI Story Generator — Complete Project',t:'&#x1F680; Build an AI Story Generator',su:'One real-world project covering 45+ concepts: math, science, NLP, and every LLM technique. 4 phases, 16 steps.',
+code:`# ============================================
+# PROJECT: AI STORY GENERATOR
+# ============================================
+# We're building a model that reads stories
+# and writes NEW ones. Every step teaches a
+# real concept by applying it to this project.
+#
+# PHASE 1: THE MATH ENGINE
+#   Step 1: Vectors & Embeddings
+#   Step 2: Matrix Multiplication
+#   Step 3: Derivatives & Gradients
+#   Step 4: Probability & Softmax
+#
+# PHASE 2: THE NEURAL NETWORK
+#   Step 5: Neurons & Activations
+#   Step 6: Attention Mechanism
+#   Step 7: Transformer Block
+#   Step 8: Full Architecture
+#
+# PHASE 3: TRAINING & OPTIMIZATION
+#   Step 9:  Tokenization (Char + BPE)
+#   Step 10: Training Loop
+#   Step 11: Regularization
+#   Step 12: Evaluation
+#
+# PHASE 4: ADVANCED & PRODUCTION
+#   Step 13: Advanced Attention (RoPE, GQA, KV-Cache)
+#   Step 14: Generation (top-k, top-p, beam, speculative)
+#   Step 15: Scaling (MoE, LoRA, quantization)
+#   Step 16: Alignment (RLHF, DPO)
+#
+# CONCEPTS COVERED: 45+
+# From every existing folder:
+#   baby-llm:     7 concepts ✅
+#   teenage-llm:  7 concepts ✅
+#   adult-llm:    5 concepts ✅
+#   expert-llm:   6 concepts ✅
+#   tech-skills:  12 concepts ✅
+#   llm-gaps:     8 concepts ✅
+#
+# Let's build! Click the tabs above →`,
+gm:function(c){c.innerHTML=`
+<div class="s"><h3>&#x1F3AF; The Project</h3>
+<div class="eb y"><p>You're building an <strong>AI Story Generator</strong> from absolute zero. Each step adds a real component. By step 16, you'll have a complete LLM with every technique used by GPT-4, LLaMA, and Mistral.</p></div></div>
+<div class="s"><h3>&#x1F5FA;&#xFE0F; 4 Phases</h3>
+<table class="ct">
+<tr><th>Phase</th><th>Steps</th><th>You Build</th><th>Concepts</th></tr>
+<tr><td><span class="lb lb1">P1</span>Math</td><td>1-4</td><td>The math engine</td><td>Vectors, matrices, derivatives, probability</td></tr>
+<tr><td><span class="lb lb2">P2</span>Network</td><td>5-8</td><td>The neural network</td><td>Neurons, attention, transformer, full model</td></tr>
+<tr><td><span class="lb lb3">P3</span>Training</td><td>9-12</td><td>The learning system</td><td>Tokenization, training loop, regularization, evaluation</td></tr>
+<tr><td><span class="lb lb4">P4</span>Advanced</td><td>13-16</td><td>Production features</td><td>RoPE, GQA, MoE, LoRA, DPO, generation</td></tr>
+</table></div>
+<div class="s"><h3><span class="bd bd-q">QUIZ</span> Starting Check</h3>
+<div class="qb" id="i-q1"><div class="qt">&#x1F914; An LLM generates text by:</div><div class="qo">
+<div class="qp" onclick="cq('i-q1',this,false)">Looking up answers in a database</div>
+<div class="qp" onclick="cq('i-q1',this,true)">Predicting the next token based on probability, one at a time</div>
+<div class="qp" onclick="cq('i-q1',this,false)">Copying from training data</div>
+</div><div class="qf" id="i-q1-f"></div></div>
+<div class="qb" id="i-q2"><div class="qt">&#x1F914; The core math operation in every neural network layer is:</div><div class="qo">
+<div class="qp" onclick="cq('i-q2',this,true)">Matrix multiplication (dot product)</div>
+<div class="qp" onclick="cq('i-q2',this,false)">Division</div>
+<div class="qp" onclick="cq('i-q2',this,false)">Square root</div>
+</div><div class="qf" id="i-q2-f"></div></div></div>`;rq('i-q1',10);rq('i-q2',10);}},
+
+// ═══ 1: VECTORS & EMBEDDINGS ═══
+{fn:'step1_vectors.py',fd:'Phase 1 — Words as Numbers',t:'<span class="lb lb1">P1</span> Step 1: Vectors & Embeddings',su:'Every word in our story generator is a vector. Similar words (cat/dog) have similar vectors. This is how the model understands meaning.',
+code:`# ============================================
+# STEP 1: VECTORS & EMBEDDINGS
+# ============================================
+# Our story generator needs to understand words.
+# But computers only understand numbers!
+# Solution: represent each word as a VECTOR.
+
+import numpy as np
+
+# A vector = list of numbers
+cat = np.array([0.9, 0.1, 0.8, 0.2])  # furry, small
+dog = np.array([0.8, 0.2, 0.7, 0.3])  # furry, medium
+car = np.array([0.1, 0.9, 0.1, 0.8])  # not furry, big
+
+# DOT PRODUCT = similarity measure
+# Multiply pairs, then sum
+def dot_product(a, b):
+    return sum(x*y for x,y in zip(a, b))
+
+# cat·dog = 0.9*0.8 + 0.1*0.2 + 0.8*0.7 + 0.2*0.3
+#         = 0.72 + 0.02 + 0.56 + 0.06 = 1.36 (similar!)
+# cat·car = 0.09 + 0.09 + 0.08 + 0.16 = 0.42 (different!)
+
+# COSINE SIMILARITY: -1 to +1, ignores magnitude
+import math
+def cosine_sim(a, b):
+    dot = sum(x*y for x,y in zip(a, b))
+    mag_a = math.sqrt(sum(x**2 for x in a))
+    mag_b = math.sqrt(sum(x**2 for x in b))
+    return dot / (mag_a * mag_b)
+
+# EMBEDDING TABLE: maps token IDs to vectors
+# In GPT-2: 50257 tokens × 768 dimensions = 38.6M params!
+class Embedding:
+    def __init__(self, vocab_size, embed_dim):
+        self.table = np.random.randn(vocab_size, embed_dim) * 0.02
+    
+    def lookup(self, token_id):
+        return self.table[token_id]  # shape: (embed_dim,)
+
+# For our story generator:
+embed = Embedding(vocab_size=1000, embed_dim=64)
+# "once" → embed.lookup(42) → [0.01, -0.03, 0.05, ...]`,
+gm:function(c){c.innerHTML=`
+<div class="s"><h3>&#x1F4D0; Words as Vectors</h3>
+<div class="eb"><p>A <strong>vector</strong> is just a list of numbers. In our story generator, every word becomes a vector. The model <em>learns</em> these vectors during training so that words used in similar contexts end up with similar vectors.</p></div>
+<div class="eb y"><p><strong>&#x1F3E0; House Analogy:</strong> A house listing = [price, sqft, bedrooms, bathrooms] = [350000, 1500, 3, 2]. Each number describes a feature. Word vectors work the same way — each of the 768 numbers captures a different aspect of meaning (grammar, sentiment, topic, formality, etc.).</p></div>
+<div class="eb g"><p><strong>&#x1F4A1; Famous result:</strong> king - man + woman ≈ queen. The "royalty" direction is preserved through vector arithmetic. The model discovers these relationships automatically!</p></div></div>
+
+<div class="s"><h3><span class="bd bd-g">GAME</span> Dot Product Step-by-Step</h3>
+<p>The dot product measures similarity. Multiply pairs, then sum:</p>
+<div class="ia"><h4>A = [2, 3, 1] &nbsp;·&nbsp; B = [4, 1, 5]</h4>
+<div style="font-family:'Fira Code',monospace;font-size:10px;line-height:2;">
+<div>2 × 4 = ${mkI('dp1',36)} &nbsp; 3 × 1 = ${mkI('dp2',36)} &nbsp; 1 × 5 = ${mkI('dp3',36)}</div>
+<div style="margin-top:3px;font-weight:800;">Total = ${mkI('dpT',44)}</div>
+</div>
+<button class="btn bp" onclick="checkDP1()" style="margin-top:4px;">Check</button>
+<div id="dpF" style="font-size:10px;font-weight:700;margin-top:3px;"></div></div></div>
+
+<div class="s"><h3><span class="bd bd-g">GAME</span> Which Words Are Similar?</h3>
+<p>Click the pair that should have MORE similar embeddings:</p>
+<div class="ia" id="simG"></div></div>
+
+<div class="s"><h3><span class="bd bd-c">CONCEPT</span> Embedding Table</h3>
+<div class="eb"><p>The embedding table is a giant matrix: <strong>(vocab_size × embed_dim)</strong>. Each row is one word's vector. GPT-2: 50257 × 768 = <strong>38.6 million parameters</strong> just for embeddings!</p></div>
+<table class="ct">
+<tr><th>Model</th><th>Vocab</th><th>Embed Dim</th><th>Embedding Params</th></tr>
+<tr><td>Baby LLM</td><td>34</td><td>64</td><td>2,176</td></tr>
+<tr><td>GPT-2</td><td>50,257</td><td>768</td><td>38.6M</td></tr>
+<tr><td>GPT-3</td><td>50,257</td><td>12,288</td><td>617M</td></tr>
+<tr><td>LLaMA-2 70B</td><td>32,000</td><td>8,192</td><td>262M</td></tr>
+</table></div>
+
+<div class="s"><h3><span class="bd bd-q">QUIZ</span> Vector Mastery</h3>
+<div class="qb" id="1-q1"><div class="qt">&#x1F914; GPT-2 uses 768-dim embeddings. Why so many dimensions?</div><div class="qo">
+<div class="qp" onclick="cq('1-q1',this,true)">More dimensions = more aspects of meaning (grammar, sentiment, topic, formality, etc.)</div>
+<div class="qp" onclick="cq('1-q1',this,false)">It's arbitrary — any number would work</div>
+</div><div class="qf" id="1-q1-f"></div></div>
+<div class="qb" id="1-q2"><div class="qt">&#x1F914; Cosine similarity of identical vectors is:</div><div class="qo">
+<div class="qp" onclick="cq('1-q2',this,true)">+1 (exactly the same direction)</div>
+<div class="qp" onclick="cq('1-q2',this,false)">0 (unrelated)</div>
+</div><div class="qf" id="1-q2-f"></div></div>
+<div class="qb" id="1-q3"><div class="qt">&#x1F914; Dot product of [1,0,0] and [0,1,0] is 0. This means:</div><div class="qo">
+<div class="qp" onclick="cq('1-q3',this,true)">The vectors are perpendicular — completely unrelated concepts</div>
+<div class="qp" onclick="cq('1-q3',this,false)">The vectors are identical</div>
+</div><div class="qf" id="1-q3-f"></div></div></div>`;
+
+rq('1-q1',10);rq('1-q2',10);rq('1-q3',10);
+// Dot product game
+window.checkDP1=function(){const a=+document.getElementById('dp1').value,b=+document.getElementById('dp2').value,c2=+document.getElementById('dp3').value,t=+document.getElementById('dpT').value;const fb=document.getElementById('dpF');
+if(a===8&&b===3&&c2===5&&t===16){fb.innerHTML='<span style="color:var(--green);">&#x2705; 8+3+5=16. You computed a dot product! High value = similar vectors.</span>';asc('1-dp',10);}else fb.innerHTML='<span style="color:var(--red);">&#x274C; 2×4=8, 3×1=3, 1×5=5, total=16</span>';};rq('1-dp',10);
+// Similarity game
+const simPairs=[[{a:'happy',b:'joyful',s:true},{a:'happy',b:'table',s:false}],[{a:'king',b:'queen',s:true},{a:'king',b:'banana',s:false}],[{a:'run',b:'sprint',s:true},{a:'run',b:'purple',s:false}]];
+const sg=document.getElementById('simG');let simSc=0;
+simPairs.forEach((pair,i)=>{const row=document.createElement('div');row.style.cssText='display:flex;gap:6px;margin:4px 0;';
+pair.forEach(p=>{const btn=document.createElement('button');btn.className='btn br';btn.style.cssText='flex:1;font-size:10px;padding:6px;';btn.textContent=p.a+' ↔ '+p.b;
+btn.onclick=function(){if(row.dataset.done)return;row.dataset.done='1';if(p.s){this.style.background='var(--green)';this.style.color='#000';simSc++;if(simSc===3)asc('1-sim',10);}else{this.style.background='var(--red)';this.style.color='#000';}row.querySelectorAll('button').forEach(b=>b.disabled=true);};row.appendChild(btn);});sg.appendChild(row);});rq('1-sim',10);
+}},
+
+// ═══ 2: MATRIX MULTIPLICATION ═══
+{fn:'step2_matrices.py',fd:'Phase 1 — The Core Operation',t:'<span class="lb lb1">P1</span> Step 2: Matrix Multiplication',su:'Every layer in our story generator does output = input @ weights. That @ is matrix multiplication — THE core operation of all neural networks.',
+code:`# ============================================
+# STEP 2: MATRIX MULTIPLICATION
+# ============================================
+# Every layer in our story generator:
+#   output = input @ weight_matrix + bias
+# That "@" is matrix multiplication!
+
+import numpy as np
+
+# Shape rule: (a,b) @ (b,c) = (a,c)
+# Inner dimensions MUST match!
+
+A = np.array([[1, 2, 3],   # (2, 3)
+              [4, 5, 6]])
+B = np.array([[7, 8],      # (3, 2)
+              [9, 10],
+              [11, 12]])
+C = A @ B                   # (2, 2)
+# C[0,0] = 1*7 + 2*9 + 3*11 = 58
+# C[0,1] = 1*8 + 2*10 + 3*12 = 64
+
+# In our story generator:
+# Input: (batch=32, seq=128, embed=768)
+# W_query: (768, 64)
+# Q = input @ W_query → (32, 128, 64)
+#
+# Attention scores: Q @ K^T
+# (32, 128, 64) @ (32, 64, 128) = (32, 128, 128)
+# This 128×128 = attention map!
+
+# TRANSPOSE: flip rows and columns
+# (3, 7).T = (7, 3)
+
+# BROADCASTING: add different shapes
+matrix = np.array([[1, 2], [3, 4]])  # (2,2)
+vector = np.array([10, 20])          # (2,)
+result = matrix + vector  # [[11,22],[13,24]]`,
+gm:function(c){c.innerHTML=`
+<div class="s"><h3>&#x1F4CA; Matrix Multiply — THE Core Operation</h3>
+<div class="eb r"><p><strong>&#x1F525; Critical fact:</strong> output = input @ weights + bias. A GPT-3 forward pass does ~96 matrix multiplications. If you understand this one operation, you understand 80% of what happens inside any neural network.</p></div>
+<div class="eb"><p><strong>Shape rule:</strong> (a,<strong>b</strong>) @ (<strong>b</strong>,c) = (a,c). The inner dimensions must match! If they don't → error.</p></div>
+<div class="eb y"><p><strong>&#x1F355; Pizza Analogy:</strong> Think of matrix A as "recipes" (each row = one recipe) and matrix B as "ingredient properties" (each column = one property). Multiplying gives you "recipe properties" — each recipe's score on each property.</p></div></div>
+
+<div class="s"><h3><span class="bd bd-g">GAME</span> Matrix Multiply — Click to Reveal</h3>
+<p>Each result cell = dot product of a row from A with a column from B. Click "?" to see!</p>
+<div class="ia">
+<div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
+<div><h4 style="color:var(--accent);font-size:10px;">A (2×3)</h4><div id="mA" style="display:inline-grid;grid-template-columns:repeat(3,1fr);gap:2px;"></div></div>
+<div style="font-size:16px;font-weight:900;color:var(--dim);">×</div>
+<div><h4 style="color:var(--yellow);font-size:10px;">B (3×2)</h4><div id="mB" style="display:inline-grid;grid-template-columns:repeat(2,1fr);gap:2px;"></div></div>
+<div style="font-size:16px;font-weight:900;color:var(--dim);">=</div>
+<div><h4 style="color:var(--green);font-size:10px;">C (2×2)</h4><div id="mC" style="display:inline-grid;grid-template-columns:repeat(2,1fr);gap:2px;"></div></div>
+</div>
+<div id="mExp" class="ob" style="margin-top:6px;">Click any "?" cell to see the dot product calculation!</div>
+</div></div>
+
+<div class="s"><h3><span class="bd bd-c">CONCEPT</span> Shapes in a Transformer</h3>
+<div class="eb"><p>Follow the shapes through one attention layer:</p></div>
+<table class="ct">
+<tr><th>Operation</th><th>Input Shape</th><th>Weight Shape</th><th>Output Shape</th></tr>
+<tr><td>Q = input @ W_q</td><td>(32, 128, 768)</td><td>(768, 64)</td><td style="color:var(--accent);">(32, 128, 64)</td></tr>
+<tr><td>K = input @ W_k</td><td>(32, 128, 768)</td><td>(768, 64)</td><td style="color:var(--accent);">(32, 128, 64)</td></tr>
+<tr><td>scores = Q @ K^T</td><td>(32, 128, 64)</td><td>(32, 64, 128)</td><td style="color:var(--yellow);">(32, 128, 128)</td></tr>
+<tr><td>output = weights @ V</td><td>(32, 128, 128)</td><td>(32, 128, 64)</td><td style="color:var(--green);">(32, 128, 64)</td></tr>
+</table></div>
+
+<div class="s"><h3><span class="bd bd-q">QUIZ</span> Shape Mastery</h3>
+<div class="qb" id="2-q1"><div class="qt">&#x1F914; (4, 3) @ (3, 5) = ?</div><div class="qo">
+<div class="qp" onclick="cq('2-q1',this,true)">(4, 5)</div>
+<div class="qp" onclick="cq('2-q1',this,false)">(3, 3)</div>
+</div><div class="qf" id="2-q1-f"></div></div>
+<div class="qb" id="2-q2"><div class="qt">&#x1F914; (32, 128, 768) @ (768, 64) = ?</div><div class="qo">
+<div class="qp" onclick="cq('2-q2',this,true)">(32, 128, 64) — batch and seq dims preserved, last dim changes</div>
+<div class="qp" onclick="cq('2-q2',this,false)">(32, 768, 64)</div>
+</div><div class="qf" id="2-q2-f"></div></div>
+<div class="qb" id="2-q3"><div class="qt">&#x1F914; Can you multiply (3, 4) @ (5, 6)?</div><div class="qo">
+<div class="qp" onclick="cq('2-q3',this,true)">No — inner dims 4 ≠ 5. They MUST match!</div>
+<div class="qp" onclick="cq('2-q3',this,false)">Yes — (3, 6)</div>
+</div><div class="qf" id="2-q3-f"></div></div>
+<div class="qb" id="2-q4"><div class="qt">&#x1F914; Transpose of (3, 7) matrix = ?</div><div class="qo">
+<div class="qp" onclick="cq('2-q4',this,true)">(7, 3) — rows become columns</div>
+<div class="qp" onclick="cq('2-q4',this,false)">(3, 7) — no change</div>
+</div><div class="qf" id="2-q4-f"></div></div></div>`;
+
+rq('2-q1',10);rq('2-q2',10);rq('2-q3',10);rq('2-q4',10);
+// Matrix multiply visualizer
+const mA=[[1,2,3],[4,5,6]],mB=[[7,8],[9,10],[11,12]],mR=[[58,64],[139,154]];
+function mkCell(parent,vals,cols){const d=document.getElementById(parent);vals.flat().forEach(v=>{const c=document.createElement('span');c.className='matrix-cell';c.style.cssText='display:inline-flex;align-items:center;justify-content:center;width:34px;height:26px;border-radius:4px;font-family:Fira Code,monospace;font-size:11px;font-weight:700;background:var(--bg4);border:1px solid transparent;margin:1px;';c.textContent=v;d.appendChild(c);});}
+mkCell('mA',mA,3);mkCell('mB',mB,2);
+const mCd=document.getElementById('mC');
+mR.flat().forEach((v,idx)=>{const c=document.createElement('span');c.style.cssText='display:inline-flex;align-items:center;justify-content:center;width:34px;height:26px;border-radius:4px;font-family:Fira Code,monospace;font-size:11px;font-weight:700;background:var(--bg4);border:2px solid var(--dim);cursor:pointer;margin:1px;';c.textContent='?';
+c.onclick=function(){const i=Math.floor(idx/2),j=idx%2;this.textContent=v;this.style.borderColor='var(--green)';this.style.background='rgba(6,214,160,0.15)';this.style.color='var(--green)';this.style.cursor='default';
+document.querySelectorAll('#mA span').forEach((mc,ci)=>{mc.style.borderColor=Math.floor(ci/3)===i?'var(--accent)':'transparent';mc.style.background=Math.floor(ci/3)===i?'rgba(0,180,216,0.15)':'var(--bg4)';});
+document.querySelectorAll('#mB span').forEach((mc,ci)=>{mc.style.borderColor=ci%2===j?'var(--yellow)':'transparent';mc.style.background=ci%2===j?'rgba(255,209,102,0.15)':'var(--bg4)';});
+document.getElementById('mExp').innerHTML='<strong>C['+i+','+j+']</strong> = Row '+i+' · Col '+j+' = '+mA[i].map((a,k)=>a+'×'+mB[k][j]).join(' + ')+' = <span style="color:var(--green);font-weight:800;">'+v+'</span>';};
+mCd.appendChild(c);});
+}},
+
+// ═══ 3: DERIVATIVES & GRADIENTS ═══
+{fn:'step3_gradients.py',fd:'Phase 1 — How the Model Learns',t:'<span class="lb lb1">P1</span> Step 3: Derivatives & Gradients',su:'The derivative tells our model "which direction to adjust each weight to reduce error." Gradient descent = rolling a ball downhill.',
+code:`# ============================================
+# STEP 3: DERIVATIVES & GRADIENTS
+# ============================================
+# Our story generator learns by adjusting weights.
+# But HOW MUCH to adjust? Derivatives tell us!
+#
+# f(x) = x²  →  f'(x) = 2x  (power rule)
+# At x=3: slope = 6 (steep uphill)
+# At x=0: slope = 0 (flat = minimum!)
+
+# GRADIENT DESCENT:
+# weight = weight - learning_rate * gradient
+# If gradient > 0: weight too high → decrease
+# If gradient < 0: weight too low → increase
+
+def gradient_descent(start, lr=0.1, steps=20):
+    x = start
+    for _ in range(steps):
+        grad = 2 * x           # derivative of x²
+        x = x - lr * grad      # step downhill
+    return x  # converges to 0 (minimum)
+
+# CHAIN RULE (= backpropagation!):
+# y = f(g(x)) → dy/dx = f'(g(x)) × g'(x)
+# This is how gradients flow through layers!
+
+# PARTIAL DERIVATIVES:
+# f(x,y) = x² + y²
+# ∂f/∂x = 2x, ∂f/∂y = 2y
+# In our model: compute ∂loss/∂weight for EVERY weight`,
+gm:function(c){c.innerHTML=`
+<div class="s"><h3>&#x1F4C9; Gradient Descent</h3>
+<div class="eb"><p><strong>Derivative</strong> = slope at a point. <strong>Gradient descent</strong> = step in the opposite direction of the slope to find the minimum (lowest error).</p></div></div>
+<div class="s"><h3><span class="bd bd-g">GAME</span> Gradient Descent Simulator</h3>
+<div class="ia">
+<canvas id="gdC" width="400" height="150" style="width:100%;background:var(--code-bg);"></canvas>
+<div class="sr"><span>LR:</span><input type="range" id="lrS" min="1" max="50" value="10" oninput="document.getElementById('lrV').textContent=(this.value/100).toFixed(2)"><span class="sv" id="lrV">0.10</span></div>
+<div style="display:flex;gap:4px;margin-top:4px;"><button class="btn bp" onclick="runGD()">&#x25B6; Run</button><button class="btn br" onclick="resetGD()">Reset</button></div>
+<div id="gdI" class="ob">Click Run to watch the ball roll downhill!</div>
+</div></div>
+<div class="s"><h3><span class="bd bd-q">QUIZ</span></h3>
+<div class="qb" id="3-q1"><div class="qt">f(x)=x³, f'(x)=?</div><div class="qo">
+<div class="qp" onclick="cq('3-q1',this,true)">3x²</div><div class="qp" onclick="cq('3-q1',this,false)">2x</div>
+</div><div class="qf" id="3-q1-f"></div></div>
+<div class="qb" id="3-q2"><div class="qt">LR too large causes:</div><div class="qo">
+<div class="qp" onclick="cq('3-q2',this,true)">Overshooting and divergence</div><div class="qp" onclick="cq('3-q2',this,false)">Faster convergence</div>
+</div><div class="qf" id="3-q2-f"></div></div></div>`;
+rq('3-q1',10);rq('3-q2',10);
+const gdC=document.getElementById('gdC'),gx=gdC.getContext('2d');let gdA=null;
+function drawGD(bx,trail){const W=gdC.width,H=gdC.height;gx.clearRect(0,0,W,H);gx.strokeStyle='#00b4d8';gx.lineWidth=2;gx.beginPath();for(let p=0;p<W;p++){const x=(p-W/2)/(W/10);const y=x*x;const py=H-12-y*(H-24)/25;gx.lineTo(p,Math.max(6,py));}gx.stroke();if(trail&&trail.length>1){gx.strokeStyle='rgba(233,69,96,0.3)';gx.lineWidth=1;gx.beginPath();trail.forEach((tx,i)=>{const px=W/2+tx*(W/10);const py=H-12-tx*tx*(H-24)/25;if(i===0)gx.moveTo(px,Math.max(6,py));else gx.lineTo(px,Math.max(6,py));});gx.stroke();}const bpx=W/2+bx*(W/10),bpy=H-12-bx*bx*(H-24)/25;gx.fillStyle='#e94560';gx.beginPath();gx.arc(bpx,Math.max(6,bpy),6,0,Math.PI*2);gx.fill();}
+drawGD(4,[]);
+window.resetGD=function(){if(gdA)clearTimeout(gdA);drawGD(4,[]);document.getElementById('gdI').textContent='Click Run!';};
+window.runGD=function(){if(gdA)clearTimeout(gdA);let x=4,lr=+document.getElementById('lrS').value/100,step=0;const trail=[x];
+function tick(){const g=2*x;x=x-lr*g;trail.push(x);step++;drawGD(x,trail);document.getElementById('gdI').innerHTML='Step '+step+': x='+x.toFixed(3);
+if(step<30&&Math.abs(x)>0.005&&Math.abs(x)<10)gdA=setTimeout(tick,180);
+else if(Math.abs(x)>=10)document.getElementById('gdI').innerHTML='<span style="color:var(--red);">Diverged! LR too high!</span>';
+else{document.getElementById('gdI').innerHTML='<span style="color:var(--green);">&#x2705; Converged in '+step+' steps!</span>';asc('3-gd',10);}}tick();};rq('3-gd',10);
+}},
+
+// ═══ 4: PROBABILITY & SOFTMAX ═══
+{fn:'step4_probability.py',fd:'Phase 1 — How the Model Predicts',t:'<span class="lb lb1">P1</span> Step 4: Probability & Softmax',su:'Our story generator outputs probabilities for every possible next word. Softmax converts raw scores to probabilities. Temperature controls creativity.',
+code:`# ============================================
+# STEP 4: PROBABILITY & SOFTMAX
+# ============================================
+# Our model outputs raw scores (logits) for each word.
+# Softmax converts them to probabilities (sum to 1).
+#
+# "The cat sat on the ___"
+#   mat: 0.35, floor: 0.20, bed: 0.15, roof: 0.10
+
+import numpy as np
+
+def softmax(logits, temperature=1.0):
+    scaled = logits / temperature
+    shifted = scaled - np.max(scaled)  # numerical stability!
+    exp_vals = np.exp(shifted)
+    return exp_vals / exp_vals.sum()
+
+# TEMPERATURE controls creativity:
+# temp=0.1: [0.99, 0.01, 0.00] (greedy/deterministic)
+# temp=1.0: [0.48, 0.18, 0.11] (balanced)
+# temp=2.0: [0.32, 0.24, 0.21] (creative/random)
+
+# CROSS-ENTROPY LOSS = -log(p_correct)
+# p=0.9 → loss=0.105 (good!)
+# p=0.01 → loss=4.605 (terrible!)
+# Model trains to MINIMIZE this loss.
+
+# SAMPLING STRATEGIES:
+# Greedy: always pick highest prob
+# Top-k: only consider top k tokens
+# Top-p: only consider tokens summing to p%`,
+gm:function(c){c.innerHTML=`
+<div class="s"><h3>&#x1F3B2; Softmax & Temperature</h3>
+<div class="eb"><p><strong>Softmax</strong> converts raw scores (logits) to probabilities. Properties: all positive, sum to 1.0, preserves ordering (highest logit → highest probability).</p></div>
+<div class="eb y"><p><strong>&#x1F321;&#xFE0F; Temperature Analogy:</strong> Like a cooking dial. Low temp (0.1) = follow the recipe exactly (deterministic). Medium (1.0) = normal cooking. High temp (2.0) = experimental chef (creative but risky).</p></div></div>
+
+<div class="s"><h3><span class="bd bd-g">GAME</span> Temperature Playground</h3>
+<p>Drag the slider to see how temperature changes the word distribution!</p>
+<div class="ia">
+<h4>Logits: [2.0, 1.0, 0.5, 0.1] → Words: [mat, floor, bed, roof]</h4>
+<div class="sr"><span>Temp:</span><input type="range" id="tS" min="1" max="40" value="10" oninput="drawT()"><span class="sv" id="tV">1.0</span></div>
+<div id="tB"></div>
+<div id="tE" class="ob"></div>
+</div></div>
+
+<div class="s"><h3><span class="bd bd-c">CONCEPT</span> Cross-Entropy Loss</h3>
+<div class="eb"><p><strong>Loss = -log(p<sub>correct</sub>)</strong>. The model is punished for being wrong. Being confidently wrong is punished MUCH more than being uncertain.</p></div>
+<div class="ia">
+<table class="ct">
+<tr><th>P(correct word)</th><th>Loss = -log(p)</th><th>Quality</th></tr>
+<tr><td>0.95</td><td>0.05</td><td style="color:var(--green);">&#x2705; Excellent — almost certain</td></tr>
+<tr><td>0.50</td><td>0.69</td><td style="color:var(--yellow);">&#x26A0;&#xFE0F; Coin flip — uncertain</td></tr>
+<tr><td>0.10</td><td>2.30</td><td style="color:var(--orange);">&#x1F615; Bad — mostly wrong</td></tr>
+<tr><td>0.01</td><td>4.61</td><td style="color:var(--red);">&#x1F4A5; Terrible — confidently wrong!</td></tr>
+</table>
+<div class="eb g"><p><strong>Pattern:</strong> As p→1, loss→0 (perfect). As p→0, loss→∞ (catastrophic). The model trains to minimize this loss across all tokens.</p></div>
+</div></div>
+
+<div class="s"><h3><span class="bd bd-q">QUIZ</span> Probability Mastery</h3>
+<div class="qb" id="4-q1"><div class="qt">&#x1F914; softmax([10, 10, 10]) = ?</div><div class="qo">
+<div class="qp" onclick="cq('4-q1',this,true)">[0.33, 0.33, 0.33] — equal inputs = equal probabilities</div>
+<div class="qp" onclick="cq('4-q1',this,false)">[1, 0, 0]</div>
+</div><div class="qf" id="4-q1-f"></div></div>
+<div class="qb" id="4-q2"><div class="qt">&#x1F914; Cross-entropy loss = -log(0.01) ≈ 4.6. This means:</div><div class="qo">
+<div class="qp" onclick="cq('4-q2',this,true)">Terrible prediction — model gave only 1% to the correct answer</div>
+<div class="qp" onclick="cq('4-q2',this,false)">Good prediction</div>
+</div><div class="qf" id="4-q2-f"></div></div>
+<div class="qb" id="4-q3"><div class="qt">&#x1F914; Why subtract max(logits) before computing e^x in softmax?</div><div class="qo">
+<div class="qp" onclick="cq('4-q3',this,true)">Numerical stability — e^(1000) overflows to infinity, but e^(0) = 1 is fine</div>
+<div class="qp" onclick="cq('4-q3',this,false)">To change the result</div>
+</div><div class="qf" id="4-q3-f"></div></div></div>`;
+rq('4-q1',10);rq('4-q2',10);rq('4-q3',10);
+const tL=[2,1,0.5,0.1],tW=['mat','floor','bed','roof'],tC=['#00b4d8','#06d6a0','#ffd166','#a855f7'];
+window.drawT=function(){const t=document.getElementById('tS').value/10;document.getElementById('tV').textContent=t.toFixed(1);const p=softmax(tL,t);const d=document.getElementById('tB');d.innerHTML='';p.forEach((v,i)=>{d.innerHTML+='<div class="prob-row"><span class="prob-label" style="color:'+tC[i]+'">'+tW[i]+'</span><div class="prob-track"><div class="prob-fill" style="width:'+v*100+'%;background:'+tC[i]+'"></div></div><span class="prob-pct">'+(v*100).toFixed(1)+'%</span></div>';});document.getElementById('tE').innerHTML=t<0.3?'&#x1F9CA; Near-greedy':t<1.5?'&#x2696;&#xFE0F; Balanced':'&#x1F525; Creative';};drawT();
+}},
+
+// ═══ 5: NEURONS & ACTIVATIONS ═══
+{fn:'step5_neurons.py',fd:'Phase 2 — Building Blocks',t:'<span class="lb lb2">P2</span> Step 5: Neurons & Activations',su:'A neuron: output = activation(weights·input + bias). Activations add non-linearity. Without them, 100 layers = 1 layer. ReLU → GELU → SwiGLU evolution.',
+code:`# ============================================
+# STEP 5: NEURONS & ACTIVATIONS
+# ============================================
+# neuron: output = activation(w·x + b)
+# layer: many neurons in parallel (= matrix multiply)
+# network: layers stacked together
+
+import numpy as np
+
+# ACTIVATION FUNCTIONS — add non-linearity!
+def relu(x):     return np.maximum(0, x)        # simple, fast
+def sigmoid(x):  return 1/(1+np.exp(-x))        # squash to (0,1)
+def gelu(x):     # used in GPT, BERT
+    return 0.5*x*(1+np.tanh(np.sqrt(2/np.pi)*(x+0.044715*x**3)))
+def swiglu(x, gate):  # used in LLaMA, PaLM
+    return x * sigmoid(gate) * gate
+
+# WHY ACTIVATIONS?
+# Without them: Linear(Linear(x)) = still Linear!
+# 100 layers = 1 layer. Useless!
+# Activations let networks learn CURVES.
+
+# EVOLUTION:
+# ReLU (2012): max(0,x). Simple. "Dead neuron" problem.
+# GELU (2016): smooth ReLU. Used in GPT-2/3/4, BERT.
+# SwiGLU (2020): gated. Used in LLaMA, PaLM, Mistral.
+
+# LOSS FUNCTIONS:
+# MSE: for regression. mean((pred - target)²)
+# Cross-Entropy: for classification/LLMs. -log(p_correct)
+
+# LAYER = matrix multiply + activation
+class Layer:
+    def __init__(self, in_dim, out_dim):
+        self.W = np.random.randn(in_dim, out_dim) * np.sqrt(2/in_dim)
+        self.b = np.zeros(out_dim)
+    def forward(self, x):
+        return gelu(x @ self.W + self.b)`,
+gm:function(c){c.innerHTML=`
+<div class="s"><h3>&#x1F9E0; Neurons & Activations</h3>
+<div class="eb"><p><strong>Without activations:</strong> 100 linear layers = 1 linear layer. Activations add non-linearity so networks can learn complex patterns.</p></div>
+<div class="eb p"><p><strong>Evolution:</strong> ReLU (2012, simple) → GELU (2016, GPT/BERT) → SwiGLU (2020, LLaMA/Mistral). Each is smoother and more expressive.</p></div></div>
+<div class="s"><h3><span class="bd bd-g">GAME</span> Activation Explorer</h3>
+<div class="ia">
+<canvas id="actC" width="400" height="130" style="width:100%;background:var(--code-bg);"></canvas>
+<div style="display:flex;gap:3px;margin-top:4px;"><button class="btn bp" onclick="drawAct('relu')">ReLU</button><button class="btn br" onclick="drawAct('gelu')">GELU</button><button class="btn br" onclick="drawAct('swiglu')">SwiGLU</button></div>
+<div id="actI" class="ob">ReLU: max(0,x). Kills negatives. Simple but has "dead neuron" problem.</div>
+</div></div>
+<div class="s"><h3><span class="bd bd-q">QUIZ</span></h3>
+<div class="qb" id="5-q1"><div class="qt">Which activation does LLaMA use?</div><div class="qo">
+<div class="qp" onclick="cq('5-q1',this,false)">ReLU</div><div class="qp" onclick="cq('5-q1',this,true)">SwiGLU — gated activation, state-of-the-art</div>
+</div><div class="qf" id="5-q1-f"></div></div>
+<div class="qb" id="5-q2"><div class="qt">Linear(768, 2048) has how many parameters?</div><div class="qo">
+<div class="qp" onclick="cq('5-q2',this,true)">768×2048 + 2048 = 1,574,912</div><div class="qp" onclick="cq('5-q2',this,false)">768 + 2048</div>
+</div><div class="qf" id="5-q2-f"></div></div></div>`;
+rq('5-q1',10);rq('5-q2',10);
+const actC=document.getElementById('actC'),ax=actC.getContext('2d');
+const actF={relu:{fn:x=>Math.max(0,x),c:'#00b4d8',i:'<strong>ReLU:</strong> max(0,x). Simple, fast. Derivative=1 for x>0, 0 for x<0. Problem: "dead neurons."'},gelu:{fn:x=>0.5*x*(1+Math.tanh(Math.sqrt(2/Math.PI)*(x+0.044715*x*x*x))),c:'#a855f7',i:'<strong>GELU:</strong> Smooth ReLU. Allows small negatives. Used in GPT-2/3/4, BERT.'},swiglu:{fn:x=>{const s=1/(1+Math.exp(-x));return x*s*x;},c:'#f97316',i:'<strong>SwiGLU:</strong> Gated activation. One path controls how much passes through. Used in LLaMA, PaLM, Mistral.'}};
+window.drawAct=function(n){const W=actC.width,H=actC.height,f=actF[n];ax.clearRect(0,0,W,H);ax.strokeStyle='#222';ax.lineWidth=1;ax.beginPath();ax.moveTo(0,H/2);ax.lineTo(W,H/2);ax.moveTo(W/2,0);ax.lineTo(W/2,H);ax.stroke();ax.strokeStyle=f.c;ax.lineWidth=2;ax.beginPath();for(let p=0;p<W;p++){const x=(p-W/2)/(W/8);const y=f.fn(x);const py=H/2-y*(H/4);if(p===0)ax.moveTo(p,py);else ax.lineTo(p,Math.max(2,Math.min(H-2,py)));}ax.stroke();document.getElementById('actI').innerHTML=f.i;};drawAct('relu');
+}},
+
+// ═══ 6: ATTENTION MECHANISM ═══
+{fn:'step6_attention.py',fd:'Phase 2 — The Key Innovation',t:'<span class="lb lb2">P2</span> Step 6: Attention Mechanism',su:'THE breakthrough. Each word looks at every other word and decides what\'s relevant. Q=query, K=key, V=value. Scaled dot-product + causal mask + multi-head.',
+code:`# ============================================
+# STEP 6: ATTENTION MECHANISM
+# ============================================
+# "Attention Is All You Need" (2017)
+# For each token, compute how much to attend
+# to every other token.
+#
+# Q (Query): "What am I looking for?"
+# K (Key):   "What do I contain?"
+# V (Value): "What info do I provide?"
+#
+# Analogy: Library search
+#   Q = your search query
+#   K = book titles
+#   V = book contents
+#   Score = how well query matches each title
+#   Output = weighted sum of matching books
+
+import torch, math
+import torch.nn as nn
+
+class Attention(nn.Module):
+    def __init__(self, embed_dim, head_dim):
+        super().__init__()
+        self.W_q = nn.Linear(embed_dim, head_dim, bias=False)
+        self.W_k = nn.Linear(embed_dim, head_dim, bias=False)
+        self.W_v = nn.Linear(embed_dim, head_dim, bias=False)
+        self.scale = math.sqrt(head_dim)
+
+    def forward(self, x):
+        Q = self.W_q(x)  # (B, S, head_dim)
+        K = self.W_k(x)
+        V = self.W_v(x)
+
+        # Step 1: Scores = Q @ K^T / sqrt(d)
+        scores = Q @ K.transpose(-2,-1) / self.scale
+
+        # Step 2: Causal mask (can't see future!)
+        S = x.shape[1]
+        mask = torch.triu(torch.ones(S,S), 1).bool()
+        scores.masked_fill_(mask, float('-inf'))
+
+        # Step 3: Softmax → attention weights
+        weights = torch.softmax(scores, dim=-1)
+
+        # Step 4: Weighted sum of values
+        return weights @ V
+
+# MULTI-HEAD: 12 heads in parallel, each 64-dim
+# Head 1: subject-verb patterns
+# Head 2: adjective-noun patterns
+# Head 3: long-range dependencies
+# Concat all heads → project back to embed_dim`,
+gm:function(c){c.innerHTML=`
+<div class="s"><h3>&#x1F440; The Attention Revolution</h3>
+<div class="eb y"><p><strong>&#x1F4DA; Library Analogy:</strong> You walk into a library with a question (Q=Query). Each book has a title (K=Key) and contents (V=Value). You match your question against titles (Q·K), then read the matching books (weighted sum of V). That's attention!</p></div>
+<div class="eb"><p><strong>4 steps of attention:</strong></p>
+<p>1. <strong>Scores</strong> = Q @ K<sup>T</sup> / √d — how much each token matches</p>
+<p>2. <strong>Mask</strong> — set future positions to -∞ (can't peek ahead!)</p>
+<p>3. <strong>Softmax</strong> — convert scores to probabilities (sum to 1)</p>
+<p>4. <strong>Output</strong> = weights @ V — weighted average of values</p></div>
+<div class="eb g"><p><strong>Multi-head:</strong> Instead of 1 search, run 12 in parallel! Head 1 finds subjects, Head 2 finds adjectives, Head 3 finds long-range patterns. Then combine all findings.</p></div></div>
+
+<div class="s"><h3><span class="bd bd-g">GAME</span> Attention Score Walkthrough</h3>
+<p>Walk through attention for "The cat sat" step by step:</p>
+<div class="ia">
+<h4>Step 1: Raw scores (Q @ K<sup>T</sup>)</h4>
+<table class="ct" style="text-align:center;">
+<tr><th></th><th style="color:var(--accent);">The</th><th style="color:var(--accent);">cat</th><th style="color:var(--accent);">sat</th></tr>
+<tr><td style="color:var(--yellow);font-weight:700;">The</td><td>0.8</td><td>0.2</td><td>0.1</td></tr>
+<tr><td style="color:var(--yellow);font-weight:700;">cat</td><td>0.3</td><td>0.9</td><td>0.4</td></tr>
+<tr><td style="color:var(--yellow);font-weight:700;">sat</td><td>0.1</td><td>0.7</td><td>0.5</td></tr>
+</table>
+<h4 style="margin-top:6px;">Step 2: Apply causal mask</h4>
+<div class="ob" style="font-size:10px;">Row "The": can see [The] only → [0.8, -∞, -∞]<br>Row "cat": can see [The, cat] → [0.3, 0.9, -∞]<br>Row "sat": can see [The, cat, sat] → [0.1, 0.7, 0.5]</div>
+<h4 style="margin-top:6px;">Step 3: Softmax (each row sums to 1)</h4>
+<div class="ob" style="font-size:10px;">"The": [1.0, 0, 0] — only option!<br>"cat": [0.35, 0.65, 0] — attends mostly to itself<br>"sat": [0.14, 0.39, 0.47] — attends to all three</div>
+</div></div>
+
+<div class="s"><h3><span class="bd bd-c">CONCEPT</span> Why Multi-Head?</h3>
+<div class="ia">
+<div class="eb"><p><strong>Head 1</strong> might learn: "who did the action?" (subject-verb)</p></div>
+<div class="eb p"><p><strong>Head 2</strong> might learn: "what describes this noun?" (adjective-noun)</p></div>
+<div class="eb g"><p><strong>Head 3</strong> might learn: "what was mentioned earlier?" (long-range)</p></div>
+<div class="eb o"><p><strong>Head 4</strong> might learn: "what's the nearby context?" (local patterns)</p></div>
+<p style="font-size:10px;color:var(--dim);margin-top:4px;">GPT-2: 12 heads × 64 dims = 768 total. Each head specializes in different patterns.</p>
+</div></div>
+
+<div class="s"><h3><span class="bd bd-q">QUIZ</span> Attention Mastery</h3>
+<div class="qb" id="6-q1"><div class="qt">&#x1F914; Why divide scores by √(head_dim)?</div><div class="qo">
+<div class="qp" onclick="cq('6-q1',this,true)">Without scaling, large dot products make softmax too peaked (all attention on one token)</div>
+<div class="qp" onclick="cq('6-q1',this,false)">To save memory</div>
+</div><div class="qf" id="6-q1-f"></div></div>
+<div class="qb" id="6-q2"><div class="qt">&#x1F914; Causal mask sets future positions to -∞. After softmax, -∞ becomes:</div><div class="qo">
+<div class="qp" onclick="cq('6-q2',this,true)">0 — e^(-∞) = 0, so the model can't attend to future tokens</div>
+<div class="qp" onclick="cq('6-q2',this,false)">1</div>
+</div><div class="qf" id="6-q2-f"></div></div>
+<div class="qb" id="6-q3"><div class="qt">&#x1F914; Attention is O(n²) in sequence length. For seq=4096, the attention matrix has:</div><div class="qo">
+<div class="qp" onclick="cq('6-q3',this,true)">4096² = 16.7M entries per head — this is why long sequences are expensive!</div>
+<div class="qp" onclick="cq('6-q3',this,false)">4096 entries</div>
+</div><div class="qf" id="6-q3-f"></div></div>
+<div class="qb" id="6-q4"><div class="qt">&#x1F914; GPT-2 has 12 heads with head_dim=64. Total embed_dim = ?</div><div class="qo">
+<div class="qp" onclick="cq('6-q4',this,true)">12 × 64 = 768</div>
+<div class="qp" onclick="cq('6-q4',this,false)">12 + 64 = 76</div>
+</div><div class="qf" id="6-q4-f"></div></div></div>`;rq('6-q1',10);rq('6-q2',10);rq('6-q3',10);rq('6-q4',10);}},
+
+// ═══ 7: TRANSFORMER BLOCK ═══
+{fn:'step7_block.py',fd:'Phase 2 — The Processing Unit',t:'<span class="lb lb2">P2</span> Step 7: Transformer Block',su:'LayerNorm → Attention → Residual → LayerNorm → FFN → Residual. Stack N of these = a Transformer. GPT-2 has 12, GPT-3 has 96.',
+code:`# ============================================
+# STEP 7: TRANSFORMER BLOCK
+# ============================================
+# One block = one "floor" of the factory.
+# Stack N blocks = the complete Transformer.
+
+class TransformerBlock(nn.Module):
+    def __init__(self, embed_dim, n_heads, ff_dim, dropout=0.1):
+        super().__init__()
+        self.ln1 = nn.LayerNorm(embed_dim)
+        self.attn = MultiHeadAttention(embed_dim, n_heads)
+        self.ln2 = nn.LayerNorm(embed_dim)
+        self.ffn = nn.Sequential(
+            nn.Linear(embed_dim, ff_dim),   # expand
+            nn.GELU(),                       # activate
+            nn.Linear(ff_dim, embed_dim),   # compress
+            nn.Dropout(dropout)
+        )
+
+    def forward(self, x):
+        # Pre-norm + residual connection
+        x = x + self.attn(self.ln1(x))  # communicate
+        x = x + self.ffn(self.ln2(x))   # compute
+        return x
+
+# LAYER NORM: normalize to mean=0, std=1
+# Prevents values from exploding/vanishing.
+# Has learned scale (gamma) and shift (beta).
+
+# RESIDUAL CONNECTION: output = f(x) + x
+# The "+x" creates a gradient highway.
+# d(f(x)+x)/dx = f'(x) + 1
+# The "1" means gradients always flow through!
+
+# FFN: expand → activate → compress
+# 768 → 3072 → 768 (4x expansion)
+# Attention = tokens talk to each other
+# FFN = each token thinks independently`,
+gm:function(c){c.innerHTML=`
+<div class="s"><h3>&#x1F3D7;&#xFE0F; The Transformer Block</h3>
+<div class="eb"><p><strong>Two operations per block:</strong><br>• <strong>Attention</strong> = tokens communicate ("who is relevant?")<br>• <strong>FFN</strong> = each token processes independently ("what does this mean?")</p></div>
+<div class="eb g"><p><strong>Residual connections</strong> (output = f(x) + x) create a gradient highway. Without them, 100-layer networks can't train.</p></div></div>
+<div class="s"><h3><span class="bd bd-g">GAME</span> Click to Explore</h3>
+<div class="ia" id="archD"></div></div>
+<div class="s"><h3><span class="bd bd-q">QUIZ</span></h3>
+<div class="qb" id="7-q1"><div class="qt">Why Pre-LayerNorm (before attention) instead of Post?</div><div class="qo">
+<div class="qp" onclick="cq('7-q1',this,true)">More stable for deep networks — residual path stays clean</div>
+<div class="qp" onclick="cq('7-q1',this,false)">Faster computation</div>
+</div><div class="qf" id="7-q1-f"></div></div>
+<div class="qb" id="7-q2"><div class="qt">FFN expands 768→3072→768. Why expand then compress?</div><div class="qo">
+<div class="qp" onclick="cq('7-q2',this,true)">Wider hidden layer = more capacity for complex transformations</div>
+<div class="qp" onclick="cq('7-q2',this,false)">To save memory</div>
+</div><div class="qf" id="7-q2-f"></div></div></div>`;
+rq('7-q1',10);rq('7-q2',10);
+const ad=document.getElementById('archD');
+[{n:'LayerNorm',c:'var(--dim)',d:'Normalize to mean=0, std=1. Stabilizes training. 2×768 learnable params.'},
+{n:'Multi-Head Attention (12 heads)',c:'var(--yellow)',d:'12 parallel attention heads, each 64-dim. Q,K,V projections + scaled dot-product + causal mask. ~2.36M params.'},
+{n:'+ Residual (add input back)',c:'var(--green)',d:'output = attention(x) + x. Gradient highway — gradients always flow through the +1 term.'},
+{n:'LayerNorm',c:'var(--dim)',d:'Another normalization before FFN.'},
+{n:'FFN: Linear(768→3072) → GELU → Linear(3072→768)',c:'var(--purple)',d:'Per-token processing. Expand to 4x width, activate, compress back. ~4.72M params.'},
+{n:'+ Residual',c:'var(--green)',d:'output = ffn(x) + x. Second gradient highway per block.'},
+{n:'× N blocks (GPT-2: 12, GPT-3: 96)',c:'var(--orange)',d:'Stack identical blocks. Each refines representations. More blocks = deeper understanding.'}
+].forEach(comp=>{const d=document.createElement('div');d.style.cssText='padding:4px 8px;margin:2px 0;border-radius:5px;background:var(--bg4);cursor:pointer;border-left:3px solid '+comp.c+';font-size:10px;font-weight:700;transition:all .2s;';d.textContent=comp.n;d.onclick=function(){ad.querySelectorAll('.ad').forEach(e=>e.remove());const desc=document.createElement('div');desc.className='ad ob';desc.style.cssText='font-size:10px;margin:1px 0 4px 0;';desc.textContent=comp.d;this.after(desc);};ad.appendChild(d);});
+}},
+
+// ═══ 8: FULL ARCHITECTURE ═══
+{fn:'step8_model.py',fd:'Phase 2 — The Complete Model',t:'<span class="lb lb2">P2</span> Step 8: Full Architecture',su:'Token embed + Position embed → N × TransformerBlock → LayerNorm → Linear → logits. This IS a mini-GPT. Our story generator is complete!',
+code:`# ============================================
+# STEP 8: FULL MODEL — Our Story Generator!
+# ============================================
+class StoryGenerator(nn.Module):
+    def __init__(self, vocab_size, embed_dim, n_heads,
+                 n_layers, max_seq, ff_dim):
+        super().__init__()
+        self.tok_emb = nn.Embedding(vocab_size, embed_dim)
+        self.pos_emb = nn.Embedding(max_seq, embed_dim)
+        self.blocks = nn.ModuleList([
+            TransformerBlock(embed_dim, n_heads, ff_dim)
+            for _ in range(n_layers)
+        ])
+        self.ln_f = nn.LayerNorm(embed_dim)
+        self.head = nn.Linear(embed_dim, vocab_size, bias=False)
+
+    def forward(self, idx):
+        B, S = idx.shape
+        tok = self.tok_emb(idx)
+        pos = self.pos_emb(torch.arange(S, device=idx.device))
+        x = tok + pos
+        for block in self.blocks:
+            x = block(x)
+        x = self.ln_f(x)
+        return self.head(x)  # (B, S, vocab_size)
+
+# GPT-2 Small config:
+model = StoryGenerator(
+    vocab_size=50257, embed_dim=768, n_heads=12,
+    n_layers=12, max_seq=1024, ff_dim=3072
+)
+# ~124 million parameters!
+
+# Parameter breakdown:
+# Token embedding: 50257 × 768 = 38.6M
+# Position embedding: 1024 × 768 = 0.8M
+# Per block: ~7.1M × 12 blocks = 85.2M
+# Final head: shared with tok_emb
+# Total: ~124M`,
+gm:function(c){c.innerHTML=`
+<div class="s"><h3>&#x1F3C6; The Complete Model</h3>
+<div class="eb g"><p>Our story generator is now complete! <strong>Token embed + position embed → N transformer blocks → LayerNorm → linear head → logits.</strong> This is the exact same architecture as GPT-2, GPT-3, and LLaMA.</p></div>
+<div class="eb"><p><strong>&#x1F4E6; What each part does:</strong><br>• <strong>Token embedding:</strong> word ID → 768-dim vector (meaning)<br>• <strong>Position embedding:</strong> position → 768-dim vector (order)<br>• <strong>Add them:</strong> meaning + order = complete representation<br>• <strong>N blocks:</strong> refine understanding through attention + FFN<br>• <strong>Final LayerNorm:</strong> stabilize before output<br>• <strong>Linear head:</strong> 768-dim → 50257 logits (one per vocab word)</p></div>
+<div class="eb y"><p><strong>&#x1F4CA; Parameter breakdown (GPT-2 Small):</strong><br>Token embedding: 50257 × 768 = <strong>38.6M</strong><br>Position embedding: 1024 × 768 = <strong>0.8M</strong><br>12 blocks × ~7.1M each = <strong>85.2M</strong><br>Total: <strong>~124M parameters</strong></p></div></div>
+
+<div class="s"><h3><span class="bd bd-c">CONCEPT</span> Model Comparison</h3>
+<table class="ct">
+<tr><th>Model</th><th>Layers</th><th>Heads</th><th>Embed</th><th>Params</th></tr>
+<tr><td>Our Baby</td><td>4</td><td>4</td><td>64</td><td>~5K</td></tr>
+<tr><td>GPT-2 Small</td><td>12</td><td>12</td><td>768</td><td>124M</td></tr>
+<tr><td>GPT-3</td><td>96</td><td>96</td><td>12288</td><td>175B</td></tr>
+<tr><td>LLaMA-2 7B</td><td>32</td><td>32</td><td>4096</td><td>7B</td></tr>
+<tr><td>LLaMA-2 70B</td><td>80</td><td>64</td><td>8192</td><td>70B</td></tr>
+</table></div>
+
+<div class="s"><h3><span class="bd bd-g">GAME</span> Parameter Calculator</h3>
+<p>A model has vocab=10000, embed=256, layers=4, ff=1024. Estimate total embedding params:</p>
+<div class="ia">
+<div style="font-family:'Fira Code',monospace;font-size:10px;">Token embed: 10000 × 256 = ${mkI('pc1',70)}</div>
+<button class="btn bp" onclick="if(+document.getElementById('pc1').value===2560000){document.getElementById('pcF').innerHTML='<span style=color:var(--green)>&#x2705; 2.56M! Embeddings alone are a huge chunk of small models.</span>';asc('8-pc',10);}else document.getElementById('pcF').innerHTML='<span style=color:var(--red)>&#x274C; 10000 × 256 = 2,560,000</span>'" style="margin-top:4px;">Check</button>
+<div id="pcF" style="font-size:10px;font-weight:700;margin-top:3px;"></div>
+</div></div>
+
+<div class="s"><h3><span class="bd bd-q">QUIZ</span> Architecture Mastery</h3>
+<div class="qb" id="8-q1"><div class="qt">&#x1F914; Token embedding (50257, 768) = how many params?</div><div class="qo">
+<div class="qp" onclick="cq('8-q1',this,true)">~38.6M — just for converting word IDs to vectors!</div>
+<div class="qp" onclick="cq('8-q1',this,false)">~51K</div>
+</div><div class="qf" id="8-q1-f"></div></div>
+<div class="qb" id="8-q2"><div class="qt">&#x1F914; Why add tok_emb + pos_emb (not concatenate)?</div><div class="qo">
+<div class="qp" onclick="cq('8-q2',this,true)">Addition preserves dimensionality (768). Concatenation would double it to 1536, wasting compute.</div>
+<div class="qp" onclick="cq('8-q2',this,false)">Concatenation would be better</div>
+</div><div class="qf" id="8-q2-f"></div></div>
+<div class="qb" id="8-q3"><div class="qt">&#x1F914; GPT-3 has 96 layers. Why not 1000?</div><div class="qo">
+<div class="qp" onclick="cq('8-q3',this,true)">Diminishing returns + training instability + massive compute cost. 96 is the sweet spot for 175B params.</div>
+<div class="qp" onclick="cq('8-q3',this,false)">More layers is always better</div>
+</div><div class="qf" id="8-q3-f"></div></div></div>`;rq('8-q1',10);rq('8-q2',10);rq('8-q3',10);rq('8-pc',10);}},
+
+// ═══ 9: TOKENIZATION ═══
+{fn:'step9_tokenizer.py',fd:'Phase 3 — Text to Numbers',t:'<span class="lb lb3">P3</span> Step 9: Tokenization',su:'Character-level (simple, tiny vocab) → Word-level (short sequences, huge vocab) → BPE (sweet spot, handles any word). GPT uses BPE with ~50K tokens.',
+code:`# ============================================
+# STEP 9: TOKENIZATION
+# ============================================
+# Three approaches:
+# Character: "cat" → ['c','a','t'] → [3,1,20]
+#   Vocab: ~100. Pro: tiny. Con: long sequences.
+# Word: "the cat" → ['the','cat'] → [1,42]
+#   Vocab: ~100K. Pro: short. Con: can't handle new words.
+# BPE: "unhappy" → ['un','happy'] → [348,2569]
+#   Vocab: ~50K. Pro: handles anything. Con: slightly longer.
+
+# BPE ALGORITHM:
+# 1. Start with individual characters
+# 2. Find most frequent adjacent pair
+# 3. Merge into new token
+# 4. Repeat until vocab_size reached
+#
+# "the cat the car"
+# Step 0: [t,h,e, ,c,a,t, ,t,h,e, ,c,a,r]
+# Merge (t,h)→th: [th,e, ,c,a,t, ,th,e, ,c,a,r]
+# Merge (th,e)→the: [the, ,c,a,t, ,the, ,c,a,r]
+# Merge (c,a)→ca: [the, ,ca,t, ,the, ,ca,r]
+
+class BPETokenizer:
+    def __init__(self):
+        self.merges = {}
+        self.vocab = {}
+
+    def train(self, text, num_merges):
+        tokens = list(text)
+        for i in range(num_merges):
+            pairs = {}
+            for j in range(len(tokens)-1):
+                pair = (tokens[j], tokens[j+1])
+                pairs[pair] = pairs.get(pair, 0) + 1
+            if not pairs: break
+            best = max(pairs, key=pairs.get)
+            new_token = best[0] + best[1]
+            self.merges[best] = new_token
+            # Merge all occurrences
+            new_tokens = []
+            j = 0
+            while j < len(tokens):
+                if j < len(tokens)-1 and (tokens[j],tokens[j+1]) == best:
+                    new_tokens.append(new_token)
+                    j += 2
+                else:
+                    new_tokens.append(tokens[j])
+                    j += 1
+            tokens = new_tokens
+        return tokens
+
+# SPECIAL TOKENS:
+# <BOS> = beginning of sequence
+# <EOS> = end of sequence
+# <PAD> = padding for batching
+# <UNK> = unknown token (BPE avoids this!)`,
+gm:function(c){c.innerHTML=`
+<div class="s"><h3>&#x1F524; Three Types of Tokenization</h3>
+<div class="eb"><p><strong>Character-level:</strong> "cat" → ['c','a','t']. Vocab ~100. Simple but sequences are very long (slow).</p></div>
+<div class="eb y"><p><strong>Word-level:</strong> "the cat" → ['the','cat']. Vocab ~100K+. Short sequences but can't handle new words like "ChatGPT".</p></div>
+<div class="eb g"><p><strong>BPE (Byte Pair Encoding):</strong> "unhappy" → ['un','happy']. Vocab ~50K. The sweet spot! Handles ANY word by breaking into known subwords. Used by GPT-2/3/4, LLaMA, Mistral.</p></div></div>
+
+<div class="s"><h3><span class="bd bd-c">CONCEPT</span> How BPE Works</h3>
+<div class="eb"><p><strong>Algorithm:</strong> 1) Start with individual characters. 2) Count all adjacent pairs. 3) Merge the most frequent pair into a new token. 4) Repeat until vocab_size reached.</p></div>
+<div class="eb p"><p><strong>Example:</strong> "low lower lowest" → Start: [l,o,w, ,l,o,w,e,r,...] → Merge (l,o)→lo → Merge (lo,w)→low → Now "low" is a single token!</p></div></div>
+
+<div class="s"><h3><span class="bd bd-g">GAME</span> BPE Merge Simulator</h3>
+<p>Click "Next Merge" to watch BPE build tokens step by step:</p>
+<div class="ia">
+<h4>Text: "the cat the car"</h4>
+<div id="bpeS" style="font-family:'Fira Code',monospace;font-size:10px;"></div>
+<button class="btn bp" onclick="bpeStep()" id="bpeB">Next Merge →</button>
+<div id="bpeF" style="font-size:10px;font-weight:700;margin-top:3px;"></div>
+</div></div>
+
+<div class="s"><h3><span class="bd bd-c">CONCEPT</span> Special Tokens</h3>
+<table class="ct">
+<tr><th>Token</th><th>Purpose</th><th>Example</th></tr>
+<tr><td>&lt;BOS&gt;</td><td>Beginning of sequence</td><td>Tells model "start generating"</td></tr>
+<tr><td>&lt;EOS&gt;</td><td>End of sequence</td><td>Tells model "stop generating"</td></tr>
+<tr><td>&lt;PAD&gt;</td><td>Padding</td><td>Makes all sequences same length in a batch</td></tr>
+<tr><td>&lt;UNK&gt;</td><td>Unknown token</td><td>BPE avoids this — it can tokenize anything!</td></tr>
+</table></div>
+
+<div class="s"><h3><span class="bd bd-q">QUIZ</span> Tokenization Mastery</h3>
+<div class="qb" id="9-q1"><div class="qt">&#x1F914; Why BPE over word-level tokenization?</div><div class="qo">
+<div class="qp" onclick="cq('9-q1',this,true)">Handles unknown/new words by breaking into known subwords — no &lt;UNK&gt; tokens needed</div>
+<div class="qp" onclick="cq('9-q1',this,false)">Faster processing</div>
+</div><div class="qf" id="9-q1-f"></div></div>
+<div class="qb" id="9-q2"><div class="qt">&#x1F914; &lt;PAD&gt; token is used for:</div><div class="qo">
+<div class="qp" onclick="cq('9-q2',this,true)">Making all sequences the same length in a batch (GPUs need uniform shapes)</div>
+<div class="qp" onclick="cq('9-q2',this,false)">Marking unknown words</div>
+</div><div class="qf" id="9-q2-f"></div></div>
+<div class="qb" id="9-q3"><div class="qt">&#x1F914; GPT-2 has vocab_size=50257. Why not 1 million?</div><div class="qo">
+<div class="qp" onclick="cq('9-q3',this,true)">Larger vocab = larger embedding table = more params + memory. 50K is the sweet spot for coverage vs efficiency.</div>
+<div class="qp" onclick="cq('9-q3',this,false)">More tokens is always better</div>
+</div><div class="qf" id="9-q3-f"></div></div></div>`;
+rq('9-q1',10);rq('9-q2',10);rq('9-q3',10);
+const bpeD=[{t:['t','h','e',' ','c','a','t',' ','t','h','e',' ','c','a','r'],d:'Start: individual characters'},{t:['th','e',' ','c','a','t',' ','th','e',' ','c','a','r'],d:'Merge t+h → th (2×)'},{t:['the',' ','c','a','t',' ','the',' ','c','a','r'],d:'Merge th+e → the (2×)'},{t:['the',' ','ca','t',' ','the',' ','ca','r'],d:'Merge c+a → ca (2×). Done!'}];
+let bpeI=0;function renderBPE(){const s=bpeD[bpeI];document.getElementById('bpeS').innerHTML='<div style="color:var(--dim);margin:2px 0;">Step '+bpeI+':</div><div style="display:flex;flex-wrap:wrap;gap:2px;">'+s.t.map(t=>'<span style="padding:2px 5px;border-radius:3px;background:var(--bg4);font-size:10px;">'+t+'</span>').join('')+'</div><div style="margin-top:3px;color:var(--accent);font-size:10px;">'+s.d+'</div>';}renderBPE();
+window.bpeStep=function(){if(bpeI<bpeD.length-1){bpeI++;renderBPE();if(bpeI===bpeD.length-1){document.getElementById('bpeB').disabled=true;document.getElementById('bpeF').innerHTML='<span style="color:var(--green);">&#x2705; BPE complete!</span>';asc('9-bpe',10);}}};rq('9-bpe',10);
+}},
+
+// ═══ 10: TRAINING LOOP ═══
+{fn:'step10_training.py',fd:'Phase 3 — Making It Learn',t:'<span class="lb lb3">P3</span> Step 10: Training Loop',su:'forward → loss → backward → clip → step → zero_grad. AdamW optimizer + cosine LR schedule with warmup. The 5-line loop that trains any model.',
+code:`# ============================================
+# STEP 10: TRAINING LOOP
+# ============================================
+# The 5-line loop that trains ANY neural network:
+
+optimizer = torch.optim.AdamW(
+    model.parameters(), lr=6e-4,
+    betas=(0.9, 0.95), weight_decay=0.1
+)
+
+for step in range(total_steps):
+    x, y = get_batch(data, batch_size=64, seq_len=128)
+    # Target = input shifted by 1 position
+    # "The cat sat" → input=[The,cat], target=[cat,sat]
+
+    logits = model(x)                    # 1. Forward
+    loss = F.cross_entropy(              # 2. Loss
+        logits.view(-1, vocab_size), y.view(-1))
+    loss.backward()                      # 3. Backward
+    torch.nn.utils.clip_grad_norm_(      # 4. Clip
+        model.parameters(), 1.0)
+    optimizer.step()                     # 5. Step
+    optimizer.zero_grad()                # 6. Zero
+
+# ADAMW: Adam + weight decay
+# Tracks m (momentum) and v (variance) per parameter
+# Adapts LR per parameter automatically
+# Weight decay prevents overfitting
+
+# LR SCHEDULE: warmup + cosine decay
+# Warmup: 0 → max_lr over first 2000 steps
+# Cosine: max_lr → min_lr over remaining steps
+# Why warmup? Random weights need gentle start.
+
+# BACKPROPAGATION:
+# loss.backward() computes d(loss)/d(weight) for ALL weights
+# Uses chain rule through every layer automatically
+# PyTorch builds computation graph and walks it backwards`,
+gm:function(c){c.innerHTML=`
+<div class="s"><h3>&#x1F3CB;&#xFE0F; The Training Loop</h3>
+<div class="eb o"><p><strong>The LLM recipe:</strong> AdamW (β1=0.9, β2=0.95, wd=0.1) + cosine LR with warmup + gradient clipping (max_norm=1.0). GPT-3, LLaMA, Mistral all use exactly this.</p></div>
+<div class="eb"><p><strong>&#x1F373; Cooking Analogy:</strong> Forward pass = taste the dish. Loss = how far from perfect. Backward = figure out which ingredient to adjust. Step = adjust the recipe. Zero_grad = clean the kitchen for next attempt.</p></div>
+<div class="eb g"><p><strong>AdamW vs SGD:</strong> SGD uses the same learning rate for all weights. Adam adapts per-parameter: weights with large gradients get smaller steps, weights with small gradients get larger steps. AdamW adds weight decay (prefer smaller weights).</p></div></div>
+
+<div class="s"><h3><span class="bd bd-c">CONCEPT</span> LR Schedule: Warmup + Cosine Decay</h3>
+<div class="ia">
+<canvas id="lrC" width="400" height="100" style="width:100%;background:var(--code-bg);"></canvas>
+<div class="eb y"><p><strong>Why warmup?</strong> Random initial weights → large gradients → instability. Start with tiny LR, ramp up over ~2000 steps. Then cosine decay smoothly to near zero.</p></div>
+</div></div>
+
+<div class="s"><h3><span class="bd bd-g">GAME</span> Loss Curve Simulator</h3>
+<div class="ia">
+<canvas id="lossC" width="400" height="120" style="width:100%;background:var(--code-bg);"></canvas>
+<button class="btn bp" onclick="runLoss()">&#x25B6; Train!</button>
+<div id="lossI" class="ob">Click Train to watch loss decrease over 120 steps!</div>
+</div></div>
+
+<div class="s"><h3><span class="bd bd-c">CONCEPT</span> Backpropagation</h3>
+<div class="eb"><p><strong>loss.backward()</strong> walks the computation graph backwards, computing d(loss)/d(weight) for every parameter using the chain rule. PyTorch does this automatically — you never write gradient math by hand!</p></div>
+<div class="eb p"><p><strong>Chain rule in action:</strong> For a 12-layer transformer, the gradient for layer 1's weights passes through 11 layers of chain rule multiplications. Residual connections (+x) ensure gradients always flow through (derivative of x+f(x) includes a +1 term).</p></div></div>
+
+<div class="s"><h3><span class="bd bd-q">QUIZ</span> Training Mastery</h3>
+<div class="qb" id="10-q1"><div class="qt">&#x1F914; Correct training step order:</div><div class="qo">
+<div class="qp" onclick="cq('10-q1',this,true)">forward → loss → backward → clip → step → zero_grad</div>
+<div class="qp" onclick="cq('10-q1',this,false)">backward → forward → step</div>
+</div><div class="qf" id="10-q1-f"></div></div>
+<div class="qb" id="10-q2"><div class="qt">&#x1F914; Why zero_grad()?</div><div class="qo">
+<div class="qp" onclick="cq('10-q2',this,true)">PyTorch accumulates gradients by default — must reset each step or they add up!</div>
+<div class="qp" onclick="cq('10-q2',this,false)">To free memory</div>
+</div><div class="qf" id="10-q2-f"></div></div>
+<div class="qb" id="10-q3"><div class="qt">&#x1F914; The target sequence is input shifted by 1: "The cat sat" → input=[The,cat], target=[cat,sat]. Why?</div><div class="qo">
+<div class="qp" onclick="cq('10-q3',this,true)">We're training the model to predict the NEXT token at each position</div>
+<div class="qp" onclick="cq('10-q3',this,false)">To double the data</div>
+</div><div class="qf" id="10-q3-f"></div></div></div>`;
+rq('10-q1',10);rq('10-q2',10);rq('10-q3',10);
+// LR schedule canvas
+const lrC=document.getElementById('lrC'),lx=lrC.getContext('2d');
+(function(){const W=lrC.width,H=lrC.height;lx.strokeStyle='#333';lx.lineWidth=1;lx.beginPath();lx.moveTo(20,5);lx.lineTo(20,H-10);lx.lineTo(W-5,H-10);lx.stroke();lx.strokeStyle='#00b4d8';lx.lineWidth=2;lx.beginPath();for(let s=0;s<=100;s++){let lr;if(s<10)lr=s/10;else{const p=(s-10)/90;lr=0.5*(1+Math.cos(Math.PI*p));}const px=20+(s/100)*(W-25);const py=5+(1-lr)*(H-20);if(s===0)lx.moveTo(px,py);else lx.lineTo(px,py);}lx.stroke();lx.fillStyle='#ffd166';lx.font='8px Fira Code';lx.fillText('warmup',30,H-2);lx.fillStyle='#6b7294';lx.fillText('cosine decay',W/2,H-2);})();
+// Loss curve
+const lossC=document.getElementById('lossC'),lcx=lossC.getContext('2d');let lossA=null;
+window.runLoss=function(){if(lossA)clearInterval(lossA);const W=lossC.width,H=lossC.height;const pts=[];let step=0;
+lossA=setInterval(()=>{step++;const loss=8*Math.exp(-step/25)+0.5+Math.random()*0.2*(8/(step+3));pts.push(loss);lcx.clearRect(0,0,W,H);lcx.strokeStyle='#e94560';lcx.lineWidth=1.5;lcx.beginPath();pts.forEach((l,i)=>{const px=20+(i/120)*(W-25);const py=5+(1-Math.min(l,9)/9)*(H-15);if(i===0)lcx.moveTo(px,py);else lcx.lineTo(px,py);});lcx.stroke();document.getElementById('lossI').innerHTML='Step '+step+': Loss='+loss.toFixed(3);
+if(step>=120){clearInterval(lossA);document.getElementById('lossI').innerHTML='<span style="color:var(--green);">&#x2705; Training complete! Loss: '+pts[pts.length-1].toFixed(2)+'</span>';asc('10-loss',10);}},50);};rq('10-loss',10);
+}},
+
+// ═══ 11: REGULARIZATION ═══
+{fn:'step11_regularization.py',fd:'Phase 3 — Preventing Overfitting',t:'<span class="lb lb3">P3</span> Step 11: Regularization',su:'Dropout (randomly zero neurons), weight decay (penalize large weights), gradient clipping (prevent explosions), train/val split (detect overfitting).',
+code:`# ============================================
+# STEP 11: REGULARIZATION
+# ============================================
+# Without regularization, the model MEMORIZES
+# training data instead of learning patterns.
+
+# DROPOUT: randomly zero out 10% of neurons
+dropout = nn.Dropout(p=0.1)
+# During training: randomly kills neurons
+# During eval: uses all neurons (scaled)
+# Forces the network to be redundant
+
+# WEIGHT DECAY: penalize large weights
+# Built into AdamW: weight *= (1 - lr * wd)
+# Prevents any single weight from dominating
+
+# GRADIENT CLIPPING: prevent explosions
+torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
+# If total gradient norm > 1.0, scale ALL down
+
+# TRAIN/VAL SPLIT: detect overfitting
+# Train loss ↓ but val loss ↑ = overfitting!
+# Solution: early stopping, more dropout, more data
+
+# NUMERICAL STABILITY:
+# softmax: subtract max before exp (prevent overflow)
+# log_softmax: compute in log space (prevent underflow)
+# gradient clipping: prevent NaN from huge gradients
+
+# MIXED PRECISION (FP16):
+# Use half-precision for speed (2x faster, half memory)
+# Keep master weights in FP32 for stability
+scaler = torch.cuda.amp.GradScaler()
+with torch.cuda.amp.autocast():
+    output = model(input)
+    loss = criterion(output, target)`,
+gm:function(c){c.innerHTML=`
+<div class="s"><h3>&#x1F6E1;&#xFE0F; Why Regularization?</h3>
+<div class="eb"><p>Without regularization, the model <strong>memorizes</strong> training data instead of learning patterns. It gets 99% on training data but fails on new text. That's <strong>overfitting</strong>.</p></div>
+<div class="eb y"><p><strong>&#x1F393; Student Analogy:</strong> A student who memorizes answers word-for-word gets 100% on practice tests but fails the real exam (different questions). Regularization forces the model to understand concepts, not memorize examples.</p></div></div>
+
+<div class="s"><h3><span class="bd bd-c">CONCEPT</span> Four Regularization Techniques</h3>
+<div class="eb"><p><strong>1. Dropout (p=0.1):</strong> Randomly zero out 10% of neurons during training. Forces redundancy — no single neuron can be critical. During inference, all neurons are used (scaled by 1-p).</p></div>
+<div class="eb p"><p><strong>2. Weight Decay (wd=0.1):</strong> Penalize large weights: weight *= (1 - lr × wd). Prevents any single weight from dominating. Built into AdamW.</p></div>
+<div class="eb g"><p><strong>3. Gradient Clipping (max_norm=1.0):</strong> If total gradient norm > 1.0, scale ALL gradients down proportionally. Prevents training explosions from rare bad batches.</p></div>
+<div class="eb o"><p><strong>4. Train/Val Split:</strong> Train on 80%, validate on 10%, test on 10%. If train loss ↓ but val loss ↑ → overfitting! Solution: early stopping, more dropout, more data.</p></div></div>
+
+<div class="s"><h3><span class="bd bd-c">CONCEPT</span> Numerical Stability</h3>
+<div class="eb r"><p><strong>Softmax overflow:</strong> e^(1000) = infinity! Solution: subtract max before exp. softmax([1000, 999]) = softmax([1, 0]) — same result, no overflow.</p></div>
+<div class="eb"><p><strong>Mixed Precision (FP16):</strong> Use half-precision for speed (2x faster, half memory). Keep master weights in FP32 for stability. Standard in all modern LLM training.</p></div></div>
+
+<div class="s"><h3><span class="bd bd-g">GAME</span> Overfitting Detector</h3>
+<p>Which scenario shows overfitting?</p>
+<div class="ia">
+<div class="qb" id="11-q0"><div class="qt">Scenario A: Train loss=0.5, Val loss=0.6<br>Scenario B: Train loss=0.1, Val loss=3.2</div><div class="qo">
+<div class="qp" onclick="cq('11-q0',this,false)">A — small gap is normal</div>
+<div class="qp" onclick="cq('11-q0',this,true)">B — huge gap! Model memorized training data (0.1) but fails on new data (3.2)</div>
+</div><div class="qf" id="11-q0-f"></div></div>
+</div></div>
+
+<div class="s"><h3><span class="bd bd-q">QUIZ</span> Regularization Mastery</h3>
+<div class="qb" id="11-q1"><div class="qt">&#x1F914; Gradient clipping with max_norm=1.0 means:</div><div class="qo">
+<div class="qp" onclick="cq('11-q1',this,true)">If total gradient norm > 1.0, scale ALL gradients down proportionally (not clip individually)</div>
+<div class="qp" onclick="cq('11-q1',this,false)">Each individual gradient is capped at 1.0</div>
+</div><div class="qf" id="11-q1-f"></div></div>
+<div class="qb" id="11-q2"><div class="qt">&#x1F914; Why subtract max(logits) in softmax?</div><div class="qo">
+<div class="qp" onclick="cq('11-q2',this,true)">Numerical stability — e^(large number) overflows to infinity. Subtracting max makes the largest value 0.</div>
+<div class="qp" onclick="cq('11-q2',this,false)">It changes the probability distribution</div>
+</div><div class="qf" id="11-q2-f"></div></div>
+<div class="qb" id="11-q3"><div class="qt">&#x1F914; Dropout is applied during training but NOT during inference. Why?</div><div class="qo">
+<div class="qp" onclick="cq('11-q3',this,true)">During inference we want the full model capacity. Dropout is only for training regularization.</div>
+<div class="qp" onclick="cq('11-q3',this,false)">It would be too slow</div>
+</div><div class="qf" id="11-q3-f"></div></div></div>`;rq('11-q0',10);rq('11-q1',10);rq('11-q2',10);rq('11-q3',10);}},
+
+// ═══ 12: EVALUATION ═══
+{fn:'step12_evaluation.py',fd:'Phase 3 — Measuring Quality',t:'<span class="lb lb3">P3</span> Step 12: Evaluation',su:'Perplexity = e^(loss). Lower = better. Random guess = vocab_size. Good LLM = 10-30. Plus: train/val/test splits, context window limits.',
+code:`# ============================================
+# STEP 12: EVALUATION
+# ============================================
+# How do we know if our story generator is good?
+
+# PERPLEXITY = e^(average_loss)
+# Intuition: "how many words is the model choosing between?"
+# Random: perplexity = vocab_size (50257) — terrible!
+# Good LLM: perplexity 10-30
+# Perfect: perplexity 1 (always right)
+
+import math
+model.eval()
+with torch.no_grad():
+    total_loss = 0
+    for x, y in val_batches:
+        logits = model(x)
+        loss = F.cross_entropy(logits.view(-1, V), y.view(-1))
+        total_loss += loss.item()
+    avg_loss = total_loss / len(val_batches)
+    perplexity = math.exp(avg_loss)
+
+# CONTEXT WINDOW:
+# GPT-2: 1024 tokens max
+# GPT-3: 2048 tokens
+# GPT-4: 8K-128K tokens
+# Why limited? Attention is O(n²) in memory!
+# Solutions: sliding window, ALiBi, RoPE extrapolation
+
+# TRAIN/VAL/TEST SPLIT:
+# Train: 80% — model learns from this
+# Val: 10% — tune hyperparameters
+# Test: 10% — final evaluation (never train on this!)
+
+# BENCHMARKS:
+# MMLU: multiple choice knowledge test
+# HumanEval: code generation
+# HellaSwag: commonsense reasoning
+# TruthfulQA: factual accuracy`,
+gm:function(c){c.innerHTML=`
+<div class="s"><h3>&#x1F4CA; How Do We Know It's Good?</h3>
+<div class="eb"><p><strong>Perplexity = e^(average loss).</strong> Intuition: "how many words is the model confused between at each step?" Lower = better.</p></div>
+<div class="eb y"><p><strong>&#x1F3AF; Perplexity benchmarks:</strong><br>• Random guessing: perplexity = 50257 (vocab size) — terrible!<br>• Bad model: perplexity ~1000<br>• Decent model: perplexity ~50-100<br>• Good LLM: perplexity 10-30<br>• Perfect: perplexity 1 (always right — impossible in practice)</p></div></div>
+
+<div class="s"><h3><span class="bd bd-c">CONCEPT</span> Context Window Limits</h3>
+<div class="eb"><p><strong>Why limited?</strong> Attention is O(n²) in memory. Doubling sequence length = 4x memory!</p></div>
+<table class="ct">
+<tr><th>Model</th><th>Context Window</th><th>Attention Memory (per layer)</th></tr>
+<tr><td>GPT-2</td><td>1,024 tokens</td><td>1M entries</td></tr>
+<tr><td>GPT-3</td><td>2,048 tokens</td><td>4M entries</td></tr>
+<tr><td>GPT-4</td><td>8K-128K tokens</td><td>16M-16B entries</td></tr>
+<tr><td>Claude</td><td>200K tokens</td><td>40B entries</td></tr>
+</table>
+<div class="eb g"><p><strong>Solutions:</strong> Sliding window attention (Mistral), RoPE extrapolation, Flash Attention (O(n) memory), sparse attention patterns.</p></div></div>
+
+<div class="s"><h3><span class="bd bd-c">CONCEPT</span> Train / Val / Test Split</h3>
+<div class="eb"><p><strong>Train (80%):</strong> Model learns from this.<br><strong>Validation (10%):</strong> Tune hyperparameters, detect overfitting.<br><strong>Test (10%):</strong> Final evaluation — NEVER train on this!</p></div>
+<div class="eb r"><p><strong>&#x26A0;&#xFE0F; Data contamination:</strong> If test data leaks into training, benchmarks are meaningless. This is a real problem with internet-trained LLMs!</p></div></div>
+
+<div class="s"><h3><span class="bd bd-q">QUIZ</span> Evaluation Mastery</h3>
+<div class="qb" id="12-q1"><div class="qt">&#x1F914; Perplexity of 50257 means:</div><div class="qo">
+<div class="qp" onclick="cq('12-q1',this,true)">Random guessing — the model is equally confused about all 50257 words</div>
+<div class="qp" onclick="cq('12-q1',this,false)">Perfect model</div>
+</div><div class="qf" id="12-q1-f"></div></div>
+<div class="qb" id="12-q2"><div class="qt">&#x1F914; Train loss ↓ but val loss ↑ means:</div><div class="qo">
+<div class="qp" onclick="cq('12-q2',this,true)">Overfitting — model memorizes training data but fails on new data</div>
+<div class="qp" onclick="cq('12-q2',this,false)">Model is learning well</div>
+</div><div class="qf" id="12-q2-f"></div></div>
+<div class="qb" id="12-q3"><div class="qt">&#x1F914; GPT-4 supports 128K tokens. Why can't all models do this?</div><div class="qo">
+<div class="qp" onclick="cq('12-q3',this,true)">Attention is O(n²) — 128K² = 16 billion entries per layer. Requires Flash Attention + massive GPU memory.</div>
+<div class="qp" onclick="cq('12-q3',this,false)">It's just a software setting</div>
+</div><div class="qf" id="12-q3-f"></div></div></div>`;rq('12-q1',10);rq('12-q2',10);rq('12-q3',10);}},
+
+// ═══ 13: ADVANCED ATTENTION ═══
+{fn:'step13_adv_attention.py',fd:'Phase 4 — RoPE, GQA, KV-Cache, Flash',t:'<span class="lb lb4">P4</span> Step 13: Advanced Attention',su:'RoPE (rotary positions, extrapolates to longer sequences), GQA (shared K,V heads, 50% less memory), KV-Cache (10x faster generation), Flash Attention (memory-efficient).',
+code:`# ============================================
+# STEP 13: ADVANCED ATTENTION
+# ============================================
+
+# ── RoPE (Rotary Position Embeddings) ──
+# Instead of ADDING position info, ROTATE Q,K vectors.
+# Angle between positions encodes RELATIVE distance.
+# Can extrapolate to longer sequences than trained on!
+# Used by: LLaMA, Mistral, GPT-NeoX
+def apply_rope(x, cos, sin):
+    x1, x2 = x[..., ::2], x[..., 1::2]
+    return torch.cat([x1*cos - x2*sin, x1*sin + x2*cos], -1)
+
+# ── GQA (Grouped-Query Attention) ──
+# Standard: 12 Q heads, 12 K heads, 12 V heads
+# MQA: 12 Q heads, 1 K head, 1 V head (50% less!)
+# GQA: 12 Q heads, 4 K heads, 4 V heads (middle ground)
+# Why? KV-Cache is the memory bottleneck.
+# Fewer KV heads = smaller cache = longer sequences!
+# Used by: LLaMA-2 70B, Mistral
+
+# ── KV-Cache ──
+# During generation, we process one new token at a time.
+# Without cache: recompute K,V for ALL previous tokens.
+# With cache: store K,V, only compute for new token.
+# Speedup: ~10x for long sequences!
+class CachedAttention:
+    def forward(self, x, cache_k=None, cache_v=None):
+        q, k, v = self.qkv(x)
+        if cache_k is not None:
+            k = torch.cat([cache_k, k], dim=1)
+            v = torch.cat([cache_v, v], dim=1)
+        # Only new q attends to all k,v
+        return output, k, v  # return cache for next step
+
+# ── Flash Attention ──
+# Standard attention: O(n²) memory (store full attention matrix)
+# Flash Attention: O(n) memory (tile-based computation)
+# Computes attention in blocks, never materializes full matrix.
+# 2-4x faster, uses 5-20x less memory!
+# Used by: every modern LLM framework
+
+# ── Sliding Window Attention ──
+# Each token only attends to last W tokens (e.g., W=4096)
+# Reduces O(n²) to O(n×W) for very long sequences.
+# Used by: Mistral (W=4096)`,
+gm:function(c){c.innerHTML=`
+<div class="s"><h3>&#x26A1; Advanced Attention</h3>
+<div class="eb"><p><strong>RoPE:</strong> Rotates Q,K vectors by position angle. Nearby tokens = small angle. Far tokens = large angle. Can extrapolate beyond training length!</p></div>
+<div class="eb p"><p><strong>GQA:</strong> Share K,V heads across Q heads. LLaMA-2 70B uses 8 KV groups for 64 Q heads. Saves 50%+ KV-cache memory.</p></div>
+<div class="eb g"><p><strong>KV-Cache:</strong> Store computed K,V for previous tokens. Only compute new token's K,V. ~10x faster generation.</p></div>
+<div class="eb y"><p><strong>Flash Attention:</strong> Tile-based computation. Never stores full n×n attention matrix. O(n) memory instead of O(n²). Standard in all modern frameworks.</p></div>
+<div class="eb o"><p><strong>Sliding Window:</strong> Each token only sees last W=4096 tokens. O(n×W) instead of O(n²). Used by Mistral.</p></div></div>
+<div class="s"><h3><span class="bd bd-q">QUIZ</span></h3>
+<div class="qb" id="13-q1"><div class="qt">RoPE encodes position by:</div><div class="qo">
+<div class="qp" onclick="cq('13-q1',this,true)">Rotating Q,K vectors — angle between positions = relative distance</div>
+<div class="qp" onclick="cq('13-q1',this,false)">Adding a position vector</div>
+</div><div class="qf" id="13-q1-f"></div></div>
+<div class="qb" id="13-q2"><div class="qt">KV-Cache speeds up generation because:</div><div class="qo">
+<div class="qp" onclick="cq('13-q2',this,true)">We don't recompute K,V for all previous tokens — only the new one</div>
+<div class="qp" onclick="cq('13-q2',this,false)">It uses less memory</div>
+</div><div class="qf" id="13-q2-f"></div></div>
+<div class="qb" id="13-q3"><div class="qt">Flash Attention achieves O(n) memory by:</div><div class="qo">
+<div class="qp" onclick="cq('13-q3',this,true)">Computing attention in tiles/blocks, never materializing the full n×n matrix</div>
+<div class="qp" onclick="cq('13-q3',this,false)">Using approximation</div>
+</div><div class="qf" id="13-q3-f"></div></div></div>`;rq('13-q1',10);rq('13-q2',10);rq('13-q3',10);}},
+
+// ═══ 14: GENERATION STRATEGIES ═══
+{fn:'step14_generation.py',fd:'Phase 4 — How ChatGPT Writes',t:'<span class="lb lb4">P4</span> Step 14: Generation Strategies',su:'Greedy (always top), Top-k (top k tokens), Top-p/nucleus (tokens summing to p%), Beam search (keep top-k sequences), Speculative decoding (2-3x faster).',
+code:`# ============================================
+# STEP 14: GENERATION STRATEGIES
+# ============================================
+
+# AUTOREGRESSIVE: generate one token at a time
+# Each new token is fed back as input for the next.
+
+def generate(model, prompt, max_tokens, strategy='top_p'):
+    ids = tokenize(prompt)
+    for _ in range(max_tokens):
+        logits = model(ids)[:, -1, :]  # last position
+        
+        if strategy == 'greedy':
+            next_id = logits.argmax(-1)
+        
+        elif strategy == 'top_k':
+            top_k = 50
+            vals, idx = logits.topk(top_k)
+            probs = F.softmax(vals, -1)
+            next_id = idx[torch.multinomial(probs, 1)]
+        
+        elif strategy == 'top_p':  # nucleus sampling
+            sorted_logits, sorted_idx = logits.sort(descending=True)
+            probs = F.softmax(sorted_logits, -1)
+            cumsum = probs.cumsum(-1)
+            mask = cumsum - probs > 0.9  # p=0.9
+            sorted_logits[mask] = float('-inf')
+            probs = F.softmax(sorted_logits, -1)
+            next_id = sorted_idx[torch.multinomial(probs, 1)]
+        
+        ids = torch.cat([ids, next_id.unsqueeze(0)], 1)
+    return ids
+
+# BEAM SEARCH: keep top-B sequences at each step
+# Deterministic, good for translation/summarization
+# B=4: explore 4 paths simultaneously, keep best
+
+# SPECULATIVE DECODING:
+# Use a SMALL draft model to generate K tokens fast
+# Then verify all K with the LARGE model in one pass
+# Accept correct tokens, reject wrong ones
+# Speedup: 2-3x because large model processes in parallel!
+
+# REPETITION PENALTY:
+# Reduce probability of recently generated tokens
+# Prevents: "The cat sat on the the the the..."`,
+gm:function(c){c.innerHTML=`
+<div class="s"><h3>&#x270D;&#xFE0F; How ChatGPT Writes</h3>
+<div class="eb"><p>LLMs generate text <strong>one token at a time</strong>. At each step, the model outputs probabilities for all 50K+ words, then picks one. The chosen token is fed back as input for the next step. This is called <strong>autoregressive generation</strong>.</p></div></div>
+
+<div class="s"><h3><span class="bd bd-c">CONCEPT</span> Five Sampling Strategies</h3>
+<div class="eb"><p><strong>1. Greedy:</strong> Always pick the highest probability token. Deterministic but boring and repetitive. "The cat sat on the the the the..."</p></div>
+<div class="eb y"><p><strong>2. Top-k (k=50):</strong> Only consider the top 50 tokens, zero out the rest, then sample. Prevents rare garbage tokens but k is fixed regardless of confidence.</p></div>
+<div class="eb g"><p><strong>3. Top-p / Nucleus (p=0.9):</strong> Consider the smallest set of tokens whose probabilities sum to ≥0.9. Adapts automatically — when confident, considers few tokens; when uncertain, considers many. <strong>Used by ChatGPT.</strong></p></div>
+<div class="eb p"><p><strong>4. Beam Search (B=4):</strong> Keep top-4 sequences at each step, explore all branches, pick the best complete sequence. Deterministic, good for translation/summarization.</p></div>
+<div class="eb r"><p><strong>5. Speculative Decoding:</strong> Use a small fast model to draft K tokens. Then verify all K with the large model in ONE parallel pass. Accept correct tokens, reject wrong ones. <strong>2-3x speedup!</strong> Used in production.</p></div></div>
+
+<div class="s"><h3><span class="bd bd-c">CONCEPT</span> Repetition Penalty</h3>
+<div class="eb"><p>Divide the logit of recently generated tokens by a penalty factor (e.g., 1.2). This reduces their probability, preventing loops like "the the the the..."</p></div></div>
+
+<div class="s"><h3><span class="bd bd-q">QUIZ</span> Generation Mastery</h3>
+<div class="qb" id="14-q1"><div class="qt">&#x1F914; Top-p=0.9 means:</div><div class="qo">
+<div class="qp" onclick="cq('14-q1',this,true)">Consider the smallest set of tokens whose cumulative probability ≥ 0.9. Adapts per step!</div>
+<div class="qp" onclick="cq('14-q1',this,false)">Pick from top 90 tokens</div>
+</div><div class="qf" id="14-q1-f"></div></div>
+<div class="qb" id="14-q2"><div class="qt">&#x1F914; Speculative decoding is faster because:</div><div class="qo">
+<div class="qp" onclick="cq('14-q2',this,true)">The large model verifies K tokens in ONE parallel pass instead of K sequential passes</div>
+<div class="qp" onclick="cq('14-q2',this,false)">It uses a smaller model for everything</div>
+</div><div class="qf" id="14-q2-f"></div></div>
+<div class="qb" id="14-q3"><div class="qt">&#x1F914; Why is greedy decoding bad for creative writing?</div><div class="qo">
+<div class="qp" onclick="cq('14-q3',this,true)">Always picks the most likely token → repetitive, boring text with no variety</div>
+<div class="qp" onclick="cq('14-q3',this,false)">It's too slow</div>
+</div><div class="qf" id="14-q3-f"></div></div></div>`;rq('14-q1',10);rq('14-q2',10);rq('14-q3',10);}},
+
+// ═══ 15: SCALING & EFFICIENCY ═══
+{fn:'step15_scaling.py',fd:'Phase 4 — Billion-Parameter Models',t:'<span class="lb lb4">P4</span> Step 15: Scaling & Efficiency',su:'MoE (8 experts, activate 2), LoRA (fine-tune 0.1% of params), Quantization (4x smaller), Scaling Laws (tokens = 20× params).',
+code:`# ============================================
+# STEP 15: SCALING & EFFICIENCY
+# ============================================
+
+# ── MoE (Mixture of Experts) ──
+# Replace single FFN with N expert FFNs + router
+# Router picks top-2 experts per token
+# GPT-4: rumored 8×220B = 1.76T total, ~220B active
+# Mixtral: 8×7B = 46.7B total, 12.9B active
+class MoELayer(nn.Module):
+    def __init__(self, n_experts=8, top_k=2):
+        self.router = nn.Linear(embed_dim, n_experts)
+        self.experts = nn.ModuleList([FFN() for _ in range(n_experts)])
+    def forward(self, x):
+        scores = self.router(x)
+        top_k_idx = scores.topk(self.top_k).indices
+        # Only run selected experts!
+
+# ── LoRA (Low-Rank Adaptation) ──
+# Fine-tune with 128x fewer parameters!
+# Instead of updating W (d×d), add A×B (d×r × r×d)
+# r=16: 2×d×16 params instead of d×d
+# Original weights FROZEN. Only train A, B.
+# Can fine-tune 7B model on a laptop!
+
+# ── Quantization ──
+# FP32 (4 bytes) → INT8 (1 byte) → INT4 (0.5 bytes)
+# 7B model: 28GB → 7GB → 3.5GB
+# Minimal quality loss! (< 1% on benchmarks)
+# How: map float range to integer range
+# weight_int8 = round(weight * scale)
+
+# ── Scaling Laws (Chinchilla) ──
+# Optimal: tokens = 20 × parameters
+# 1B model → 20B tokens
+# 7B model → 140B tokens
+# 70B model → 1.4T tokens
+# Loss ~ N^(-0.076) (model size)
+# Loss ~ D^(-0.095) (data size)`,
+gm:function(c){c.innerHTML=`
+<div class="s"><h3>&#x1F4A1; Four Techniques for Billion-Parameter Models</h3>
+<div class="eb"><p>You can't just make a model bigger and hope for the best. These four techniques make it practical to train, fine-tune, and deploy models with billions of parameters.</p></div></div>
+
+<div class="s"><h3><span class="bd bd-c">CONCEPT</span> MoE — Mixture of Experts</h3>
+<div class="eb"><p><strong>Idea:</strong> Replace the single FFN with 8 expert FFNs. A router picks the top-2 experts per token. Result: huge model capacity but only ~25% of params active per token.</p></div>
+<table class="ct">
+<tr><th>Model</th><th>Total Params</th><th>Active Params</th><th>Experts</th></tr>
+<tr><td>Mixtral 8×7B</td><td>46.7B</td><td>12.9B</td><td>8 (top-2)</td></tr>
+<tr><td>GPT-4 (rumored)</td><td>~1.76T</td><td>~220B</td><td>8 (top-2)</td></tr>
+</table></div>
+
+<div class="s"><h3><span class="bd bd-c">CONCEPT</span> LoRA — Fine-Tune on a Laptop</h3>
+<div class="eb p"><p><strong>Problem:</strong> Fine-tuning 7B params needs ~28GB GPU memory.<br><strong>Solution:</strong> Freeze original weights. Add tiny A×B matrices (rank=16). Train only 0.1% of params!</p></div>
+<table class="ct">
+<tr><th>Method</th><th>Params per Layer</th><th>Memory</th></tr>
+<tr><td>Full fine-tune (d=4096)</td><td>16.7M</td><td>~67MB</td></tr>
+<tr><td>LoRA (rank=16)</td><td>131K</td><td>~0.5MB</td></tr>
+<tr><td><strong>Reduction</strong></td><td><strong>128×</strong></td><td><strong>128×</strong></td></tr>
+</table></div>
+
+<div class="s"><h3><span class="bd bd-c">CONCEPT</span> Quantization — Shrink 4-8×</h3>
+<div class="eb g"><p><strong>FP32 (4 bytes) → INT8 (1 byte) → INT4 (0.5 bytes).</strong><br>7B model: 28GB → 7GB → 3.5GB. Quality loss < 1% on benchmarks!</p></div></div>
+
+<div class="s"><h3><span class="bd bd-c">CONCEPT</span> Chinchilla Scaling Laws</h3>
+<div class="eb y"><p><strong>Optimal: tokens = 20 × parameters.</strong><br>GPT-3 was undertrained: 175B params but only 300B tokens. Should have been 3.5T tokens!<br>LLaMA-2 7B trained on 2T tokens (285× params) — overtrained but works great.</p></div></div>
+
+<div class="s"><h3><span class="bd bd-q">QUIZ</span> Scaling Mastery</h3>
+<div class="qb" id="15-q1"><div class="qt">&#x1F914; Mixtral 8×7B has 46.7B total params but only activates:</div><div class="qo">
+<div class="qp" onclick="cq('15-q1',this,true)">~12.9B per token (top-2 of 8 experts) — fast inference despite huge model</div>
+<div class="qp" onclick="cq('15-q1',this,false)">All 46.7B</div>
+</div><div class="qf" id="15-q1-f"></div></div>
+<div class="qb" id="15-q2"><div class="qt">&#x1F914; LoRA with rank=16 on a (4096, 4096) layer adds:</div><div class="qo">
+<div class="qp" onclick="cq('15-q2',this,true)">2 × 4096 × 16 = 131K params (vs 16.7M full) — 128× fewer!</div>
+<div class="qp" onclick="cq('15-q2',this,false)">16 params</div>
+</div><div class="qf" id="15-q2-f"></div></div>
+<div class="qb" id="15-q3"><div class="qt">&#x1F914; Chinchilla says a 7B model should train on:</div><div class="qo">
+<div class="qp" onclick="cq('15-q3',this,true)">140B tokens (20× params). More data = better model, up to a point.</div>
+<div class="qp" onclick="cq('15-q3',this,false)">7B tokens (1× params)</div>
+</div><div class="qf" id="15-q3-f"></div></div>
+<div class="qb" id="15-q4"><div class="qt">&#x1F914; INT4 quantization reduces a 7B model from 28GB to:</div><div class="qo">
+<div class="qp" onclick="cq('15-q4',this,true)">~3.5GB (8× smaller) — runs on a laptop!</div>
+<div class="qp" onclick="cq('15-q4',this,false)">14GB</div>
+</div><div class="qf" id="15-q4-f"></div></div></div>`;rq('15-q1',10);rq('15-q2',10);rq('15-q3',10);rq('15-q4',10);}},
+
+// ═══ 16: ALIGNMENT & SAFETY ═══
+{fn:'step16_alignment.py',fd:'Phase 4 — Making It Helpful & Safe',t:'<span class="lb lb4">P4</span> Step 16: Alignment & Safety',su:'RLHF (3-stage: pretrain → SFT → reward model → PPO), DPO (simpler, no reward model), Constitutional AI, RAG, prompt engineering.',
+code:`# ============================================
+# STEP 16: ALIGNMENT & SAFETY
+# ============================================
+# A pretrained LLM can generate text, but it's
+# not helpful, harmless, or honest by default.
+# Alignment = making it behave well.
+
+# ── RLHF (Reinforcement Learning from Human Feedback) ──
+# Stage 1: Pretrain on internet text (next token prediction)
+# Stage 2: SFT (Supervised Fine-Tuning) on human demos
+# Stage 3: Train reward model on human preferences
+# Stage 4: PPO (optimize policy against reward model)
+#
+# Human ranks: Response A > Response B
+# Reward model learns: score(A) > score(B)
+# PPO optimizes: generate responses that score high
+
+# ── DPO (Direct Preference Optimization) ──
+# Simpler than RLHF! No reward model needed.
+# Directly optimize: P(preferred) > P(rejected)
+# loss = -log(sigmoid(β * (log_p_preferred - log_p_rejected)))
+# Used by: LLaMA-2, Zephyr, many open models
+
+class DPOLoss:
+    def __call__(self, policy_preferred, policy_rejected,
+                       ref_preferred, ref_rejected, beta=0.1):
+        log_ratio_p = policy_preferred - ref_preferred
+        log_ratio_r = policy_rejected - ref_rejected
+        return -F.logsigmoid(beta * (log_ratio_p - log_ratio_r)).mean()
+
+# ── RAG (Retrieval-Augmented Generation) ──
+# Problem: LLMs hallucinate (make up facts)
+# Solution: retrieve relevant documents first!
+# 1. User asks question
+# 2. Search vector database for relevant docs
+# 3. Inject docs into prompt as context
+# 4. LLM generates answer grounded in real docs
+
+# ── Prompt Engineering ──
+# Few-shot: give examples in the prompt
+# Chain-of-thought: "Let's think step by step"
+# System prompt: set behavior and constraints
+# In-context learning: the model learns from examples
+#   WITHOUT updating weights!
+
+# ── Safety ──
+# Constitutional AI: model critiques its own outputs
+# Red teaming: adversarial testing for harmful outputs
+# Guardrails: input/output filtering
+# Jailbreak prevention: resist prompt injection`,
+gm:function(c){c.innerHTML=`
+<div class="s"><h3>&#x1F6E1;&#xFE0F; Alignment & Safety</h3>
+<div class="eb"><p><strong>RLHF (3 stages):</strong> Pretrain → SFT on human demos → Train reward model → PPO optimization. How ChatGPT became helpful.</p></div>
+<div class="eb p"><p><strong>DPO:</strong> Skip the reward model! Directly optimize: preferred response > rejected response. Simpler, used by LLaMA-2, Zephyr.</p></div>
+<div class="eb g"><p><strong>RAG:</strong> Retrieve relevant documents → inject into prompt → generate grounded answer. Reduces hallucination.</p></div>
+<div class="eb y"><p><strong>Prompt engineering:</strong> Few-shot examples, chain-of-thought ("think step by step"), system prompts. The model learns from context WITHOUT weight updates!</p></div>
+<div class="eb r"><p><strong>Safety:</strong> Constitutional AI (self-critique), red teaming, guardrails, jailbreak prevention.</p></div></div>
+<div class="s"><h3><span class="bd bd-q">QUIZ</span></h3>
+<div class="qb" id="16-q1"><div class="qt">DPO is simpler than RLHF because:</div><div class="qo">
+<div class="qp" onclick="cq('16-q1',this,true)">No separate reward model needed — directly optimizes preference pairs</div>
+<div class="qp" onclick="cq('16-q1',this,false)">It uses less data</div>
+</div><div class="qf" id="16-q1-f"></div></div>
+<div class="qb" id="16-q2"><div class="qt">RAG reduces hallucination by:</div><div class="qo">
+<div class="qp" onclick="cq('16-q2',this,true)">Retrieving real documents and grounding the answer in them</div>
+<div class="qp" onclick="cq('16-q2',this,false)">Training on more data</div>
+</div><div class="qf" id="16-q2-f"></div></div>
+<div class="qb" id="16-q3"><div class="qt">"Let's think step by step" is an example of:</div><div class="qo">
+<div class="qp" onclick="cq('16-q3',this,true)">Chain-of-thought prompting — improves reasoning by making the model show its work</div>
+<div class="qp" onclick="cq('16-q3',this,false)">Fine-tuning</div>
+</div><div class="qf" id="16-q3-f"></div></div></div>
+
+<div class="s"><h3>&#x1F3C6; Project Complete!</h3>
+<div class="eb g"><p><strong>You built a complete AI Story Generator</strong> covering 45+ concepts across math, science, NLP, and LLM engineering. Every technique used by GPT-4, LLaMA, and Mistral — in one project.</p></div>
+<div class="eb y"><p><strong>Next:</strong> Open <code>baby-llm/</code> to implement it in Python, then progress through <code>teenage-llm/</code> → <code>adult-llm/</code> → <code>expert-llm/</code>.</p></div></div>`;rq('16-q1',10);rq('16-q2',10);rq('16-q3',10);}}
+
+]; // end STEPS
+go(0);
+</script>
+</body>
+</html>

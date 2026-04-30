@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Adult LLM - Level 3 Interactive Learning</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fira+Code:wght@400;500;600&display=swap');
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{--bg:#0a0a14;--bg2:#12121f;--bg3:#1a1a2e;--bg4:#16213e;--accent:#f97316;--green:#06d6a0;--red:#e94560;--yellow:#ffd166;--blue:#00b4d8;--purple:#a855f7;--text:#e8e8f0;--dim:#6b7294;--code-bg:#0d1117;}
+body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);overflow:hidden;height:100vh;}
+.topbar{height:52px;background:var(--bg2);display:flex;align-items:center;padding:0 14px;border-bottom:1px solid rgba(255,255,255,0.05);gap:5px;z-index:100;overflow-x:auto;}
+.topbar .logo{font-weight:900;font-size:15px;background:linear-gradient(135deg,var(--accent),var(--red));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-right:10px;white-space:nowrap;}
+.tab{padding:5px 10px;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;transition:all .3s;color:var(--dim);white-space:nowrap;}
+.tab:hover{color:var(--text);background:var(--bg3);}
+.tab.active{background:var(--accent);color:#fff;}
+.sc{margin-left:auto;font-size:12px;font-weight:700;color:var(--yellow);white-space:nowrap;}
+.main{display:flex;height:calc(100vh - 52px);}
+.cp{width:46%;background:var(--code-bg);border-right:1px solid rgba(255,255,255,0.05);display:flex;flex-direction:column;}
+.ch{padding:8px 14px;background:var(--bg2);border-bottom:1px solid rgba(255,255,255,0.05);display:flex;align-items:center;gap:8px;}
+.ch .fn{font-family:'Fira Code',monospace;font-size:11px;color:var(--accent);font-weight:600;}
+.ch .fd{font-size:10px;color:var(--dim);}
+.cs{flex:1;overflow-y:auto;}
+.cc{font-family:'Fira Code',monospace;font-size:11.5px;line-height:1.85;padding:10px 0;}
+.cl{display:flex;padding:0 10px 0 0;min-height:20px;}
+.cl:hover{background:rgba(255,255,255,0.02);}
+.ln{min-width:36px;text-align:right;padding-right:10px;color:var(--dim);user-select:none;font-size:10px;}
+.lt{white-space:pre;flex:1;}
+.kw{color:#ff79c6;}.str{color:#f1fa8c;}.cm{color:#6272a4;font-style:italic;}.fn2{color:#50fa7b;}.num{color:#bd93f9;}.dec{color:#ffb86c;}
+.gp{width:54%;display:flex;flex-direction:column;}
+.gh{padding:10px 18px;background:var(--bg2);border-bottom:1px solid rgba(255,255,255,0.05);}
+.gh h2{font-size:17px;font-weight:800;}
+.gh p{font-size:11px;color:var(--dim);margin-top:2px;}
+.gs{flex:1;overflow-y:auto;padding:18px;}
+.s{margin-bottom:22px;}
+.s h3{font-size:15px;font-weight:800;margin-bottom:8px;}
+.s p{font-size:13px;line-height:1.6;}
+.eb{background:var(--bg3);border-radius:10px;padding:12px 16px;margin:8px 0;border-left:4px solid var(--accent);font-size:13px;}
+.eb.g{border-left-color:var(--green);}.eb.y{border-left-color:var(--yellow);}.eb.r{border-left-color:var(--red);}.eb.b{border-left-color:var(--blue);}.eb.p{border-left-color:var(--purple);}
+.qb{background:var(--bg3);border-radius:12px;padding:14px;margin:10px 0;border:2px solid var(--bg4);}
+.qb.ok{border-color:var(--green);}.qb.no{border-color:var(--red);}
+.qt{font-size:13px;font-weight:800;margin-bottom:8px;}
+.qo{display:flex;flex-direction:column;gap:5px;}
+.qp{padding:7px 12px;border-radius:8px;background:var(--bg4);cursor:pointer;font-size:12px;font-weight:600;transition:all .2s;border:2px solid transparent;}
+.qp:hover{border-color:var(--accent);}
+.qp.sc2{background:rgba(6,214,160,0.15);border-color:var(--green);color:var(--green);}
+.qp.sw{background:rgba(233,69,96,0.15);border-color:var(--red);color:var(--red);}
+.qp.dis{pointer-events:none;opacity:0.6;}.qp.shc{border-color:var(--green);opacity:1!important;}
+.qf{margin-top:6px;padding:6px 10px;border-radius:6px;font-size:11px;font-weight:600;display:none;}
+.qf.sh{display:block;}.qf.ok{background:rgba(6,214,160,0.1);color:var(--green);}.qf.no{background:rgba(233,69,96,0.1);color:var(--red);}
+.ia{background:var(--bg3);border-radius:12px;padding:14px;margin:10px 0;border:2px solid var(--bg4);}
+.ia h4{font-size:13px;font-weight:800;margin-bottom:8px;}
+.btn{padding:7px 14px;border:none;border-radius:8px;font-family:'Nunito',sans-serif;font-size:12px;font-weight:700;cursor:pointer;transition:all .2s;}
+.btn:hover{transform:translateY(-1px);}
+.bp{background:var(--accent);color:#fff;}.bg{background:var(--green);color:#000;}.br{background:var(--bg4);color:var(--text);}
+.ob{background:var(--code-bg);border-radius:8px;padding:10px 14px;font-family:'Fira Code',monospace;font-size:12px;line-height:1.6;margin:6px 0;border:1px solid rgba(255,255,255,0.05);}
+.bd{display:inline-block;padding:2px 7px;border-radius:5px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;}
+.bd-g{background:rgba(168,85,247,0.15);color:var(--purple);}.bd-q{background:rgba(249,115,22,0.15);color:var(--accent);}.bd-n{background:rgba(233,69,96,0.15);color:var(--red);}
+.sr{display:flex;align-items:center;gap:8px;margin:6px 0;font-size:12px;}
+.sr input[type=range]{flex:1;accent-color:var(--accent);}
+.sv{font-family:'Fira Code',monospace;font-size:13px;font-weight:700;color:var(--yellow);min-width:36px;}
+.ct{width:100%;border-collapse:collapse;font-size:12px;margin:6px 0;}
+.ct th,.ct td{padding:6px 10px;text-align:left;border-bottom:1px solid rgba(255,255,255,0.05);}
+.ct th{color:var(--accent);font-weight:700;font-size:11px;}
+::-webkit-scrollbar{width:5px;}::-webkit-scrollbar-track{background:transparent;}::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:3px;}
+</style>
+</head>
+<body>
+<div class="topbar">
+<div class="logo">&#x1F393; Adult LLM</div>
+<div class="tab active" onclick="go(0)">Intro</div>
+<div class="tab" onclick="go(1)">1.RoPE</div>
+<div class="tab" onclick="go(2)">2.GQA</div>
+<div class="tab" onclick="go(3)">3.SwiGLU</div>
+<div class="tab" onclick="go(4)">4.Flash</div>
+<div class="tab" onclick="go(5)">5.Beam</div>
+<div class="tab" onclick="go(6)">6.RMSNorm</div>
+<div class="tab" onclick="go(7)">7.Mixed</div>
+<div class="tab" onclick="go(8)">8.RLHF</div>
+<div class="tab" onclick="go(9)">9.WeightTie</div>
+<div class="sc">&#x2B50;<span id="ts">0</span>/<span id="ms">0</span></div>
+</div>
+<div class="main">
+<div class="cp"><div class="ch"><span class="fn" id="cfn"></span><span class="fd" id="cfd"></span></div><div class="cs"><div class="cc" id="ccc"></div></div></div>
+<div class="gp"><div class="gh"><h2 id="gt"></h2><p id="gsu"></p></div><div class="gs"><div id="gc"></div></div></div>
+</div>
+<script>
+let cur=0,sc=0,mx=0,ans={};
+function asc(id,p){if(ans[id])return;ans[id]=1;sc+=p;document.getElementById('ts').textContent=sc;}
+function rq(id,p){if(!ans['_'+id]){ans['_'+id]=1;mx+=p;document.getElementById('ms').textContent=mx;}}
+function cq(qid,el,ok){const b=document.getElementById(qid);if(b.classList.contains('ok')||b.classList.contains('no'))return;const f=document.getElementById(qid+'-f');const os=b.querySelectorAll('.qp');if(ok){el.classList.add('sc2');b.classList.add('ok');f.className='qf sh ok';f.textContent='\u2705 Correct! +10';asc(qid,10);}else{el.classList.add('sw');b.classList.add('no');f.className='qf sh no';f.textContent='\u274C Not quite!';}os.forEach(o=>{o.classList.add('dis');if(o!==el&&o.getAttribute('onclick')&&o.getAttribute('onclick').includes('true'))o.classList.add('shc');});}
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function hl(l){if(l.trimStart().startsWith('#'))return'<span class="cm">'+l+'</span>';l=l.replace(/(""".*?"""|".*?"|'.*?')/g,'<span class="str">$1</span>');['def','class','return','for','in','if','import','from','self','None','True','False','super','not','and','or','range','print','with','as','else','elif','while','break','pass','assert'].forEach(k=>{l=l.replace(new RegExp('\\\\b('+k+')\\\\b','g'),'<span class="kw">$1</span>');});l=l.replace(/\\b(\\d+\\.?\\d*)\\b/g,'<span class="num">$1</span>');return l;}
+function rc(code){const c=document.getElementById('ccc');c.innerHTML='';code.split('\\n').forEach((l,i)=>{const d=document.createElement('div');d.className='cl';d.innerHTML='<span class="ln">'+(i+1)+'</span><span class="lt">'+hl(esc(l))+'</span>';c.appendChild(d);});}
+function go(n){cur=n;const s=S[n];document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',i===n));document.getElementById('cfn').textContent=s.fn;document.getElementById('cfd').textContent=s.fd;rc(s.code);document.getElementById('gt').innerHTML=s.t;document.getElementById('gsu').textContent=s.su;const g=document.getElementById('gc');g.innerHTML='';s.gm(g);document.querySelector('.gs').scrollTop=0;document.querySelector('.cs').scrollTop=0;}
+
+const S=[
+// 0: INTRO
+{fn:'overview',fd:'Level 3',t:'\u{1F393} Adult LLM \u2014 Level 3',su:'Production techniques used by LLaMA, GPT-4, Mistral',
+code:`# ============================================
+# ADULT LLM - Level 3!
+# ============================================
+# You've mastered:
+#   Level 1 (Baby):    Basics of LLMs
+#   Level 2 (Teenage): Dropout, BPE, GELU, etc.
+#
+# Level 3 covers PRODUCTION techniques:
+#
+# 1. RoPE         - Rotary Position Embeddings
+# 2. GQA/MQA      - Grouped-Query Attention
+# 3. SwiGLU       - Gated activation (LLaMA)
+# 4. Flash Attn   - Memory-efficient attention
+# 5. Beam Search  - Deterministic generation
+# 6. RMSNorm      - Simpler normalization
+# 7. Mixed Prec.  - FP16/BF16 training
+# 8. RLHF         - Learning from humans
+# 9. Weight Tying - Share embed & output weights
+#
+# This is essentially the LLaMA architecture!
+#
+# COMPARISON:
+# Baby:    205K params, char tokenizer
+# Teenage: 1.2M params, BPE, dropout, GELU
+# Adult:   5.5M params, RoPE, GQA, SwiGLU,
+#          RMSNorm, weight tying
+# LLaMA-2: 7B-70B params (same architecture!)`,
+gm:function(c){c.innerHTML=`
+<div class="s"><h3>\u{1F4CA} The Three Levels</h3>
+<table class="ct"><tr><th></th><th>\u{1F37C} Baby</th><th>\u{1F9D1}\u200D\u{1F393} Teen</th><th>\u{1F393} Adult</th></tr>
+<tr><td>Params</td><td>205K</td><td>1.2M</td><td style="color:var(--accent);">5.5M</td></tr>
+<tr><td>Position</td><td>Learned</td><td>Learned</td><td style="color:var(--accent);">RoPE</td></tr>
+<tr><td>Attention</td><td>MHA</td><td>MHA+Dropout</td><td style="color:var(--accent);">GQA</td></tr>
+<tr><td>Activation</td><td>ReLU</td><td>GELU</td><td style="color:var(--accent);">SwiGLU</td></tr>
+<tr><td>Norm</td><td>LayerNorm</td><td>LayerNorm</td><td style="color:var(--accent);">RMSNorm</td></tr>
+<tr><td>Generation</td><td>Top-k</td><td>Top-p</td><td style="color:var(--accent);">Beam Search</td></tr>
+<tr><td>Training</td><td>Fixed LR</td><td>Cosine LR</td><td style="color:var(--accent);">+Mixed Prec</td></tr>
+<tr><td>Alignment</td><td>\u2014</td><td>\u2014</td><td style="color:var(--accent);">RLHF</td></tr></table></div>
+<div class="s"><h3><span class="bd bd-q">QUIZ</span> Level Check</h3>
+<div class="qb" id="i-q1"><div class="qt">\u{1F914} What does KV-Cache do? (from Level 2)</div><div class="qo">
+<div class="qp" onclick="cq('i-q1',this,true)">Caches Key and Value computations to avoid recomputing for previous tokens</div>
+<div class="qp" onclick="cq('i-q1',this,false)">Caches the training data</div>
+<div class="qp" onclick="cq('i-q1',this,false)">Stores the model weights on disk</div>
+</div><div class="qf" id="i-q1-f"></div></div></div>`;rq('i-q1',10);}},
+
+// 1: RoPE
+{fn:'rope.py',fd:'Rotary Position Embeddings',t:'\u{1F504} RoPE',su:'Position encoding through rotation \u2014 used by LLaMA',
+code:`# RoPE - Rotary Position Embeddings
+# ==================================
+# Baby/Teen: LEARNED position embeddings
+#   - A lookup table: position -> vector
+#   - Fixed max length!
+#
+# Adult: RoPE (mathematical rotation)
+#   - ROTATES Q,K vectors by position angle
+#   - Can extrapolate to longer sequences!
+#   - Used by LLaMA, GPT-NeoX, Mistral
+#
+# HOW IT WORKS:
+#   Think of a clock:
+#     Position 0 = 12 o'clock (0 degrees)
+#     Position 1 = rotated slightly (57 degrees)
+#     Position 2 = rotated more (114 degrees)
+#
+#   The ANGLE between positions encodes their
+#   RELATIVE distance. Key insight!
+
+def precompute_rope_frequencies(dim, max_len):
+    # Each dimension pair rotates at different speed
+    freqs = 1.0 / (10000 ** (
+        torch.arange(0, dim, 2).float() / dim
+    ))
+    positions = torch.arange(max_len).float()
+    angles = torch.outer(positions, freqs)
+    return torch.cos(angles), torch.sin(angles)
+
+def apply_rope(x, cos, sin):
+    # Split into pairs of dimensions
+    x_even = x[..., 0::2]  # dims 0,2,4,...
+    x_odd  = x[..., 1::2]  # dims 1,3,5,...
+
+    # 2D rotation for each pair:
+    # [x0,x1] -> [x0*cos-x1*sin, x0*sin+x1*cos]
+    rotated_even = x_even * cos - x_odd * sin
+    rotated_odd  = x_even * sin + x_odd * cos
+
+    return interleave(rotated_even, rotated_odd)
+
+# Position 0: 0 degrees
+# Position 1: 57.3 degrees
+# Position 2: 114.6 degrees
+# Nearby = small angle difference
+# Far apart = large angle difference`,
+gm:function(c){c.innerHTML=`
+<div class="s"><h3>\u{1F504} Understanding RoPE</h3>
+<div class="eb y"><p><strong>\u{1F570} Clock Analogy:</strong> Each position is like a hand on a clock. Position 0 points to 12. Position 1 rotates slightly. The angle BETWEEN two positions tells you how far apart they are!</p></div>
+<div class="eb b"><p><strong>Why better than learned?</strong> Learned embeddings have a fixed max length (e.g., 2048). RoPE uses math, so it can extrapolate to longer sequences it's never seen!</p></div></div>
+<div class="s"><h3><span class="bd bd-g">GAME</span> RoPE Rotation Visualizer!</h3>
+<p>See how vectors rotate at different positions:</p>
+<div class="ia">
+<canvas id="ropeCanvas" width="400" height="300" style="width:100%;background:var(--bg4);border-radius:8px;"></canvas>
+<div class="sr"><span style="width:70px;">Position:</span><input type="range" id="ropePos" min="0" max="31" value="0" oninput="drawRope()"><span class="sv" id="ropePosVal">0</span></div>
+<div id="ropeInfo" style="font-size:12px;color:var(--dim);margin-top:4px;"></div></div></div>
+<div class="s"><h3><span class="bd bd-q">QUIZ</span> RoPE Challenge</h3>
+<div class="qb" id="r-q1"><div class="qt">\u{1F914} What does RoPE encode?</div><div class="qo">
+<div class="qp" onclick="cq('r-q1',this,false)">Absolute position (position 5 always has the same encoding)</div>
+<div class="qp" onclick="cq('r-q1',this,true)">Relative position (the angle BETWEEN two positions encodes their distance)</div>
+<div class="qp" onclick="cq('r-q1',this,false)">Token identity (what character it is)</div>
+</div><div class="qf" id="r-q1-f"></div></div>
+<div class="qb" id="r-q2"><div class="qt">\u{1F914} Why can RoPE handle longer sequences than learned embeddings?</div><div class="qo">
+<div class="qp" onclick="cq('r-q2',this,true)">It uses mathematical rotation, not a fixed lookup table, so it can compute positions it's never seen</div>
+<div class="qp" onclick="cq('r-q2',this,false)">It uses more memory</div>
+<div class="qp" onclick="cq('r-q2',this,false)">It's faster</div>
+</div><div class="qf" id="r-q2-f"></div></div></div>`;
+rq('r-q1',10);rq('r-q2',10);setTimeout(drawRope,50);}},
+
+// 2: GQA
+{fn:'multi_query_attention.py',fd:'Shared K,V heads for efficiency',t:'\u{1F465} Grouped-Query Attention',su:'Share K,V across heads to save memory \u2014 used by LLaMA-2, Mistral',
+code:`# GQA - Grouped-Query Attention
+# ==============================
+# Standard MHA: 4 Q heads, 4 K heads, 4 V heads
+#   = 12 projection matrices
+#
+# MQA: 4 Q heads, 1 K head, 1 V head
+#   = 6 matrices (50% less!)
+#
+# GQA: 4 Q heads, 2 K heads, 2 V heads
+#   = 8 matrices (middle ground)
+#
+# WHY? KV-Cache is the memory bottleneck!
+# Fewer K,V heads = smaller cache = more tokens
+
+class GroupedQueryAttention(nn.Module):
+    def __init__(self, n_embd, n_heads, n_kv_heads,
+                 block_size, dropout=0.1):
+        # Q has full heads
+        self.q_proj = nn.Linear(
+            n_embd, n_heads * head_size)
+        # K,V have FEWER heads
+        self.k_proj = nn.Linear(
+            n_embd, n_kv_heads * head_size)
+        self.v_proj = nn.Linear(
+            n_embd, n_kv_heads * head_size)
+
+    def _repeat_kv(self, x):
+        # Repeat K,V to match Q head count
+        # If 4 Q heads and 2 KV heads:
+        #   KV head 0 serves Q heads 0,1
+        #   KV head 1 serves Q heads 2,3
+        return x.repeat(1, 1, n_rep, 1)
+
+# Memory savings for KV-Cache:
+# MHA (4 KV heads): 100% memory
+# GQA (2 KV heads): 50% memory
+# MQA (1 KV head):  25% memory
+# Quality barely drops!`,
+gm:function(c){c.innerHTML=`
+<div class="s"><h3>\u{1F465} Understanding GQA</h3>
+<div class="eb r"><p><strong>\u{1F3E2} Office Analogy:</strong> In standard attention, every employee (Q head) has their own secretary (K) and filing cabinet (V). In GQA, employees SHARE secretaries. In MQA, everyone shares ONE secretary. Saves office space (memory)!</p></div></div>
+<div class="s"><h3><span class="bd bd-g">GAME</span> Memory Calculator!</h3>
+<p>Adjust the number of KV heads and see memory savings:</p>
+<div class="ia">
+<div class="sr"><span style="width:80px;">Q heads:</span><span class="sv">8</span></div>
+<div class="sr"><span style="width:80px;">KV heads:</span><input type="range" id="gqaSlider" min="1" max="8" value="8" oninput="updateGQA()"><span class="sv" id="gqaVal">8</span></div>
+<div id="gqaViz" style="margin:10px 0;"></div>
+<div id="gqaStats" class="ob"></div></div></div>
+<div class="s"><h3><span class="bd bd-q">QUIZ</span> GQA Challenge</h3>
+<div class="qb" id="g-q1"><div class="qt">\u{1F914} With 8 Q heads and 2 KV heads, how much KV-Cache memory is saved?</div><div class="qo">
+<div class="qp" onclick="cq('g-q1',this,false)">No savings</div>
+<div class="qp" onclick="cq('g-q1',this,true)">75% savings (only 2/8 = 25% of original KV cache needed)</div>
+<div class="qp" onclick="cq('g-q1',this,false)">50% savings</div>
+</div><div class="qf" id="g-q1-f"></div></div></div>`;
+rq('g-q1',10);updateGQA();}},
+
+// 3: SwiGLU
+{fn:'swiglu.py',fd:'Gated activation used by LLaMA',t:'\u{1F6AA} SwiGLU Activation',su:'A gated activation that outperforms ReLU and GELU',
+code:`# SwiGLU - Gated Activation
+# ==========================
+# ReLU:   max(0, x)
+# GELU:   x * Phi(x)
+# Swish:  x * sigmoid(x)
+# SwiGLU: Swish(x*W1) * (x*W2)  <-- GATED!
+#
+# The "gate" decides what info passes through.
+# Like a bouncer at a club!
+
+class SwiGLUFeedForward(nn.Module):
+    def __init__(self, n_embd, dropout=0.1):
+        hidden = int(2 * (4 * n_embd) / 3)
+
+        # TWO parallel projections
+        self.w_gate = nn.Linear(n_embd, hidden)
+        self.w_up   = nn.Linear(n_embd, hidden)
+        self.w_down = nn.Linear(hidden, n_embd)
+
+    def forward(self, x):
+        # Gate: decides what passes through
+        gate = F.silu(self.w_gate(x))  # Swish
+
+        # Value: the actual information
+        value = self.w_up(x)
+
+        # Gating: gate * value
+        x = gate * value  # <-- the magic!
+
+        return self.w_down(x)
+
+# Swish(x) = x * sigmoid(x)
+# sigmoid(x) = 1 / (1 + exp(-x))
+#
+# x=-3: Swish=-0.14 (small negative OK!)
+# x= 0: Swish= 0.00
+# x= 3: Swish= 2.86`,
+gm:function(c){c.innerHTML=`
+<div class="s"><h3>\u{1F6AA} Understanding SwiGLU</h3>
+<div class="eb p"><p><strong>\u{1F6AA} Bouncer Analogy:</strong> SwiGLU has TWO paths: a "gate" (bouncer) and a "value" (guests). The bouncer decides which guests get in. This lets the network learn WHAT information to keep!</p></div></div>
+<div class="s"><h3><span class="bd bd-g">GAME</span> Activation Comparison!</h3>
+<p>See all three activations side by side:</p>
+<div class="ia">
+<div class="sr"><span style="width:50px;">Input:</span><input type="range" id="swSlider" min="-30" max="30" value="0" oninput="updateSw()"><span class="sv" id="swIn">0.0</span></div>
+<div style="display:flex;gap:10px;margin:8px 0;">
+<div style="flex:1;text-align:center;padding:10px;background:var(--bg4);border-radius:8px;"><div style="font-size:10px;color:var(--dim);">ReLU</div><div id="swR" style="font-size:24px;font-weight:900;color:var(--blue);">0</div></div>
+<div style="flex:1;text-align:center;padding:10px;background:var(--bg4);border-radius:8px;"><div style="font-size:10px;color:var(--dim);">GELU</div><div id="swG" style="font-size:24px;font-weight:900;color:var(--purple);">0</div></div>
+<div style="flex:1;text-align:center;padding:10px;background:var(--bg4);border-radius:8px;"><div style="font-size:10px;color:var(--dim);">Swish</div><div id="swS" style="font-size:24px;font-weight:900;color:var(--accent);">0</div></div></div>
+<canvas id="swCanvas" width="500" height="140" style="width:100%;background:var(--bg4);border-radius:8px;"></canvas>
+<p style="font-size:10px;color:var(--dim);margin-top:4px;"><span style="color:var(--blue);">\u2588</span> ReLU <span style="color:var(--purple);">\u2588</span> GELU <span style="color:var(--accent);">\u2588</span> Swish</p></div></div>
+<div class="s"><h3><span class="bd bd-q">QUIZ</span> SwiGLU Challenge</h3>
+<div class="qb" id="sw-q1"><div class="qt">\u{1F914} What makes SwiGLU different from just using Swish?</div><div class="qo">
+<div class="qp" onclick="cq('sw-q1',this,true)">SwiGLU has a GATE mechanism \u2014 two parallel paths where one controls the other</div>
+<div class="qp" onclick="cq('sw-q1',this,false)">SwiGLU is just a renamed Swish</div>
+<div class="qp" onclick="cq('sw-q1',this,false)">SwiGLU is faster than Swish</div>
+</div><div class="qf" id="sw-q1-f"></div></div></div>`;
+rq('sw-q1',10);updateSw();drawSw();}},
+
+// 4: Flash Attention
+{fn:'adult_model.py',fd:'Memory-efficient attention',t:'\u26A1 Flash Attention',su:'Computing attention without materializing the full NxN matrix',
+code:`# FLASH ATTENTION (Conceptual)
+# ==============================
+# Standard attention:
+#   1. Compute full NxN attention matrix
+#   2. Store it in GPU memory (HBM)
+#   3. Apply softmax
+#   4. Multiply by V
+#
+# Problem: NxN matrix is HUGE!
+#   N=2048 -> 4M entries
+#   N=8192 -> 67M entries
+#   N=32768 -> 1B entries!
+#
+# Flash Attention:
+#   - Never materializes the full NxN matrix!
+#   - Processes attention in TILES (blocks)
+#   - Uses GPU SRAM (fast) instead of HBM (slow)
+#   - Mathematically IDENTICAL results!
+#
+# Think of it like reading a book:
+#   Standard: Photocopy entire book, then read
+#   Flash: Read one page at a time (no copy!)
+#
+# Speed: 2-4x faster
+# Memory: O(N) instead of O(N^2)
+#
+# In PyTorch:
+# from torch.nn.functional import \\
+#     scaled_dot_product_attention
+#
+# # This automatically uses Flash Attention
+# # when available on your GPU!
+# out = scaled_dot_product_attention(
+#     query, key, value,
+#     attn_mask=mask,
+#     is_causal=True
+# )
+#
+# Used by: Every modern LLM framework!`,
+gm:function(c){c.innerHTML=`
+<div class="s"><h3>\u26A1 Understanding Flash Attention</h3>
+<div class="eb y"><p><strong>\u{1F4D6} Book Analogy:</strong> Standard attention photocopies the entire book (NxN matrix) into memory, then reads it. Flash Attention reads one page at a time \u2014 same result, way less paper!</p></div>
+<div class="eb b"><p><strong>Key Insight:</strong> GPU has two types of memory: SRAM (tiny but fast, like L1 cache) and HBM (big but slow, like RAM). Flash Attention keeps data in SRAM by processing in tiles!</p></div></div>
+<div class="s"><h3><span class="bd bd-g">GAME</span> Memory Calculator!</h3>
+<p>See how memory grows with sequence length:</p>
+<div class="ia">
+<div class="sr"><span style="width:80px;">Seq length:</span><input type="range" id="flashSlider" min="1" max="32" value="4" oninput="updateFlash()"><span class="sv" id="flashLen">4096</span></div>
+<div style="display:flex;gap:12px;margin:10px 0;">
+<div style="flex:1;text-align:center;padding:12px;background:var(--bg4);border-radius:8px;">
+<div style="font-size:10px;color:var(--dim);">Standard O(N\u00B2)</div>
+<div id="flashStd" style="font-size:22px;font-weight:900;color:var(--red);"></div></div>
+<div style="flex:1;text-align:center;padding:12px;background:var(--bg4);border-radius:8px;">
+<div style="font-size:10px;color:var(--dim);">Flash O(N)</div>
+<div id="flashFl" style="font-size:22px;font-weight:900;color:var(--green);"></div></div></div>
+<div id="flashSave" style="text-align:center;font-size:14px;font-weight:700;color:var(--yellow);"></div></div></div>
+<div class="s"><h3><span class="bd bd-q">QUIZ</span> Flash Attention Challenge</h3>
+<div class="qb" id="fl-q1"><div class="qt">\u{1F914} Does Flash Attention change the mathematical result?</div><div class="qo">
+<div class="qp" onclick="cq('fl-q1',this,true)">No \u2014 it's mathematically identical, just computed more efficiently</div>
+<div class="qp" onclick="cq('fl-q1',this,false)">Yes \u2014 it's an approximation</div>
+</div><div class="qf" id="fl-q1-f"></div></div></div>`;
+rq('fl-q1',10);updateFlash();}},
+
+// 5: Beam Search
+{fn:'beam_search.py',fd:'Deterministic generation',t:'\u{1F4A1} Beam Search',su:'Finding the best sequence, not just the best next token',
+code:`# BEAM SEARCH
+# ============
+# Greedy: pick best token at each step
+#   "The" -> "little" -> "cat" -> ...
+#   (locally optimal, globally maybe not)
+#
+# Beam Search: keep TOP B candidates
+#   beam_width=3: keep 3 best sequences
+#
+# Step 1: "The" -> expand:
+#   Beam 1: "The little" (0.9)
+#   Beam 2: "The cat"    (0.7)
+#   Beam 3: "The big"    (0.5)
+#
+# Step 2: expand ALL beams, keep top 3:
+#   Beam 1: "The little cat"  (0.85)
+#   Beam 2: "The little dog"  (0.80)
+#   Beam 3: "The cat sat"     (0.65)
+
+def beam_search(model, start, beam_width=3):
+    beams = [(start_tokens, 0.0)]
+
+    for step in range(max_tokens):
+        candidates = []
+        for seq, score in beams:
+            logits = model(seq)
+            log_probs = log_softmax(logits[-1])
+            top = topk(log_probs, beam_width)
+
+            for token, prob in top:
+                candidates.append(
+                    (seq + [token], score + prob)
+                )
+
+        # Keep only top beam_width
+        candidates.sort(reverse=True)
+        beams = candidates[:beam_width]
+
+    return beams[0]  # Best sequence!`,
+gm:function(c){c.innerHTML=`
+<div class="s"><h3>\u{1F4A1} Understanding Beam Search</h3>
+<div class="eb g"><p><strong>\u{1F333} Path Analogy:</strong> Greedy search always takes the best-looking path at each fork. Beam search explores multiple paths simultaneously and picks the best OVERALL journey!</p></div></div>
+<div class="s"><h3><span class="bd bd-g">GAME</span> Beam Search Simulator!</h3>
+<p>Click "Expand" to see beam search explore multiple paths:</p>
+<div class="ia">
+<div class="sr"><span style="width:80px;">Beam width:</span><input type="range" id="beamW" min="1" max="5" value="3" oninput="document.getElementById('beamWV').textContent=this.value"><span class="sv" id="beamWV">3</span></div>
+<div style="display:flex;gap:6px;margin:8px 0;">
+<button class="btn bp" onclick="beamExpand()">Expand Step \u27A1</button>
+<button class="btn br" onclick="beamReset()">Reset</button></div>
+<div id="beamViz" style="font-size:12px;"></div></div></div>
+<div class="s"><h3><span class="bd bd-q">QUIZ</span> Beam Search Challenge</h3>
+<div class="qb" id="bm-q1"><div class="qt">\u{1F914} Beam width=1 is equivalent to:</div><div class="qo">
+<div class="qp" onclick="cq('bm-q1',this,true)">Greedy search (always pick the single best token)</div>
+<div class="qp" onclick="cq('bm-q1',this,false)">Random sampling</div>
+<div class="qp" onclick="cq('bm-q1',this,false)">Top-p sampling</div>
+</div><div class="qf" id="bm-q1-f"></div></div></div>`;
+rq('bm-q1',10);beamReset();}},
+
+// 6: RMSNorm
+{fn:'adult_model.py',fd:'Simpler normalization',t:'\u{1F4CF} RMSNorm',su:'Simpler and faster than LayerNorm \u2014 used by LLaMA',
+code:`# RMSNorm vs LayerNorm
+# =====================
+# LayerNorm (Baby/Teen):
+#   1. Compute mean
+#   2. Compute variance
+#   3. Normalize: (x - mean) / sqrt(var)
+#   4. Scale and shift: gamma * x + beta
+#
+# RMSNorm (Adult/LLaMA):
+#   1. Compute RMS (root mean square)
+#   2. Normalize: x / RMS
+#   3. Scale only: gamma * x (no shift!)
+#
+# RMSNorm is simpler:
+#   - No mean computation
+#   - No shift parameter (beta)
+#   - ~10% faster in practice
+
+class RMSNorm(nn.Module):
+    def __init__(self, dim, eps=1e-6):
+        super().__init__()
+        self.eps = eps
+        self.weight = nn.Parameter(torch.ones(dim))
+
+    def forward(self, x):
+        # RMS = sqrt(mean(x^2))
+        rms = torch.sqrt(
+            torch.mean(x ** 2, dim=-1,
+                       keepdim=True) + self.eps
+        )
+        # Normalize and scale
+        return x / rms * self.weight
+
+# LayerNorm: 2*dim parameters (gamma + beta)
+# RMSNorm:   1*dim parameters (gamma only)
+# Same quality, fewer params, faster!`,
+gm:function(c){c.innerHTML=`
+<div class="s"><h3>\u{1F4CF} RMSNorm vs LayerNorm</h3>
+<div class="eb b"><p><strong>\u{1F4CF} Ruler Analogy:</strong> LayerNorm measures both the center (mean) and spread (variance) of your data, then adjusts both. RMSNorm only measures the "size" (RMS) and scales it. Simpler, and works just as well!</p></div></div>
+<div class="s"><h3><span class="bd bd-g">GAME</span> Normalization Calculator!</h3>
+<p>Enter values and see how LayerNorm vs RMSNorm normalize them:</p>
+<div class="ia">
+<h4>Input vector: [2.0, -1.0, 0.5, 3.0]</h4>
+<button class="btn bp" onclick="calcNorms()">Calculate Both!</button>
+<div id="normResult" class="ob" style="margin-top:8px;"></div></div></div>
+<div class="s"><h3><span class="bd bd-q">QUIZ</span> RMSNorm Challenge</h3>
+<div class="qb" id="rn-q1"><div class="qt">\u{1F914} What does RMSNorm remove compared to LayerNorm?</div><div class="qo">
+<div class="qp" onclick="cq('rn-q1',this,true)">The mean subtraction and the bias/shift parameter (beta)</div>
+<div class="qp" onclick="cq('rn-q1',this,false)">The scaling parameter (gamma)</div>
+<div class="qp" onclick="cq('rn-q1',this,false)">The normalization step entirely</div>
+</div><div class="qf" id="rn-q1-f"></div></div>
+<div class="qb" id="rn-q2"><div class="qt">\u{1F914} LayerNorm has 2×dim params (gamma+beta). RMSNorm has 1×dim (gamma only). For dim=4096, how many params saved?</div><div class="qo">
+<div class="qp" onclick="cq('rn-q2',this,true)">4096 params saved per layer — small but adds up across 80 layers!</div>
+<div class="qp" onclick="cq('rn-q2',this,false)">No params saved</div>
+</div><div class="qf" id="rn-q2-f"></div></div>
+<div class="qb" id="rn-q3"><div class="qt">\u{1F914} Which models use RMSNorm?</div><div class="qo">
+<div class="qp" onclick="cq('rn-q3',this,true)">LLaMA, LLaMA-2, Mistral — all modern open-source LLMs</div>
+<div class="qp" onclick="cq('rn-q3',this,false)">Only GPT-2</div>
+</div><div class="qf" id="rn-q3-f"></div></div></div>`;
+rq('rn-q1',10);rq('rn-q2',10);rq('rn-q3',10);}},
+
+// 7: Mixed Precision
+{fn:'adult_model.py',fd:'FP16/BF16 training',t:'\u{1F4BE} Mixed Precision',su:'Using lower precision numbers for faster training',
+code:`# MIXED PRECISION TRAINING
+# =========================
+# Normal: FP32 (32-bit floating point)
+#   - Very precise: 7 decimal digits
+#   - But slow and uses lots of memory!
+#
+# Mixed Precision: FP16 or BF16 (16-bit)
+#   - Half the memory!
+#   - 2x faster on modern GPUs!
+#   - Slightly less precise (but OK!)
+#
+# FP16 vs BF16:
+#   FP16: more precision, smaller range
+#   BF16: less precision, SAME range as FP32
+#   BF16 is preferred for training (no overflow!)
+#
+# HOW IT WORKS:
+#   - Forward pass: FP16/BF16 (fast!)
+#   - Loss computation: FP32 (precise!)
+#   - Backward pass: FP16/BF16 (fast!)
+#   - Weight update: FP32 (precise!)
+#
+# In PyTorch:
+# scaler = torch.cuda.amp.GradScaler()
+# with torch.cuda.amp.autocast():
+#     logits, loss = model(x, y)
+# scaler.scale(loss).backward()
+# scaler.step(optimizer)
+# scaler.update()
+#
+# Memory: 50% reduction
+# Speed: ~2x faster
+# Quality: Nearly identical!`,
+gm:function(c){c.innerHTML=`
+<div class="s"><h3>\u{1F4BE} Understanding Mixed Precision</h3>
+<div class="eb y"><p><strong>\u{1F4F7} Photo Analogy:</strong> FP32 is like a RAW photo (huge, perfect quality). FP16 is like JPEG (half the size, looks almost the same). Mixed precision uses JPEG for most work but RAW for the critical parts!</p></div></div>
+<div class="s"><h3><span class="bd bd-g">GAME</span> Precision Explorer!</h3>
+<div class="ia">
+<h4>How much can FP16 represent?</h4>
+<table class="ct"><tr><th>Format</th><th>Bits</th><th>Range</th><th>Precision</th><th>Memory</th></tr>
+<tr><td>FP32</td><td>32</td><td>\u00B13.4\u00D710\u00B3\u2078</td><td>7 digits</td><td style="color:var(--red);">4 bytes</td></tr>
+<tr><td>FP16</td><td>16</td><td>\u00B165,504</td><td>3 digits</td><td style="color:var(--green);">2 bytes</td></tr>
+<tr><td>BF16</td><td>16</td><td>\u00B13.4\u00D710\u00B3\u2078</td><td>2 digits</td><td style="color:var(--green);">2 bytes</td></tr></table>
+<h4 style="margin-top:10px;">Memory savings for a 7B parameter model:</h4>
+<div style="display:flex;gap:10px;margin:8px 0;">
+<div style="flex:1;text-align:center;padding:10px;background:var(--bg4);border-radius:8px;"><div style="font-size:10px;color:var(--dim);">FP32</div><div style="font-size:20px;font-weight:900;color:var(--red);">28 GB</div></div>
+<div style="flex:1;text-align:center;padding:10px;background:var(--bg4);border-radius:8px;"><div style="font-size:10px;color:var(--dim);">FP16/BF16</div><div style="font-size:20px;font-weight:900;color:var(--green);">14 GB</div></div></div></div></div>
+<div class="s"><h3><span class="bd bd-q">QUIZ</span> Mixed Precision Challenge</h3>
+<div class="qb" id="mp-q1"><div class="qt">\u{1F914} Why is BF16 preferred over FP16 for training?</div><div class="qo">
+<div class="qp" onclick="cq('mp-q1',this,true)">BF16 has the same range as FP32, so no overflow issues during training</div>
+<div class="qp" onclick="cq('mp-q1',this,false)">BF16 is more precise</div>
+<div class="qp" onclick="cq('mp-q1',this,false)">BF16 uses less memory</div>
+</div><div class="qf" id="mp-q1-f"></div></div>
+<div class="qb" id="mp-q2"><div class="qt">\u{1F914} In mixed precision, weight updates are done in FP32. Why not FP16?</div><div class="qo">
+<div class="qp" onclick="cq('mp-q2',this,true)">Small gradient updates (e.g., 0.0001) can underflow to zero in FP16, losing the update entirely</div>
+<div class="qp" onclick="cq('mp-q2',this,false)">FP32 is faster for updates</div>
+</div><div class="qf" id="mp-q2-f"></div></div>
+<div class="qb" id="mp-q3"><div class="qt">\u{1F914} Mixed precision gives ~2x speedup because:</div><div class="qo">
+<div class="qp" onclick="cq('mp-q3',this,true)">Modern GPUs have dedicated FP16/BF16 tensor cores that do 2x more operations per cycle</div>
+<div class="qp" onclick="cq('mp-q3',this,false)">It skips some computations</div>
+</div><div class="qf" id="mp-q3-f"></div></div></div>`;
+rq('mp-q1',10);rq('mp-q2',10);rq('mp-q3',10);}},
+
+// 8: RLHF
+{fn:'adult_model.py',fd:'Learning from human preferences',t:'\u{1F44D} RLHF',su:'How ChatGPT learns to be helpful, harmless, and honest',
+code:`# RLHF - Reinforcement Learning from
+#        Human Feedback
+# ====================================
+# Training an LLM has 3 stages:
+#
+# STAGE 1: Pre-training (what we've been doing)
+#   - Train on massive text data
+#   - Learn language patterns
+#   - Result: base model (can complete text)
+#
+# STAGE 2: Supervised Fine-Tuning (SFT)
+#   - Train on (instruction, response) pairs
+#   - Human-written high-quality responses
+#   - Result: follows instructions
+#
+# STAGE 3: RLHF
+#   a) Collect human preferences:
+#      - Show humans 2 responses to same prompt
+#      - Human picks which is better
+#
+#   b) Train a REWARD MODEL:
+#      - Learns to predict human preferences
+#      - Input: (prompt, response) -> score
+#
+#   c) Use RL (PPO) to optimize:
+#      - Generate responses
+#      - Reward model scores them
+#      - Update LLM to get higher scores
+#      - KL penalty prevents going too far
+#
+# This is what makes ChatGPT "helpful"!
+# Without RLHF, the model just completes text.
+# With RLHF, it tries to be genuinely useful.
+#
+# Alternatives: DPO (Direct Preference
+# Optimization) skips the reward model!`,
+gm:function(c){c.innerHTML=`
+<div class="s"><h3>\u{1F44D} Understanding RLHF</h3>
+<div class="eb r"><p><strong>\u{1F3EB} Teacher Analogy:</strong> Pre-training = reading textbooks. SFT = a teacher showing you how to answer questions. RLHF = getting feedback on your answers and improving based on what humans prefer!</p></div></div>
+<div class="s"><h3><span class="bd bd-g">GAME</span> Be the Human Rater!</h3>
+<p>Pick which response is better (this is what RLHF data looks like!):</p>
+<div class="ia" id="rlhfGame"></div></div>
+<div class="s"><h3><span class="bd bd-q">QUIZ</span> RLHF Challenge</h3>
+<div class="qb" id="rl-q1"><div class="qt">\u{1F914} What are the 3 stages of training a chat model?</div><div class="qo">
+<div class="qp" onclick="cq('rl-q1',this,true)">Pre-training \u2192 Supervised Fine-Tuning \u2192 RLHF</div>
+<div class="qp" onclick="cq('rl-q1',this,false)">Tokenization \u2192 Embedding \u2192 Attention</div>
+<div class="qp" onclick="cq('rl-q1',this,false)">Forward \u2192 Backward \u2192 Update</div>
+</div><div class="qf" id="rl-q1-f"></div></div>
+<div class="qb" id="rl-q2"><div class="qt">\u{1F914} What does the Reward Model learn?</div><div class="qo">
+<div class="qp" onclick="cq('rl-q2',this,true)">To predict which response a human would prefer</div>
+<div class="qp" onclick="cq('rl-q2',this,false)">To generate text</div>
+<div class="qp" onclick="cq('rl-q2',this,false)">To tokenize text faster</div>
+</div><div class="qf" id="rl-q2-f"></div></div></div>`;
+rq('rl-q1',10);rq('rl-q2',10);rq('rlhf-game',15);initRLHF();}},
+
+// 9: Weight Tying
+{fn:'adult_model.py',fd:'Sharing embedding and output weights',t:'\u{1F517} Weight Tying',su:'A simple trick that saves parameters and improves quality',
+code:`# WEIGHT TYING
+# ==============
+# The embedding layer converts token IDs
+# to vectors: (vocab_size, n_embd)
+#
+# The output layer converts vectors back
+# to token probabilities: (n_embd, vocab_size)
+#
+# Notice: they're TRANSPOSES of each other!
+# Embedding:  token -> vector
+# Output:     vector -> token
+#
+# Weight Tying: SHARE the same weight matrix!
+#
+# self.output_head.weight = \\
+#     self.token_embedding.weight
+#
+# Benefits:
+#   - Fewer parameters (saves vocab_size * n_embd)
+#   - Better generalization
+#   - Used by GPT-2, LLaMA, most modern LLMs
+#
+# For our model:
+#   vocab_size=100, n_embd=256
+#   Savings: 100 * 256 = 25,600 parameters!
+#
+# For GPT-3:
+#   vocab_size=50257, n_embd=12288
+#   Savings: 617 MILLION parameters!
+
+class AdultLLM(nn.Module):
+    def __init__(self, vocab_size, n_embd=256):
+        self.token_embedding = nn.Embedding(
+            vocab_size, n_embd
+        )
+        self.output_head = nn.Linear(
+            n_embd, vocab_size, bias=False
+        )
+        # TIE THE WEIGHTS!
+        self.output_head.weight = \\
+            self.token_embedding.weight`,
+gm:function(c){c.innerHTML=`
+<div class="s"><h3>\u{1F517} Understanding Weight Tying</h3>
+<div class="eb g"><p><strong>\u{1F4D6} Dictionary Analogy:</strong> The embedding is like an English-to-French dictionary. The output layer is like a French-to-English dictionary. Weight tying says: just use ONE dictionary and read it forwards or backwards!</p></div></div>
+<div class="s"><h3><span class="bd bd-g">GAME</span> Parameter Savings Calculator!</h3>
+<div class="ia">
+<div class="sr"><span style="width:80px;">Vocab size:</span><input type="range" id="wtVocab" min="100" max="100000" value="50000" step="100" oninput="updateWT()"><span class="sv" id="wtVV">50000</span></div>
+<div class="sr"><span style="width:80px;">Embed dim:</span><input type="range" id="wtEmbd" min="64" max="12288" value="4096" step="64" oninput="updateWT()"><span class="sv" id="wtEV">4096</span></div>
+<div id="wtResult" style="text-align:center;margin:10px 0;"></div></div></div>
+<div class="s"><h3><span class="bd bd-q">QUIZ</span> Weight Tying Challenge</h3>
+<div class="qb" id="wt-q1"><div class="qt">\u{1F914} Why can embedding and output weights be shared?</div><div class="qo">
+<div class="qp" onclick="cq('wt-q1',this,true)">They perform inverse operations (token\u2192vector and vector\u2192token) so the same matrix works for both</div>
+<div class="qp" onclick="cq('wt-q1',this,false)">They're always identical anyway</div>
+<div class="qp" onclick="cq('wt-q1',this,false)">It's just to save disk space</div>
+</div><div class="qf" id="wt-q1-f"></div></div>
+<div class="qb" id="wt-q2"><div class="qt">\u{1F914} For GPT-3 (vocab=50257, embed=12288), weight tying saves:</div><div class="qo">
+<div class="qp" onclick="cq('wt-q2',this,true)">~617 million parameters — a significant chunk of the model!</div>
+<div class="qp" onclick="cq('wt-q2',this,false)">~50K parameters</div>
+</div><div class="qf" id="wt-q2-f"></div></div></div>
+<div class="s" style="margin-top:20px;"><div class="eb g" style="text-align:center;">
+<h3 style="color:var(--green);">\u{1F389} Level 3 Complete!</h3>
+<p style="margin-top:6px;">You now understand production LLM techniques! Run <code style="background:var(--code-bg);padding:2px 6px;border-radius:4px;">python run_adult.py</code> to see the code in action.</p>
+<p style="margin-top:6px;font-size:12px;color:var(--dim);">You've covered the same architecture as LLaMA!</p></div></div></div>`;
+rq('wt-q1',10);rq('wt-q2',10);updateWT();}}
+];
+
+
+// ═══ GAME FUNCTIONS ═══
+
+// RoPE visualization
+function drawRope(){
+  const canvas=document.getElementById('ropeCanvas');if(!canvas)return;
+  const ctx=canvas.getContext('2d'),W=canvas.width,H=canvas.height;
+  ctx.clearRect(0,0,W,H);
+  const cx=W/2,cy=H/2,r=Math.min(W,H)*0.38;
+  const pos=parseInt(document.getElementById('ropePos').value);
+  document.getElementById('ropePosVal').textContent=pos;
+  // Draw circle
+  ctx.strokeStyle='rgba(255,255,255,0.1)';ctx.lineWidth=1;ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.stroke();
+  // Draw positions
+  for(let p=0;p<32;p++){
+    const angle=p*0.1-Math.PI/2;
+    const x=cx+r*Math.cos(angle),y=cy+r*Math.sin(angle);
+    const isCur=p===pos;
+    ctx.fillStyle=isCur?'var(--accent)':p<pos?'rgba(6,214,160,0.5)':'rgba(255,255,255,0.15)';
+    ctx.beginPath();ctx.arc(x,y,isCur?8:4,0,Math.PI*2);ctx.fill();
+    if(isCur){ctx.fillStyle='#fff';ctx.font='bold 10px Nunito';ctx.textAlign='center';ctx.fillText(p,x,y+3);}
+  }
+  // Draw arrow for current position
+  const angle=pos*0.1-Math.PI/2;
+  ctx.strokeStyle='var(--accent)';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(cx,cy);
+  ctx.lineTo(cx+r*0.8*Math.cos(angle),cy+r*0.8*Math.sin(angle));ctx.stroke();
+  // Arrow head
+  const ax=cx+r*0.8*Math.cos(angle),ay=cy+r*0.8*Math.sin(angle);
+  ctx.fillStyle='var(--accent)';ctx.beginPath();ctx.arc(ax,ay,5,0,Math.PI*2);ctx.fill();
+  // Info
+  const deg=(pos*0.1*180/Math.PI).toFixed(1);
+  document.getElementById('ropeInfo').innerHTML=`Position ${pos}: rotated ${deg}\u00B0 | Each position rotates by ~5.7\u00B0 | Nearby positions = similar angles`;
+}
+
+// GQA visualization
+function updateGQA(){
+  const nkv=parseInt(document.getElementById('gqaSlider').value);
+  document.getElementById('gqaVal').textContent=nkv;
+  const nq=8,hs=32;
+  const name=nkv===nq?'Standard MHA':nkv===1?'MQA':'GQA ('+nkv+' groups)';
+  const qParams=nq*hs*256,kvParams=nkv*hs*256*2;
+  const stdKV=nq*hs*256*2;
+  const saving=((1-kvParams/stdKV)*100).toFixed(0);
+  const viz=document.getElementById('gqaViz');
+  let html='<div style="display:flex;gap:4px;flex-wrap:wrap;align-items:center;">';
+  for(let i=0;i<nq;i++){
+    const kvGroup=Math.floor(i/(nq/nkv));
+    const colors=['var(--accent)','var(--green)','var(--blue)','var(--purple)','var(--yellow)','var(--red)','#ec4899','#8b5cf6'];
+    html+=`<div style="text-align:center;"><div style="width:28px;height:28px;border-radius:6px;background:rgba(0,180,216,0.2);border:2px solid var(--blue);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;">Q${i}</div><div style="font-size:8px;color:var(--dim);">\u2193</div><div style="width:28px;height:28px;border-radius:6px;background:${colors[kvGroup]}30;border:2px solid ${colors[kvGroup]};display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;">KV${kvGroup}</div></div>`;
+  }
+  html+='</div>';viz.innerHTML=html;
+  document.getElementById('gqaStats').innerHTML=`<strong>${name}</strong> | KV heads: ${nkv} | KV cache savings: <span style="color:var(--green);">${saving}%</span> | ${nkv===nq?'No savings':'Fewer KV heads = smaller cache!'}`;
+}
+
+// SwiGLU
+function swish(x){return x/(1+Math.exp(-x));}
+function gelu2(x){return 0.5*x*(1+Math.tanh(Math.sqrt(2/Math.PI)*(x+0.044715*x*x*x)));}
+function updateSw(){
+  const x=parseInt(document.getElementById('swSlider').value)/10;
+  document.getElementById('swIn').textContent=x.toFixed(1);
+  document.getElementById('swR').textContent=Math.max(0,x).toFixed(2);
+  document.getElementById('swG').textContent=gelu2(x).toFixed(2);
+  document.getElementById('swS').textContent=swish(x).toFixed(2);
+  drawSw(x);
+}
+function drawSw(cx){
+  const canvas=document.getElementById('swCanvas');if(!canvas)return;
+  const ctx=canvas.getContext('2d'),W=canvas.width,H=canvas.height;
+  ctx.clearRect(0,0,W,H);
+  const mapX=x=>(x+3)/6*W,mapY=y=>H-(y+1)/4*H;
+  ctx.strokeStyle='rgba(255,255,255,0.1)';ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(mapX(-3),mapY(0));ctx.lineTo(mapX(3),mapY(0));ctx.stroke();
+  ctx.beginPath();ctx.moveTo(mapX(0),0);ctx.lineTo(mapX(0),H);ctx.stroke();
+  [[Math.max,'var(--blue)'],[gelu2,'var(--purple)'],[swish,'var(--accent)']].forEach(([fn,col])=>{
+    ctx.strokeStyle=col;ctx.lineWidth=2;ctx.beginPath();
+    for(let x=-3;x<=3;x+=0.05){const y=typeof fn==='function'?fn(x):Math.max(0,x);const px=mapX(x),py=mapY(y);x===-3?ctx.moveTo(px,py):ctx.lineTo(px,py);}ctx.stroke();
+  });
+  if(cx!==undefined){ctx.fillStyle='var(--yellow)';ctx.beginPath();ctx.arc(mapX(cx),mapY(swish(cx)),5,0,Math.PI*2);ctx.fill();}
+}
+
+// Flash Attention
+function updateFlash(){
+  const n=parseInt(document.getElementById('flashSlider').value)*1024;
+  document.getElementById('flashLen').textContent=n;
+  const std=n*n,fl=n*64;
+  function fmt(v){if(v>=1e9)return(v/1e9).toFixed(1)+'B';if(v>=1e6)return(v/1e6).toFixed(1)+'M';if(v>=1e3)return(v/1e3).toFixed(1)+'K';return v;}
+  document.getElementById('flashStd').textContent=fmt(std);
+  document.getElementById('flashFl').textContent=fmt(fl);
+  document.getElementById('flashSave').textContent=`\u26A1 Flash uses ${(fl/std*100).toFixed(2)}% of the memory! (${(std/fl).toFixed(0)}x savings)`;
+}
+
+// Beam Search
+let beamState=[],beamStep=0;
+const beamWords={
+  'The':[[' little',0.4],[' cat',0.3],[' big',0.2],[' happy',0.08],[' old',0.02]],
+  ' little':[[' cat',0.5],[' dog',0.25],[' bird',0.15],[' fish',0.08],[' mouse',0.02]],
+  ' cat':[[' sat',0.35],[' loved',0.3],[' would',0.2],[' was',0.1],[' ran',0.05]],
+  ' big':[[' tree',0.4],[' cat',0.3],[' dog',0.2],[' house',0.08],[' bird',0.02]],
+  ' happy':[[' cat',0.5],[' day',0.3],[' little',0.15],[' dog',0.04],[' bird',0.01]],
+  ' dog':[[' sat',0.3],[' ran',0.3],[' loved',0.2],[' was',0.15],[' would',0.05]],
+  ' sat':[[' on',0.5],[' in',0.3],[' down',0.15],[' up',0.04],[' by',0.01]],
+  ' loved':[[' to',0.5],[' the',0.3],[' his',0.1],[' her',0.08],[' it',0.02]],
+};
+function beamReset(){
+  beamState=[{seq:'The',score:0,display:'The'}];beamStep=0;renderBeam();
+}
+function beamExpand(){
+  if(beamStep>=4)return;
+  const bw=parseInt(document.getElementById('beamW').value);
+  let all=[];
+  beamState.forEach(b=>{
+    const lastWord=b.seq.split(/(?= )/).pop();
+    const nexts=beamWords[lastWord]||beamWords[' cat'];
+    nexts.slice(0,bw).forEach(([w,p])=>{
+      all.push({seq:b.seq+w,score:b.score+Math.log(p),display:b.display+`<span style="color:var(--accent);">${w}</span>`});
+    });
+  });
+  all.sort((a,b)=>b.score-a.score);
+  beamState=all.slice(0,bw);beamStep++;renderBeam();
+}
+function renderBeam(){
+  const v=document.getElementById('beamViz');
+  v.innerHTML=`<div style="font-size:11px;color:var(--dim);margin-bottom:6px;">Step ${beamStep}/4</div>`;
+  beamState.forEach((b,i)=>{
+    const barW=Math.max(5,Math.min(100,(b.score+10)*10));
+    v.innerHTML+=`<div style="padding:6px 10px;background:var(--bg4);border-radius:6px;margin:4px 0;display:flex;align-items:center;gap:8px;border-left:3px solid ${i===0?'var(--green)':'var(--bg4)'};">
+    <span style="color:var(--dim);font-size:10px;width:16px;">#${i+1}</span>
+    <span style="flex:1;font-size:12px;">${b.display}</span>
+    <span style="font-family:'Fira Code',monospace;font-size:10px;color:var(--yellow);">${b.score.toFixed(2)}</span></div>`;
+  });
+}
+
+// RMSNorm calculator
+function calcNorms(){
+  const x=[2.0,-1.0,0.5,3.0];
+  const mean=x.reduce((a,b)=>a+b)/x.length;
+  const variance=x.reduce((a,b)=>a+(b-mean)**2,0)/x.length;
+  const ln=x.map(v=>(v-mean)/Math.sqrt(variance+1e-6));
+  const rms=Math.sqrt(x.reduce((a,b)=>a+b*b,0)/x.length+1e-6);
+  const rn=x.map(v=>v/rms);
+  document.getElementById('normResult').innerHTML=`
+  <div><strong>Input:</strong> [${x.join(', ')}]</div>
+  <div style="margin-top:6px;"><strong style="color:var(--blue);">LayerNorm:</strong></div>
+  <div>  Mean=${mean.toFixed(2)}, Var=${variance.toFixed(2)}</div>
+  <div>  Result: [${ln.map(v=>v.toFixed(3)).join(', ')}]</div>
+  <div>  Params: gamma (scale) + beta (shift) = 2\u00D7dim</div>
+  <div style="margin-top:6px;"><strong style="color:var(--accent);">RMSNorm:</strong></div>
+  <div>  RMS=${rms.toFixed(3)}</div>
+  <div>  Result: [${rn.map(v=>v.toFixed(3)).join(', ')}]</div>
+  <div>  Params: gamma (scale) only = 1\u00D7dim</div>
+  <div style="margin-top:6px;color:var(--green);">\u2705 RMSNorm: simpler (no mean), fewer params, ~10% faster!</div>`;
+}
+
+// RLHF game
+const rlhfPairs=[
+  {prompt:'Explain gravity to a 5-year-old.',
+   a:'Gravity is the force of attraction between two masses proportional to the product of their masses and inversely proportional to the square of the distance between them.',
+   b:'Gravity is like an invisible hand that pulls everything down to the ground! That\'s why when you throw a ball up, it always comes back down.',
+   better:'b',reason:'Response B is better because it uses simple language and a relatable analogy for a 5-year-old.'},
+  {prompt:'Write a poem about the ocean.',
+   a:'The ocean is big. It has water. Fish live there. The end.',
+   b:'Beneath the waves of sapphire blue, a world of wonder waits for you. Where dolphins dance and corals sway, in the ocean\'s gentle ballet.',
+   better:'b',reason:'Response B is more creative, poetic, and engaging.'},
+  {prompt:'How do I pick a lock?',
+   a:'Here are the steps to pick a lock: First get a tension wrench and a pick...',
+   b:'I can\'t help with lock picking as it could be used for illegal entry. If you\'re locked out, I\'d suggest calling a licensed locksmith.',
+   better:'b',reason:'Response B is safer and more responsible, declining a potentially harmful request.'},
+];
+let rlhfIdx=0,rlhfScore=0;
+function initRLHF(){
+  rlhfIdx=0;rlhfScore=0;showRLHF();
+}
+function showRLHF(){
+  const g=document.getElementById('rlhfGame');
+  if(rlhfIdx>=rlhfPairs.length){g.innerHTML=`<div style="text-align:center;padding:16px;"><div style="font-size:20px;">\u{1F389}</div><p>Done! You rated ${rlhfScore}/${rlhfPairs.length} correctly.</p><p style="font-size:12px;color:var(--dim);">This is exactly what human raters do for RLHF!</p></div>`;if(rlhfScore>=2)asc('rlhf-game',15);return;}
+  const p=rlhfPairs[rlhfIdx];
+  g.innerHTML=`<h4>Prompt: "${p.prompt}"</h4>
+  <div style="display:flex;gap:8px;margin:8px 0;">
+  <div id="rlA" style="flex:1;padding:10px;background:var(--bg4);border-radius:8px;cursor:pointer;border:2px solid transparent;font-size:12px;transition:all .2s;" onclick="pickRLHF('a')"><strong>Response A:</strong><br>${esc(p.a)}</div>
+  <div id="rlB" style="flex:1;padding:10px;background:var(--bg4);border-radius:8px;cursor:pointer;border:2px solid transparent;font-size:12px;transition:all .2s;" onclick="pickRLHF('b')"><strong>Response B:</strong><br>${esc(p.b)}</div></div>
+  <div id="rlFb" style="font-size:12px;margin-top:4px;"></div>
+  <div style="font-size:11px;color:var(--dim);margin-top:4px;">${rlhfIdx+1}/${rlhfPairs.length}</div>`;
+}
+function pickRLHF(choice){
+  const p=rlhfPairs[rlhfIdx];
+  const correct=choice===p.better;
+  if(correct)rlhfScore++;
+  document.getElementById('rl'+(p.better==='a'?'A':'B')).style.borderColor='var(--green)';
+  if(!correct)document.getElementById('rl'+(choice==='a'?'A':'B')).style.borderColor='var(--red)';
+  document.getElementById('rlFb').innerHTML=(correct?'\u2705 ':'\u274C ')+p.reason;
+  document.getElementById('rlFb').style.color=correct?'var(--green)':'var(--yellow)';
+  setTimeout(()=>{rlhfIdx++;showRLHF();},2500);
+}
+
+// Weight Tying
+function updateWT(){
+  const v=parseInt(document.getElementById('wtVocab').value);
+  const e=parseInt(document.getElementById('wtEmbd').value);
+  document.getElementById('wtVV').textContent=v.toLocaleString();
+  document.getElementById('wtEV').textContent=e.toLocaleString();
+  const saved=v*e;
+  const savedMB=(saved*4/1024/1024).toFixed(1);
+  document.getElementById('wtResult').innerHTML=`
+  <div style="font-size:14px;">Embedding: <strong>${v.toLocaleString()} \u00D7 ${e.toLocaleString()}</strong> = ${saved.toLocaleString()} params</div>
+  <div style="font-size:14px;">Output:    <strong>${e.toLocaleString()} \u00D7 ${v.toLocaleString()}</strong> = ${saved.toLocaleString()} params</div>
+  <div style="font-size:20px;font-weight:900;color:var(--green);margin-top:8px;">Saved: ${saved.toLocaleString()} parameters (${savedMB} MB)</div>
+  <div style="font-size:12px;color:var(--dim);">By sharing one weight matrix for both!</div>`;
+}
+
+// INIT
+go(0);
+</script>
+</body>
+</html>

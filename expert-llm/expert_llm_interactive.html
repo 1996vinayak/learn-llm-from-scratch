@@ -1,0 +1,986 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Expert LLM - Level 4 Interactive Learning</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fira+Code:wght@400;500;600&display=swap');
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{--bg:#0a0a14;--bg2:#12121f;--bg3:#1a1a2e;--bg4:#16213e;--accent:#ffd166;--green:#06d6a0;--red:#e94560;--yellow:#ffd166;--blue:#00b4d8;--purple:#a855f7;--text:#e8e8f0;--dim:#6b7294;--code-bg:#0d1117;}
+body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);overflow:hidden;height:100vh;}
+.topbar{height:52px;background:var(--bg2);display:flex;align-items:center;padding:0 14px;border-bottom:1px solid rgba(255,255,255,0.05);gap:5px;z-index:100;overflow-x:auto;}
+.topbar .logo{font-weight:900;font-size:15px;background:linear-gradient(135deg,#ffd166,#e94560);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;margin-right:10px;white-space:nowrap;}
+.tab{padding:5px 10px;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;transition:all .3s;color:var(--dim);white-space:nowrap;}
+.tab:hover{color:var(--text);background:var(--bg3);}
+.tab.active{background:var(--accent);color:#000;}
+.sc{margin-left:auto;font-size:12px;font-weight:700;color:var(--yellow);white-space:nowrap;}
+.main{display:flex;height:calc(100vh - 52px);}
+.cp{width:46%;background:var(--code-bg);border-right:1px solid rgba(255,255,255,0.05);display:flex;flex-direction:column;}
+.ch{padding:8px 14px;background:var(--bg2);border-bottom:1px solid rgba(255,255,255,0.05);display:flex;align-items:center;gap:8px;}
+.ch .fn{font-family:'Fira Code',monospace;font-size:11px;color:var(--accent);font-weight:600;}
+.ch .fd{font-size:10px;color:var(--dim);}
+.cs{flex:1;overflow-y:auto;}
+.cc{font-family:'Fira Code',monospace;font-size:11.5px;line-height:1.85;padding:10px 0;}
+.cl{display:flex;padding:0 10px 0 0;min-height:20px;}
+.cl:hover{background:rgba(255,255,255,0.02);}
+.ln{min-width:36px;text-align:right;padding-right:10px;color:var(--dim);user-select:none;font-size:10px;}
+.lt{white-space:pre;flex:1;}
+.kw{color:#ff79c6;}.str{color:#f1fa8c;}.cm{color:#6272a4;font-style:italic;}.fn2{color:#50fa7b;}.num{color:#bd93f9;}.dec{color:#ffb86c;}
+.gp{width:54%;display:flex;flex-direction:column;}
+.gh{padding:10px 18px;background:var(--bg2);border-bottom:1px solid rgba(255,255,255,0.05);}
+.gh h2{font-size:17px;font-weight:800;}
+.gh p{font-size:11px;color:var(--dim);margin-top:2px;}
+.gs{flex:1;overflow-y:auto;padding:18px;}
+.s{margin-bottom:22px;}
+.s h3{font-size:15px;font-weight:800;margin-bottom:8px;}
+.s p{font-size:13px;line-height:1.6;}
+.eb{background:var(--bg3);border-radius:10px;padding:12px 16px;margin:8px 0;border-left:4px solid var(--accent);font-size:13px;}
+.eb.g{border-left-color:var(--green);}.eb.y{border-left-color:var(--yellow);}.eb.r{border-left-color:var(--red);}.eb.b{border-left-color:var(--blue);}.eb.p{border-left-color:var(--purple);}
+.qb{background:var(--bg3);border-radius:12px;padding:14px;margin:10px 0;border:2px solid var(--bg4);}
+.qb.ok{border-color:var(--green);}.qb.no{border-color:var(--red);}
+.qt{font-size:13px;font-weight:800;margin-bottom:8px;}
+.qo{display:flex;flex-direction:column;gap:5px;}
+.qp{padding:7px 12px;border-radius:8px;background:var(--bg4);cursor:pointer;font-size:12px;font-weight:600;transition:all .2s;border:2px solid transparent;}
+.qp:hover{border-color:var(--accent);}
+.qp.sc2{background:rgba(6,214,160,0.15);border-color:var(--green);color:var(--green);}
+.qp.sw{background:rgba(233,69,96,0.15);border-color:var(--red);color:var(--red);}
+.qp.dis{pointer-events:none;opacity:0.6;}.qp.shc{border-color:var(--green);opacity:1!important;}
+.qf{margin-top:6px;padding:6px 10px;border-radius:6px;font-size:11px;font-weight:600;display:none;}
+.qf.sh{display:block;}.qf.ok{background:rgba(6,214,160,0.1);color:var(--green);}.qf.no{background:rgba(233,69,96,0.1);color:var(--red);}
+.ia{background:var(--bg3);border-radius:12px;padding:14px;margin:10px 0;border:2px solid var(--bg4);}
+.ia h4{font-size:13px;font-weight:800;margin-bottom:8px;}
+.btn{padding:7px 14px;border:none;border-radius:8px;font-family:'Nunito',sans-serif;font-size:12px;font-weight:700;cursor:pointer;transition:all .2s;}
+.btn:hover{transform:translateY(-1px);}
+.bp{background:var(--accent);color:#000;}.bg{background:var(--green);color:#000;}.br{background:var(--bg4);color:var(--text);}
+.ob{background:var(--code-bg);border-radius:8px;padding:10px 14px;font-family:'Fira Code',monospace;font-size:12px;line-height:1.6;margin:6px 0;border:1px solid rgba(255,255,255,0.05);}
+.bd{display:inline-block;padding:2px 7px;border-radius:5px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;}
+.bd-g{background:rgba(168,85,247,0.15);color:var(--purple);}.bd-q{background:rgba(249,115,22,0.15);color:var(--accent);}.bd-n{background:rgba(233,69,96,0.15);color:var(--red);}
+.sr{display:flex;align-items:center;gap:8px;margin:6px 0;font-size:12px;}
+.sr input[type=range]{flex:1;accent-color:var(--accent);}
+.sv{font-family:'Fira Code',monospace;font-size:13px;font-weight:700;color:var(--yellow);min-width:36px;}
+.ct{width:100%;border-collapse:collapse;font-size:12px;margin:6px 0;}
+.ct th,.ct td{padding:6px 10px;text-align:left;border-bottom:1px solid rgba(255,255,255,0.05);}
+.ct th{color:var(--accent);font-weight:700;font-size:11px;}
+::-webkit-scrollbar{width:5px;}::-webkit-scrollbar-track{background:transparent;}::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:3px;}
+.expert-box{display:inline-flex;align-items:center;justify-content:center;width:60px;height:60px;border-radius:10px;background:var(--bg4);border:2px solid var(--dim);font-size:10px;font-weight:700;cursor:default;transition:all .3s;margin:4px;text-align:center;}
+.expert-box.active{border-color:var(--accent);background:rgba(255,209,102,0.15);color:var(--accent);box-shadow:0 0 12px rgba(255,209,102,0.3);}
+.token-chip{display:inline-block;padding:4px 10px;border-radius:6px;background:var(--bg4);border:2px solid var(--blue);font-size:11px;font-weight:700;cursor:pointer;margin:3px;transition:all .2s;color:var(--blue);}
+.token-chip:hover{background:rgba(0,180,216,0.15);transform:translateY(-1px);}
+.token-chip.selected{background:rgba(0,180,216,0.2);border-color:var(--accent);color:var(--accent);}
+.race-bar{height:24px;border-radius:6px;transition:width 0.15s linear;display:flex;align-items:center;padding:0 8px;font-size:10px;font-weight:700;color:#000;min-width:30px;}
+</style>
+</head>
+<body>
+<div class="topbar">
+<div class="logo">&#x1F3C6; Expert LLM</div>
+<div class="tab active" onclick="go(0)">Intro</div>
+<div class="tab" onclick="go(1)">1.MoE</div>
+<div class="tab" onclick="go(2)">2.LoRA</div>
+<div class="tab" onclick="go(3)">3.Quant</div>
+<div class="tab" onclick="go(4)">4.Scaling</div>
+<div class="tab" onclick="go(5)">5.SpecDec</div>
+<div class="tab" onclick="go(6)">6.DPO</div>
+<div class="tab" onclick="go(7)">7.Grad</div>
+<div class="sc">&#x2B50;<span id="ts">0</span>/<span id="ms">0</span></div>
+</div>
+<div class="main">
+<div class="cp"><div class="ch"><span class="fn" id="cfn"></span><span class="fd" id="cfd"></span></div><div class="cs"><div class="cc" id="ccc"></div></div></div>
+<div class="gp"><div class="gh"><h2 id="gt"></h2><p id="gsu"></p></div><div class="gs"><div id="gc"></div></div></div>
+</div>
+<script>
+let cur=0,sc=0,mx=0,ans={};
+function asc(id,p){if(ans[id])return;ans[id]=1;sc+=p;document.getElementById('ts').textContent=sc;}
+function rq(id,p){if(!ans['_'+id]){ans['_'+id]=1;mx+=p;document.getElementById('ms').textContent=mx;}}
+function cq(qid,el,ok){const b=document.getElementById(qid);if(b.classList.contains('ok')||b.classList.contains('no'))return;const f=document.getElementById(qid+'-f');const os=b.querySelectorAll('.qp');if(ok){el.classList.add('sc2');b.classList.add('ok');f.className='qf sh ok';f.textContent='\u2705 Correct! +10';asc(qid,10);}else{el.classList.add('sw');b.classList.add('no');f.className='qf sh no';f.textContent='\u274C Not quite!';}os.forEach(o=>{o.classList.add('dis');if(o!==el&&o.getAttribute('onclick')&&o.getAttribute('onclick').includes('true'))o.classList.add('shc');});}
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function hl(l){if(l.trimStart().startsWith('#'))return'<span class="cm">'+l+'</span>';l=l.replace(/(""".*?"""|".*?"|'.*?')/g,'<span class="str">$1</span>');['def','class','return','for','in','if','import','from','self','None','True','False','super','not','and','or','range','print','with','as','else','elif','while','break','pass','assert'].forEach(k=>{l=l.replace(new RegExp('\\\\b('+k+')\\\\b','g'),'<span class="kw">$1</span>');});l=l.replace(/\\b(\\d+\\.?\\d*)\\b/g,'<span class="num">$1</span>');return l;}
+function rc(code){const c=document.getElementById('ccc');c.innerHTML='';code.split('\\n').forEach((l,i)=>{const d=document.createElement('div');d.className='cl';d.innerHTML='<span class="ln">'+(i+1)+'</span><span class="lt">'+hl(esc(l))+'</span>';c.appendChild(d);});}
+function go(n){cur=n;const s=S[n];document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',i===n));document.getElementById('cfn').textContent=s.fn;document.getElementById('cfd').textContent=s.fd;rc(s.code);document.getElementById('gt').innerHTML=s.t;document.getElementById('gsu').textContent=s.su;const g=document.getElementById('gc');g.innerHTML='';s.gm(g);document.querySelector('.gs').scrollTop=0;document.querySelector('.cs').scrollTop=0;}
+
+const S=[
+// 0: INTRO
+{fn:'overview',fd:'Level 4 — Expert',t:'\u{1F3C6} Expert LLM \u2014 Level 4',su:'Cutting-edge techniques: MoE, LoRA, Quantization, Scaling Laws, Speculative Decoding, DPO',
+code:`# ============================================
+# EXPERT LLM - Level 4!
+# ============================================
+# You've mastered:
+#   Level 1 (Baby):    Basics of LLMs
+#   Level 2 (Teenage): Dropout, BPE, GELU, etc.
+#   Level 3 (Adult):   RoPE, GQA, SwiGLU, RLHF
+#
+# Level 4 covers CUTTING-EDGE techniques:
+#
+# 1. MoE          - Mixture of Experts
+# 2. LoRA         - Low-Rank Adaptation
+# 3. Quantization - Shrink models 4x
+# 4. Scaling Laws - Chinchilla optimal training
+# 5. Spec. Decode - 2-3x faster generation
+# 6. DPO          - Simpler alignment than RLHF
+#
+# COMPARISON:
+# Baby:    205K params, char tokenizer
+# Teenage: 1.2M params, BPE, dropout, GELU
+# Adult:   5.5M params, RoPE, GQA, SwiGLU
+# Expert:  MoE, LoRA, quantization, DPO
+#
+# After this, you understand how GPT-4,
+# Mixtral, LLaMA-2, and Mistral REALLY work!`,
+gm:function(c){c.innerHTML=`
+<div class="s"><h3>\u{1F4CA} The Four Levels</h3>
+<table class="ct"><tr><th></th><th>\u{1F37C} Baby</th><th>\u{1F9D1}\u200D\u{1F393} Teen</th><th>\u{1F393} Adult</th><th style="color:var(--accent);">\u{1F3C6} Expert</th></tr>
+<tr><td>Params</td><td>205K</td><td>1.2M</td><td>5.5M</td><td style="color:var(--accent);">MoE 46.7B</td></tr>
+<tr><td>Position</td><td>Learned</td><td>Learned</td><td>RoPE</td><td style="color:var(--accent);">RoPE</td></tr>
+<tr><td>Attention</td><td>MHA</td><td>MHA+Drop</td><td>GQA</td><td style="color:var(--accent);">GQA+MoE</td></tr>
+<tr><td>Activation</td><td>ReLU</td><td>GELU</td><td>SwiGLU</td><td style="color:var(--accent);">SwiGLU</td></tr>
+<tr><td>Fine-tune</td><td>\u2014</td><td>\u2014</td><td>Full</td><td style="color:var(--accent);">LoRA</td></tr>
+<tr><td>Precision</td><td>FP32</td><td>FP32</td><td>Mixed</td><td style="color:var(--accent);">INT4/INT8</td></tr>
+<tr><td>Alignment</td><td>\u2014</td><td>\u2014</td><td>RLHF</td><td style="color:var(--accent);">DPO</td></tr>
+<tr><td>Decoding</td><td>Top-k</td><td>Top-p</td><td>Beam</td><td style="color:var(--accent);">Speculative</td></tr></table></div>
+<div class="s"><h3>\u{1F680} What You'll Learn</h3>
+<div class="eb y"><p><strong>MoE:</strong> How GPT-4 and Mixtral use 8 expert networks but only activate 2 per token \u2014 massive models, fast inference.</p></div>
+<div class="eb b"><p><strong>LoRA:</strong> Fine-tune a 7B model on a laptop by training only 0.1% of the parameters.</p></div>
+<div class="eb g"><p><strong>Quantization:</strong> Shrink a 28GB model to 3.5GB with minimal quality loss.</p></div>
+<div class="eb p"><p><strong>Scaling Laws:</strong> The Chinchilla recipe for optimal model training.</p></div>
+<div class="eb r"><p><strong>Speculative Decoding:</strong> Generate tokens 2-3x faster using a draft model.</p></div>
+<div class="eb"><p><strong>DPO:</strong> Align models without reward models or RL \u2014 simpler than RLHF.</p></div></div>
+<div class="s"><h3><span class="bd bd-q">QUIZ</span> Level 3 Knowledge Check</h3>
+<div class="qb" id="i-q1"><div class="qt">\u{1F914} What does RoPE encode using rotation?</div><div class="qo">
+<div class="qp" onclick="cq('i-q1',this,true)">Relative position \u2014 the angle between two positions encodes their distance</div>
+<div class="qp" onclick="cq('i-q1',this,false)">Token identity \u2014 what character it is</div>
+<div class="qp" onclick="cq('i-q1',this,false)">Absolute position only</div>
+</div><div class="qf" id="i-q1-f"></div></div>
+<div class="qb" id="i-q2"><div class="qt">\u{1F914} In RLHF, what are the 3 training stages?</div><div class="qo">
+<div class="qp" onclick="cq('i-q2',this,false)">Tokenize \u2192 Embed \u2192 Attend</div>
+<div class="qp" onclick="cq('i-q2',this,true)">Pre-training \u2192 Supervised Fine-Tuning \u2192 RLHF</div>
+<div class="qp" onclick="cq('i-q2',this,false)">Forward \u2192 Backward \u2192 Update</div>
+</div><div class="qf" id="i-q2-f"></div></div></div>`;rq('i-q1',10);rq('i-q2',10);}},
+
+// 1: MoE
+{fn:'moe.py',fd:'Mixture of Experts',t:'\u{1F9E0} Mixture of Experts',su:'Huge models, fast inference \u2014 used by GPT-4 and Mixtral',
+code:`# Mixture of Experts (MoE)
+# ========================
+# Standard Transformer: Every token goes through
+# ALL parameters.
+# MoE Transformer: Each token only uses a FEW
+# "expert" networks.
+#
+# How it works:
+#   - Replace the single FFN with N experts
+#   - A "router" decides which experts each token uses
+#   - Typically top-2 out of 8 experts per token
+#
+# GPT-4: rumored 8x220B MoE = 1.76T total params
+#   but only ~220B active per token!
+# Mixtral 8x7B: 46.7B total, 12.9B active
+
+class Expert(nn.Module):
+    def __init__(self, n_embd, hidden_mult=4):
+        super().__init__()
+        hidden = n_embd * hidden_mult
+        self.w1 = nn.Linear(n_embd, hidden, bias=False)
+        self.w2 = nn.Linear(hidden, n_embd, bias=False)
+
+    def forward(self, x):
+        return self.w2(F.silu(self.w1(x)))
+
+class MoELayer(nn.Module):
+    def __init__(self, n_embd, n_experts=8, top_k=2):
+        super().__init__()
+        self.n_experts = n_experts
+        self.top_k = top_k
+
+        # The router: decides which experts to use
+        self.router = nn.Linear(n_embd, n_experts)
+
+        # The experts
+        self.experts = nn.ModuleList([
+            Expert(n_embd) for _ in range(n_experts)
+        ])
+
+    def forward(self, x):
+        # Router scores
+        router_logits = self.router(x)
+        router_probs = F.softmax(router_logits, dim=-1)
+
+        # Select top-k experts
+        top_k_probs, top_k_indices = torch.topk(
+            router_probs, self.top_k, dim=-1
+        )
+
+        # Weighted sum of expert outputs
+        output = torch.zeros_like(x)
+        for i in range(self.top_k):
+            expert_idx = top_k_indices[:, i]
+            weight = top_k_probs[:, i]
+            for e in range(self.n_experts):
+                mask = (expert_idx == e)
+                if mask.any():
+                    output[mask] += weight[mask].unsqueeze(-1) \\
+                        * self.experts[e](x[mask])
+        return output`,
+gm:function(c){c.innerHTML=`
+<div class="s"><h3>\u{1F9E0} Understanding MoE</h3>
+<div class="eb y"><p><strong>\u{1F3E2} Office Analogy:</strong> Imagine a company with 8 specialist departments. Each customer query goes to only 2 relevant departments. The company has massive expertise (8 depts) but each query is handled efficiently (2 depts).</p></div>
+<div class="eb b"><p><strong>Key Numbers:</strong> Mixtral 8x7B has 46.7B total params but only 12.9B active per token. That's 72% of params sitting idle for any given token \u2014 but different tokens use different experts!</p></div></div>
+<div class="s"><h3><span class="bd bd-g">GAME</span> Router Simulator!</h3>
+<p>Click a token to see which 2 experts the router activates:</p>
+<div class="ia">
+<h4>Tokens (click one):</h4>
+<div id="moeTokens" style="margin:8px 0;"></div>
+<h4 style="margin-top:12px;">8 Expert Networks:</h4>
+<div id="moeExperts" style="display:flex;flex-wrap:wrap;gap:2px;margin:8px 0;"></div>
+<div id="moeInfo" class="ob" style="display:none;"></div>
+</div></div>
+<div class="s"><h3><span class="bd bd-q">QUIZ</span> MoE Challenge</h3>
+<div class="qb" id="moe-q1"><div class="qt">\u{1F914} Mixtral 8x7B has 46.7B total params. How many are active per token?</div><div class="qo">
+<div class="qp" onclick="cq('moe-q1',this,false)">46.7B (all of them)</div>
+<div class="qp" onclick="cq('moe-q1',this,true)">~12.9B (top-2 of 8 experts + shared layers)</div>
+<div class="qp" onclick="cq('moe-q1',this,false)">7B (one expert)</div>
+</div><div class="qf" id="moe-q1-f"></div></div>
+<div class="qb" id="moe-q2"><div class="qt">\u{1F914} Why is MoE more efficient than a dense model of the same total size?</div><div class="qo">
+<div class="qp" onclick="cq('moe-q2',this,false)">It uses less memory</div>
+<div class="qp" onclick="cq('moe-q2',this,false)">It trains faster</div>
+<div class="qp" onclick="cq('moe-q2',this,true)">Each token only activates a fraction of the parameters, so inference is much faster</div>
+</div><div class="qf" id="moe-q2-f"></div></div></div>`;
+rq('moe-q1',10);rq('moe-q2',10);initMoE();}},
+
+// 2: LoRA
+{fn:'lora.py',fd:'Low-Rank Adaptation',t:'\u{1F9F7} LoRA \u2014 Low-Rank Adaptation',su:'Fine-tune billion-parameter models on a laptop',
+code:`# LoRA - Low-Rank Adaptation
+# ===========================
+# Problem: Fine-tuning a 7B model requires
+# updating ALL 7B parameters.
+# That needs ~28GB GPU memory just for weights!
+#
+# LoRA: Instead of updating full weight W,
+# add a small low-rank update: W + A*B
+#
+# Original: W is (d, d) = d*d parameters
+# LoRA: A is (d, r) and B is (r, d)
+#       where r << d
+#       Total new params: 2*d*r (much smaller!)
+#
+# Example: d=4096, r=16
+#   Full: 4096*4096 = 16.7M params per layer
+#   LoRA: 2*4096*16 = 131K params (128x less!)
+#
+# Original weights are FROZEN.
+# Only A and B are trained.
+
+class LoRALinear(nn.Module):
+    def __init__(self, original_linear, rank=16,
+                 alpha=32):
+        super().__init__()
+        in_f = original_linear.in_features
+        out_f = original_linear.out_features
+
+        # Freeze original weights
+        self.original = original_linear
+        self.original.weight.requires_grad = False
+
+        # LoRA matrices (tiny!)
+        self.lora_A = nn.Parameter(
+            torch.randn(in_f, rank) / math.sqrt(rank)
+        )
+        self.lora_B = nn.Parameter(
+            torch.zeros(rank, out_f)
+        )
+        self.scaling = alpha / rank
+
+    def forward(self, x):
+        # Original + low-rank update
+        original_out = self.original(x)
+        lora_out = (x @ self.lora_A @ self.lora_B) \\
+                   * self.scaling
+        return original_out + lora_out`,
+gm:function(c){c.innerHTML=`
+<div class="s"><h3>\u{1F9F7} Understanding LoRA</h3>
+<div class="eb y"><p><strong>\u{1F3A8} Analogy:</strong> Imagine a massive painting (the original model). Instead of repainting the whole thing, LoRA adds a thin transparent overlay with small adjustments. The original painting stays untouched!</p></div>
+<div class="eb b"><p><strong>Key Insight:</strong> Weight updates during fine-tuning have low "intrinsic rank" \u2014 they can be approximated by multiplying two small matrices. This is why LoRA works so well!</p></div></div>
+<div class="s"><h3><span class="bd bd-g">GAME</span> Parameter Calculator!</h3>
+<p>Adjust model dimension (d) and LoRA rank (r) to see the savings:</p>
+<div class="ia">
+<div class="sr"><span style="width:120px;">Model dim (d):</span><input type="range" id="loraD" min="256" max="12288" value="4096" step="256" oninput="updateLoRA()"><span class="sv" id="loraDV">4096</span></div>
+<div class="sr"><span style="width:120px;">LoRA rank (r):</span><input type="range" id="loraR" min="1" max="128" value="16" step="1" oninput="updateLoRA()"><span class="sv" id="loraRV">16</span></div>
+<div style="display:flex;gap:10px;margin:10px 0;">
+<div style="flex:1;text-align:center;padding:12px;background:var(--bg4);border-radius:8px;">
+<div style="font-size:10px;color:var(--dim);">Full Fine-Tune</div>
+<div id="loraFull" style="font-size:20px;font-weight:900;color:var(--red);">16.8M</div>
+<div style="font-size:10px;color:var(--dim);">d \u00D7 d params</div></div>
+<div style="flex:1;text-align:center;padding:12px;background:var(--bg4);border-radius:8px;">
+<div style="font-size:10px;color:var(--dim);">LoRA</div>
+<div id="loraSmall" style="font-size:20px;font-weight:900;color:var(--green);">131K</div>
+<div style="font-size:10px;color:var(--dim);">2 \u00D7 d \u00D7 r params</div></div></div>
+<div id="loraRatio" style="text-align:center;font-size:16px;font-weight:800;color:var(--accent);"></div>
+<div id="loraBar" style="margin:8px 0;height:20px;background:var(--bg4);border-radius:10px;overflow:hidden;position:relative;">
+<div id="loraBarFill" style="height:100%;background:var(--green);border-radius:10px;transition:width .3s;"></div>
+</div>
+<div id="loraBarLabel" style="font-size:10px;color:var(--dim);text-align:center;"></div>
+</div></div>
+<div class="s"><h3><span class="bd bd-q">QUIZ</span> LoRA Challenge</h3>
+<div class="qb" id="lora-q1"><div class="qt">\u{1F914} Why does LoRA work despite training so few parameters?</div><div class="qo">
+<div class="qp" onclick="cq('lora-q1',this,true)">Weight updates during fine-tuning have low intrinsic rank \u2014 they can be captured by small matrices</div>
+<div class="qp" onclick="cq('lora-q1',this,false)">It doesn't work well, it's just cheaper</div>
+<div class="qp" onclick="cq('lora-q1',this,false)">It modifies the original weights directly</div>
+</div><div class="qf" id="lora-q1-f"></div></div>
+<div class="qb" id="lora-q2"><div class="qt">\u{1F914} With d=4096 and r=16, what is the parameter reduction ratio?</div><div class="qo">
+<div class="qp" onclick="cq('lora-q2',this,false)">16x fewer</div>
+<div class="qp" onclick="cq('lora-q2',this,true)">128x fewer (full=16.7M, LoRA=131K)</div>
+<div class="qp" onclick="cq('lora-q2',this,false)">256x fewer</div>
+</div><div class="qf" id="lora-q2-f"></div></div></div>`;
+rq('lora-q1',10);rq('lora-q2',10);updateLoRA();}},
+
+// 3: Quantization
+{fn:'quantization.py',fd:'Shrink models 4x',t:'\u{1F4E6} Quantization',su:'Compress models from 28GB to 3.5GB with minimal quality loss',
+code:`# Quantization - Shrink Models 4x
+# ================================
+# Normal: FP32 (32 bits per parameter)
+# Quantized: INT8 (8 bits) or INT4 (4 bits)
+#
+# A 7B model:
+#   FP32: 28 GB
+#   FP16: 14 GB
+#   INT8:  7 GB
+#   INT4:  3.5 GB  <-- fits on a laptop!
+#
+# How it works (simplified):
+#   1. Find the range of weights: [min, max]
+#   2. Map that range to integers:
+#      [0, 255] for INT8
+#      [0, 15]  for INT4
+#   3. Store the scale factor to convert back
+
+def quantize_tensor(tensor, bits=8):
+    qmin = 0
+    qmax = 2**bits - 1
+
+    # Find range
+    min_val = tensor.min()
+    max_val = tensor.max()
+
+    # Compute scale and zero point
+    scale = (max_val - min_val) / (qmax - qmin)
+    zero_point = qmin - min_val / scale
+
+    # Quantize: float -> int
+    quantized = torch.clamp(
+        torch.round(tensor / scale + zero_point),
+        qmin, qmax
+    ).to(torch.uint8)
+
+    return quantized, scale, zero_point
+
+def dequantize_tensor(quantized, scale, zero_point):
+    # Dequantize: int -> float (approximate)
+    return (quantized.float() - zero_point) * scale
+
+# Quality loss is surprisingly small!
+# INT8: ~0.1% accuracy drop
+# INT4: ~1-2% accuracy drop`,
+gm:function(c){c.innerHTML=`
+<div class="s"><h3>\u{1F4E6} Understanding Quantization</h3>
+<div class="eb y"><p><strong>\u{1F4F7} Photo Analogy:</strong> FP32 is like a 48MP RAW photo. INT8 is like a high-quality JPEG. INT4 is like a compressed thumbnail. You lose some detail, but the image is still recognizable \u2014 and WAY smaller!</p></div></div>
+<div class="s"><h3><span class="bd bd-g">GAME</span> Quantization Simulator!</h3>
+<p>See how a floating-point number gets quantized:</p>
+<div class="ia">
+<div class="sr"><span style="width:60px;">Value:</span><input type="range" id="quantSlider" min="-314" max="314" value="314" oninput="updateQuant()"><span class="sv" id="quantVal">3.14</span></div>
+<div style="display:flex;gap:8px;margin:10px 0;">
+<div style="flex:1;text-align:center;padding:10px;background:var(--bg4);border-radius:8px;">
+<div style="font-size:10px;color:var(--dim);">Original (FP32)</div>
+<div id="quantOrig" style="font-size:18px;font-weight:900;color:var(--text);">3.14159</div></div>
+<div style="flex:1;text-align:center;padding:10px;background:var(--bg4);border-radius:8px;">
+<div style="font-size:10px;color:var(--dim);">INT8 (0-255)</div>
+<div id="quantI8" style="font-size:18px;font-weight:900;color:var(--blue);">200</div>
+<div id="quantI8e" style="font-size:10px;color:var(--red);"></div></div>
+<div style="flex:1;text-align:center;padding:10px;background:var(--bg4);border-radius:8px;">
+<div style="font-size:10px;color:var(--dim);">INT4 (0-15)</div>
+<div id="quantI4" style="font-size:18px;font-weight:900;color:var(--purple);">12</div>
+<div id="quantI4e" style="font-size:10px;color:var(--red);"></div></div></div>
+<div id="quantDequant" class="ob"></div>
+<h4 style="margin-top:14px;">Model Size Comparison (7B params):</h4>
+<table class="ct"><tr><th>Format</th><th>Bits</th><th>Size</th><th>Compression</th><th>Quality</th></tr>
+<tr><td>FP32</td><td>32</td><td style="color:var(--red);">28.0 GB</td><td>1x</td><td>\u2B50\u2B50\u2B50\u2B50\u2B50</td></tr>
+<tr><td>FP16</td><td>16</td><td style="color:var(--yellow);">14.0 GB</td><td>2x</td><td>\u2B50\u2B50\u2B50\u2B50\u2B50</td></tr>
+<tr><td>INT8</td><td>8</td><td style="color:var(--green);">7.0 GB</td><td>4x</td><td>\u2B50\u2B50\u2B50\u2B50</td></tr>
+<tr><td>INT4</td><td>4</td><td style="color:var(--green);">3.5 GB</td><td>8x</td><td>\u2B50\u2B50\u2B50</td></tr></table>
+</div></div>
+<div class="s"><h3><span class="bd bd-q">QUIZ</span> Quantization Challenge</h3>
+<div class="qb" id="q-q1"><div class="qt">\u{1F914} Why does INT4 quantization lose more quality than INT8?</div><div class="qo">
+<div class="qp" onclick="cq('q-q1',this,true)">INT4 only has 16 possible values (0-15) vs INT8's 256, so the rounding error is much larger</div>
+<div class="qp" onclick="cq('q-q1',this,false)">INT4 is slower to compute</div>
+<div class="qp" onclick="cq('q-q1',this,false)">INT4 uses more memory</div>
+</div><div class="qf" id="q-q1-f"></div></div>
+<div class="qb" id="q-q2"><div class="qt">\u{1F914} A 13B parameter model at INT4 would be approximately:</div><div class="qo">
+<div class="qp" onclick="cq('q-q2',this,false)">52 GB</div>
+<div class="qp" onclick="cq('q-q2',this,false)">13 GB</div>
+<div class="qp" onclick="cq('q-q2',this,true)">6.5 GB (13B \u00D7 4 bits \u00F7 8 bits/byte = 6.5 GB)</div>
+</div><div class="qf" id="q-q2-f"></div></div></div>`;
+rq('q-q1',10);rq('q-q2',10);updateQuant();}},
+
+// 4: Scaling Laws
+{fn:'scaling_laws.py',fd:'Chinchilla optimal training',t:'\u{1F4C8} Scaling Laws',su:'The Chinchilla recipe: how much data does your model need?',
+code:`# Scaling Laws (Chinchilla)
+# =========================
+# Key question: Given a compute budget, how
+# should you split it between model size
+# and training data?
+#
+# Chinchilla finding (2022):
+#   Optimal: tokens = 20 * parameters
+#
+#   1B model  -> train on 20B tokens
+#   7B model  -> train on 140B tokens
+#   70B model -> train on 1.4T tokens
+#
+# Before Chinchilla, models were too big
+# for their data:
+#   GPT-3 (175B) trained on only 300B tokens
+#   Should have been: 175B * 20 = 3.5T tokens!
+#
+# Loss scales as a power law:
+#   L(N) ~ N^(-0.076)  (model size)
+#   L(D) ~ D^(-0.095)  (data size)
+#   L(C) ~ C^(-0.050)  (compute)
+
+def chinchilla_optimal(compute_flops):
+    # N_opt ~ C^0.5, D_opt ~ C^0.5
+    # Simplified: tokens = 20 * params
+    # C ~ 6 * N * D (approximate FLOPs)
+    N = (compute_flops / 120) ** 0.5
+    D = 20 * N
+    return N, D
+
+def predict_loss(params, tokens):
+    A, alpha = 406.4, 0.34
+    B, beta = 410.7, 0.28
+    E = 1.69
+    loss = (A / params**alpha) \\
+         + (B / tokens**beta) + E
+    return loss
+
+# Real-world examples:
+# GPT-3:      175B params, 300B tokens (under!)
+# Chinchilla: 70B params, 1.4T tokens (optimal)
+# LLaMA:      65B params, 1.4T tokens (over!)
+# LLaMA-2:    70B params, 2T tokens (over!)`,
+gm:function(c){c.innerHTML=`
+<div class="s"><h3>\u{1F4C8} Understanding Scaling Laws</h3>
+<div class="eb y"><p><strong>\u{1F373} Recipe Analogy:</strong> Chinchilla says: for every gram of "model flour" you use, you need 20 grams of "data water." Too much flour and not enough water? Your cake (model) will be dry (undertrained)!</p></div>
+<div class="eb b"><p><strong>Key Insight:</strong> Before Chinchilla, everyone thought bigger models = better. Chinchilla showed that a 70B model trained on enough data beats a 175B model trained on too little data!</p></div></div>
+<div class="s"><h3><span class="bd bd-g">GAME</span> Chinchilla Calculator!</h3>
+<p>Adjust model size to see the optimal token count:</p>
+<div class="ia">
+<div class="sr"><span style="width:100px;">Model size:</span><input type="range" id="chinSlider" min="1" max="200" value="7" oninput="updateChin()"><span class="sv" id="chinModel">7B</span></div>
+<div style="display:flex;gap:10px;margin:10px 0;">
+<div style="flex:1;text-align:center;padding:12px;background:var(--bg4);border-radius:8px;">
+<div style="font-size:10px;color:var(--dim);">Parameters</div>
+<div id="chinParams" style="font-size:22px;font-weight:900;color:var(--blue);">7B</div></div>
+<div style="flex:1;text-align:center;padding:12px;background:var(--bg4);border-radius:8px;">
+<div style="font-size:10px;color:var(--dim);">Optimal Tokens (20x)</div>
+<div id="chinTokens" style="font-size:22px;font-weight:900;color:var(--green);">140B</div></div>
+<div style="flex:1;text-align:center;padding:12px;background:var(--bg4);border-radius:8px;">
+<div style="font-size:10px;color:var(--dim);">Compute (FLOPs)</div>
+<div id="chinFlops" style="font-size:22px;font-weight:900;color:var(--accent);">5.9e21</div></div></div>
+<h4 style="margin-top:12px;">Real Models \u2014 Were They Trained Optimally?</h4>
+<table class="ct"><tr><th>Model</th><th>Params</th><th>Tokens</th><th>Optimal</th><th>Status</th></tr>
+<tr><td>GPT-3</td><td>175B</td><td>300B</td><td>3.5T</td><td style="color:var(--red);">\u274C Under-trained (11.7x too few tokens)</td></tr>
+<tr><td>Chinchilla</td><td>70B</td><td>1.4T</td><td>1.4T</td><td style="color:var(--green);">\u2705 Optimal!</td></tr>
+<tr><td>LLaMA</td><td>65B</td><td>1.4T</td><td>1.3T</td><td style="color:var(--blue);">\u2705 Slightly over-trained (good!)</td></tr>
+<tr><td>LLaMA-2</td><td>70B</td><td>2T</td><td>1.4T</td><td style="color:var(--blue);">\u2705 Over-trained (intentional)</td></tr></table>
+<p style="font-size:11px;color:var(--dim);margin-top:4px;">Over-training is OK if you want a better model and have the compute. Under-training wastes model capacity.</p>
+</div></div>
+<div class="s"><h3><span class="bd bd-q">QUIZ</span> Scaling Laws Challenge</h3>
+<div class="qb" id="sc-q1"><div class="qt">\u{1F914} According to Chinchilla, a 10B model should be trained on how many tokens?</div><div class="qo">
+<div class="qp" onclick="cq('sc-q1',this,false)">10B tokens</div>
+<div class="qp" onclick="cq('sc-q1',this,true)">200B tokens (20 \u00D7 10B)</div>
+<div class="qp" onclick="cq('sc-q1',this,false)">1T tokens</div>
+</div><div class="qf" id="sc-q1-f"></div></div>
+<div class="qb" id="sc-q2"><div class="qt">\u{1F914} Why was GPT-3 considered "under-trained" by Chinchilla standards?</div><div class="qo">
+<div class="qp" onclick="cq('sc-q2',this,false)">It was too small</div>
+<div class="qp" onclick="cq('sc-q2',this,true)">175B params needed 3.5T tokens but only got 300B \u2014 the model was too big for its data</div>
+<div class="qp" onclick="cq('sc-q2',this,false)">It used the wrong architecture</div>
+</div><div class="qf" id="sc-q2-f"></div></div></div>`;
+rq('sc-q1',10);rq('sc-q2',10);updateChin();}},
+
+// 5: Speculative Decoding
+{fn:'speculative_decoding.py',fd:'2-3x faster generation',t:'\u26A1 Speculative Decoding',su:'Use a small draft model to speed up generation 2-3x',
+code:`# Speculative Decoding - 2-3x Faster!
+# =====================================
+# Problem: LLM generation is slow because
+# it's sequential (one token at a time,
+# each needs a full forward pass).
+#
+# Idea: Use a SMALL fast model to "draft"
+# several tokens, then verify them all at
+# once with the BIG model.
+#
+# Steps:
+#   1. Small model generates K draft tokens
+#   2. Big model verifies all K in ONE pass
+#   3. Accept tokens that match
+#   4. Continue from last accepted token
+#
+# Why it works:
+#   - Small model is often correct (easy tokens)
+#   - Big model can verify K tokens as fast
+#     as generating 1
+#   - Net result: 2-3x speedup!
+#
+# Without speculative decoding:
+#   "The"     -> 100ms (big model)
+#   "little"  -> 100ms (big model)
+#   "cat"     -> 100ms (big model)
+#   Total: 300ms for 3 tokens
+#
+# With speculative decoding (K=3):
+#   Draft "The little cat" -> 10ms (small)
+#   Verify all 3 at once   -> 100ms (big)
+#   All 3 accepted!
+#   Total: 110ms for 3 tokens (2.7x faster!)
+#
+# If draft is wrong:
+#   Draft "The big dog"    -> 10ms (small)
+#   Verify: "The" OK, "big" WRONG
+#   Accept "The", regenerate from there
+#   Still faster than one-at-a-time!`,
+gm:function(c){c.innerHTML=`
+<div class="s"><h3>\u26A1 Understanding Speculative Decoding</h3>
+<div class="eb y"><p><strong>\u{1F4DD} Draft Analogy:</strong> Imagine writing an essay. Instead of carefully writing each word, your assistant quickly drafts a paragraph. You then review it \u2014 most words are fine, you only fix a few. Much faster than writing every word yourself!</p></div>
+<div class="eb b"><p><strong>Key Insight:</strong> The big model can verify K tokens in the same time it takes to generate 1 token. This is because verification is a single forward pass over K tokens (parallel), while generation is K sequential forward passes.</p></div></div>
+<div class="s"><h3><span class="bd bd-g">GAME</span> Speed Comparison!</h3>
+<p>Watch normal generation vs speculative decoding race:</p>
+<div class="ia">
+<div style="display:flex;gap:6px;margin-bottom:10px;">
+<button class="btn bp" onclick="startRace()">Generate! \u{1F3C1}</button>
+<button class="btn br" onclick="resetRace()">Reset</button></div>
+<div style="margin:8px 0;">
+<div style="font-size:11px;font-weight:700;margin-bottom:4px;color:var(--red);">\u{1F422} Normal (one token at a time):</div>
+<div style="background:var(--bg4);border-radius:8px;height:30px;overflow:hidden;position:relative;">
+<div id="raceNormal" class="race-bar" style="width:0%;background:var(--red);">0%</div></div>
+<div id="raceNormalTokens" style="font-size:11px;color:var(--dim);margin-top:2px;min-height:16px;font-family:'Fira Code',monospace;"></div>
+</div>
+<div style="margin:8px 0;">
+<div style="font-size:11px;font-weight:700;margin-bottom:4px;color:var(--green);">\u{1F407} Speculative (draft 3, verify):</div>
+<div style="background:var(--bg4);border-radius:8px;height:30px;overflow:hidden;position:relative;">
+<div id="raceSpec" class="race-bar" style="width:0%;background:var(--green);">0%</div></div>
+<div id="raceSpecTokens" style="font-size:11px;color:var(--dim);margin-top:2px;min-height:16px;font-family:'Fira Code',monospace;"></div>
+</div>
+<div id="raceResult" style="text-align:center;font-size:14px;font-weight:800;margin-top:8px;min-height:20px;"></div>
+<div id="raceLog" class="ob" style="font-size:11px;max-height:120px;overflow-y:auto;display:none;"></div>
+</div></div>
+<div class="s"><h3><span class="bd bd-q">QUIZ</span> Speculative Decoding Challenge</h3>
+<div class="qb" id="sd-q1"><div class="qt">\u{1F914} Why can the big model verify K tokens as fast as generating 1?</div><div class="qo">
+<div class="qp" onclick="cq('sd-q1',this,true)">Verification is a single forward pass over all K tokens in parallel, while generation requires K sequential passes</div>
+<div class="qp" onclick="cq('sd-q1',this,false)">The big model is faster at verification</div>
+<div class="qp" onclick="cq('sd-q1',this,false)">It skips the attention computation</div>
+</div><div class="qf" id="sd-q1-f"></div></div>
+<div class="qb" id="sd-q2"><div class="qt">\u{1F914} What happens when the draft model's prediction is wrong?</div><div class="qo">
+<div class="qp" onclick="cq('sd-q2',this,false)">The entire sequence is discarded</div>
+<div class="qp" onclick="cq('sd-q2',this,true)">Tokens up to the first wrong one are accepted, then generation continues from there</div>
+<div class="qp" onclick="cq('sd-q2',this,false)">The draft model is retrained</div>
+</div><div class="qf" id="sd-q2-f"></div></div>
+<div class="qb" id="sd-q3"><div class="qt">\u{1F914} Speculative decoding produces IDENTICAL output to normal generation. Why?</div><div class="qo">
+<div class="qp" onclick="cq('sd-q3',this,true)">The big model always makes the final accept/reject decision — the draft model only proposes, never decides</div>
+<div class="qp" onclick="cq('sd-q3',this,false)">The draft model is a copy of the big model</div>
+</div><div class="qf" id="sd-q3-f"></div></div></div>`;
+rq('sd-q1',10);rq('sd-q2',10);rq('sd-q3',10);resetRace();}},
+
+// 6: DPO
+{fn:'dpo.py',fd:'Direct Preference Optimization',t:'\u{1F3AF} DPO \u2014 Direct Preference Optimization',su:'Simpler alignment than RLHF \u2014 no reward model needed',
+code:`# DPO - Direct Preference Optimization
+# =====================================
+# RLHF (Level 3) has 3 steps:
+#   1. Collect human preferences
+#   2. Train a reward model
+#   3. Use RL (PPO) to optimize
+#
+# DPO simplifies this to 1 step:
+#   1. Collect human preferences
+#   2. Directly optimize the LLM!
+#   (No reward model, no RL!)
+#
+# The DPO loss:
+#   L = -log(sigmoid(beta * (
+#       log_prob_chosen - log_prob_rejected
+#   )))
+#
+# Intuition: Make the model MORE likely to
+# produce the preferred response and LESS
+# likely to produce the rejected one.
+
+def dpo_loss(model_chosen_logprobs,
+             model_rejected_logprobs,
+             ref_chosen_logprobs,
+             ref_rejected_logprobs,
+             beta=0.1):
+    chosen_rewards = beta * (
+        model_chosen_logprobs
+        - ref_chosen_logprobs
+    )
+    rejected_rewards = beta * (
+        model_rejected_logprobs
+        - ref_rejected_logprobs
+    )
+
+    loss = -F.logsigmoid(
+        chosen_rewards - rejected_rewards
+    ).mean()
+    return loss
+
+# RLHF: preferences -> reward model -> RL
+# DPO:  preferences -> direct optimization
+#
+# DPO is simpler, more stable, and often
+# works just as well!
+# Used by: LLaMA-2, Zephyr, many open-source`,
+gm:function(c){c.innerHTML=`
+<div class="s"><h3>\u{1F3AF} Understanding DPO</h3>
+<div class="eb y"><p><strong>\u{1F3EB} Teacher Analogy:</strong> RLHF is like hiring a separate judge (reward model) to grade papers, then using those grades to teach the student. DPO skips the judge \u2014 the student learns directly from seeing which answer the teacher preferred!</p></div>
+<div class="eb r"><p><strong>Why DPO is better:</strong> RLHF requires training 3 models (SFT, reward, PPO policy). DPO only needs the preference data and the model itself. Simpler, more stable, fewer hyperparameters.</p></div></div>
+<div class="s"><h3><span class="bd bd-g">GAME</span> RLHF vs DPO Pipeline!</h3>
+<p>Compare the two alignment approaches:</p>
+<div class="ia">
+<h4 style="color:var(--red);">RLHF Pipeline (3 steps):</h4>
+<div style="display:flex;align-items:center;gap:6px;margin:8px 0;flex-wrap:wrap;">
+<div style="padding:8px 12px;background:var(--bg4);border-radius:8px;border:2px solid var(--red);font-size:11px;text-align:center;"><strong>Step 1</strong><br>Collect<br>Preferences</div>
+<div style="color:var(--dim);">\u27A1</div>
+<div style="padding:8px 12px;background:var(--bg4);border-radius:8px;border:2px solid var(--red);font-size:11px;text-align:center;"><strong>Step 2</strong><br>Train Reward<br>Model</div>
+<div style="color:var(--dim);">\u27A1</div>
+<div style="padding:8px 12px;background:var(--bg4);border-radius:8px;border:2px solid var(--red);font-size:11px;text-align:center;"><strong>Step 3</strong><br>RL (PPO)<br>Optimization</div>
+<div style="color:var(--dim);">\u27A1</div>
+<div style="padding:8px 12px;background:rgba(233,69,96,0.15);border-radius:8px;border:2px solid var(--red);font-size:11px;text-align:center;color:var(--red);"><strong>Aligned<br>Model</strong></div>
+</div>
+<div style="font-size:11px;color:var(--dim);margin-bottom:12px;">3 separate training runs \u2022 Reward model can be gamed \u2022 PPO is unstable \u2022 Many hyperparameters</div>
+<h4 style="color:var(--green);">DPO Pipeline (1 step):</h4>
+<div style="display:flex;align-items:center;gap:6px;margin:8px 0;flex-wrap:wrap;">
+<div style="padding:8px 12px;background:var(--bg4);border-radius:8px;border:2px solid var(--green);font-size:11px;text-align:center;"><strong>Step 1</strong><br>Collect<br>Preferences</div>
+<div style="color:var(--dim);">\u27A1</div>
+<div style="padding:8px 12px;background:var(--bg4);border-radius:8px;border:2px solid var(--green);font-size:11px;text-align:center;"><strong>Step 2</strong><br>Direct<br>Optimization</div>
+<div style="color:var(--dim);">\u27A1</div>
+<div style="padding:8px 12px;background:rgba(6,214,160,0.15);border-radius:8px;border:2px solid var(--green);font-size:11px;text-align:center;color:var(--green);"><strong>Aligned<br>Model</strong></div>
+</div>
+<div style="font-size:11px;color:var(--dim);margin-bottom:12px;">1 training run \u2022 No reward model \u2022 Stable training \u2022 Fewer hyperparameters</div>
+<h4 style="margin-top:10px;">DPO Loss Intuition:</h4>
+<div class="ob">L = -log(\u03C3(\u03B2 \u00B7 (log P(chosen) - log P(rejected))))
+
+\u2191 Make chosen MORE likely
+\u2193 Make rejected LESS likely
+\u03B2 controls how aggressively to optimize</div>
+<div id="dpoCalc" style="margin-top:8px;">
+<div class="sr"><span style="width:120px;">\u03B2 (strength):</span><input type="range" id="dpoBeta" min="1" max="20" value="5" oninput="updateDPO()"><span class="sv" id="dpoBetaV">0.5</span></div>
+<div class="sr"><span style="width:120px;">P(chosen):</span><input type="range" id="dpoChosen" min="1" max="99" value="70" oninput="updateDPO()"><span class="sv" id="dpoChosenV">0.70</span></div>
+<div class="sr"><span style="width:120px;">P(rejected):</span><input type="range" id="dpoRejected" min="1" max="99" value="30" oninput="updateDPO()"><span class="sv" id="dpoRejectedV">0.30</span></div>
+<div id="dpoResult" style="text-align:center;margin-top:8px;font-size:14px;font-weight:700;"></div>
+</div>
+</div></div>
+<div class="s"><h3><span class="bd bd-q">QUIZ</span> DPO Challenge</h3>
+<div class="qb" id="dpo-q1"><div class="qt">\u{1F914} What does DPO eliminate compared to RLHF?</div><div class="qo">
+<div class="qp" onclick="cq('dpo-q1',this,true)">The reward model and the RL (PPO) training loop</div>
+<div class="qp" onclick="cq('dpo-q1',this,false)">The preference data collection</div>
+<div class="qp" onclick="cq('dpo-q1',this,false)">The pre-training step</div>
+</div><div class="qf" id="dpo-q1-f"></div></div>
+<div class="qb" id="dpo-q2"><div class="qt">\u{1F914} What does the DPO loss function optimize for?</div><div class="qo">
+<div class="qp" onclick="cq('dpo-q2',this,false)">Maximizing the reward model score</div>
+<div class="qp" onclick="cq('dpo-q2',this,true)">Increasing the probability gap between chosen and rejected responses</div>
+<div class="qp" onclick="cq('dpo-q2',this,false)">Minimizing the KL divergence only</div>
+</div><div class="qf" id="dpo-q2-f"></div></div>
+<div class="qb" id="dpo-q3"><div class="qt">\u{1F914} The \u03B2 parameter in DPO controls:</div><div class="qo">
+<div class="qp" onclick="cq('dpo-q3',this,true)">How aggressively to optimize — high \u03B2 = stronger preference enforcement, risk of overfitting</div>
+<div class="qp" onclick="cq('dpo-q3',this,false)">The learning rate</div>
+<div class="qp" onclick="cq('dpo-q3',this,false)">The batch size</div>
+</div><div class="qf" id="dpo-q3-f"></div></div>
+<div class="qb" id="dpo-q4"><div class="qt">\u{1F914} DPO uses a "reference model" (frozen copy of the base model). Why?</div><div class="qo">
+<div class="qp" onclick="cq('dpo-q4',this,true)">To prevent the model from drifting too far from its pre-trained knowledge — the KL penalty keeps it grounded</div>
+<div class="qp" onclick="cq('dpo-q4',this,false)">To generate training data</div>
+</div><div class="qf" id="dpo-q4-f"></div></div></div>`;
+rq('dpo-q1',10);rq('dpo-q2',10);rq('dpo-q3',10);rq('dpo-q4',10);updateDPO();}},
+
+// 7: Graduation
+{fn:'graduation',fd:'Level 4 Complete!',t:'\u{1F3C6} Graduation!',su:'You\'ve mastered all 4 levels of LLM understanding',
+code:`# ============================================
+# CONGRATULATIONS!
+# ============================================
+# You've completed ALL 4 levels!
+#
+# Level 1 - Baby LLM (205K params):
+#   Tokenization, Embeddings, Attention,
+#   Transformer blocks, Training, Generation
+#
+# Level 2 - Teenage LLM (1.2M params):
+#   BPE tokenizer, Dropout, GELU, KV-Cache,
+#   Cosine LR, Top-p sampling, Perplexity
+#
+# Level 3 - Adult LLM (5.5M params):
+#   RoPE, GQA, SwiGLU, Flash Attention,
+#   Beam Search, RMSNorm, Mixed Precision,
+#   RLHF, Weight Tying
+#
+# Level 4 - Expert LLM:
+#   Mixture of Experts, LoRA, Quantization,
+#   Scaling Laws, Speculative Decoding, DPO
+#
+# You now understand how modern LLMs work
+# from the ground up!
+#
+# GPT-4, LLaMA-2, Mixtral, Mistral, Claude,
+# Gemini -- you know the techniques behind
+# all of them.
+#
+# What's next?
+#   - Read the original papers
+#   - Implement from scratch
+#   - Fine-tune your own model with LoRA
+#   - Quantize and deploy locally
+#   - Contribute to open-source LLMs!`,
+gm:function(c){c.innerHTML=`
+<div class="s"><h3>\u{1F3C6} The Complete Learning Path</h3>
+<div style="display:flex;flex-direction:column;gap:8px;margin:10px 0;">
+<div class="eb" style="border-left-color:var(--blue);"><p><strong>\u{1F37C} Level 1 \u2014 Baby LLM</strong> (205K params)<br>Tokenization \u2022 Embeddings \u2022 Self-Attention \u2022 Transformer Blocks \u2022 Training Loop \u2022 Text Generation</p></div>
+<div style="text-align:center;font-size:18px;color:var(--dim);">\u2B07</div>
+<div class="eb" style="border-left-color:var(--purple);"><p><strong>\u{1F9D1}\u200D\u{1F393} Level 2 \u2014 Teenage LLM</strong> (1.2M params)<br>BPE Tokenizer \u2022 Dropout \u2022 GELU \u2022 KV-Cache \u2022 Cosine LR \u2022 Top-p Sampling \u2022 Perplexity</p></div>
+<div style="text-align:center;font-size:18px;color:var(--dim);">\u2B07</div>
+<div class="eb" style="border-left-color:var(--accent);"><p><strong>\u{1F393} Level 3 \u2014 Adult LLM</strong> (5.5M params)<br>RoPE \u2022 GQA \u2022 SwiGLU \u2022 Flash Attention \u2022 Beam Search \u2022 RMSNorm \u2022 Mixed Precision \u2022 RLHF \u2022 Weight Tying</p></div>
+<div style="text-align:center;font-size:18px;color:var(--dim);">\u2B07</div>
+<div class="eb" style="border-left-color:var(--green);background:rgba(6,214,160,0.05);"><p><strong>\u{1F3C6} Level 4 \u2014 Expert LLM</strong><br>Mixture of Experts \u2022 LoRA \u2022 Quantization \u2022 Scaling Laws \u2022 Speculative Decoding \u2022 DPO</p></div>
+</div></div>
+<div class="s"><h3>\u{1F4CA} Your Knowledge Map</h3>
+<table class="ct"><tr><th>Category</th><th>Technique</th><th>Level</th></tr>
+<tr><td>Architecture</td><td>Transformer, MHA, GQA, MoE</td><td>1\u21924</td></tr>
+<tr><td>Position</td><td>Learned \u2192 RoPE</td><td>1\u21923</td></tr>
+<tr><td>Activation</td><td>ReLU \u2192 GELU \u2192 SwiGLU</td><td>1\u21923</td></tr>
+<tr><td>Normalization</td><td>LayerNorm \u2192 RMSNorm</td><td>1\u21923</td></tr>
+<tr><td>Tokenization</td><td>Char \u2192 BPE</td><td>1\u21922</td></tr>
+<tr><td>Training</td><td>Fixed LR \u2192 Cosine \u2192 Mixed Prec \u2192 Scaling Laws</td><td>1\u21924</td></tr>
+<tr><td>Fine-tuning</td><td>Full \u2192 LoRA</td><td>3\u21924</td></tr>
+<tr><td>Alignment</td><td>RLHF \u2192 DPO</td><td>3\u21924</td></tr>
+<tr><td>Decoding</td><td>Top-k \u2192 Top-p \u2192 Beam \u2192 Speculative</td><td>1\u21924</td></tr>
+<tr><td>Deployment</td><td>FP32 \u2192 FP16 \u2192 INT8 \u2192 INT4</td><td>1\u21924</td></tr></table></div>
+<div class="s"><h3><span class="bd bd-q">QUIZ</span> Final Challenge \u2014 All Levels!</h3>
+<div class="qb" id="gr-q1"><div class="qt">\u{1F914} Which technique lets you fine-tune a 7B model on a laptop?</div><div class="qo">
+<div class="qp" onclick="cq('gr-q1',this,false)">Flash Attention</div>
+<div class="qp" onclick="cq('gr-q1',this,true)">LoRA (Low-Rank Adaptation) \u2014 trains only 0.1% of parameters</div>
+<div class="qp" onclick="cq('gr-q1',this,false)">RMSNorm</div>
+</div><div class="qf" id="gr-q1-f"></div></div>
+<div class="qb" id="gr-q2"><div class="qt">\u{1F914} Put these in order from simplest to most advanced decoding:</div><div class="qo">
+<div class="qp" onclick="cq('gr-q2',this,false)">Beam Search \u2192 Top-k \u2192 Speculative</div>
+<div class="qp" onclick="cq('gr-q2',this,true)">Top-k \u2192 Top-p \u2192 Beam Search \u2192 Speculative Decoding</div>
+<div class="qp" onclick="cq('gr-q2',this,false)">Speculative \u2192 Top-p \u2192 Top-k</div>
+</div><div class="qf" id="gr-q2-f"></div></div>
+<div class="qb" id="gr-q3"><div class="qt">\u{1F914} What is the Chinchilla-optimal token count for a 7B model?</div><div class="qo">
+<div class="qp" onclick="cq('gr-q3',this,false)">7B tokens</div>
+<div class="qp" onclick="cq('gr-q3',this,false)">70B tokens</div>
+<div class="qp" onclick="cq('gr-q3',this,true)">140B tokens (20 \u00D7 7B)</div>
+</div><div class="qf" id="gr-q3-f"></div></div></div>
+<div class="s" style="margin-top:20px;"><div class="eb g" style="text-align:center;">
+<h3 style="color:var(--green);font-size:20px;">\u{1F389}\u{1F3C6} ALL LEVELS COMPLETE! \u{1F3C6}\u{1F389}</h3>
+<p style="margin-top:8px;font-size:14px;">You now understand modern LLMs from the ground up.</p>
+<p style="margin-top:4px;font-size:12px;color:var(--dim);">Baby \u2192 Teenage \u2192 Adult \u2192 Expert</p>
+<p style="margin-top:8px;">Run <code style="background:var(--code-bg);padding:2px 6px;border-radius:4px;">python run_expert.py</code> to see the Expert code in action!</p>
+<p style="margin-top:8px;font-size:13px;">Next steps: read the papers, implement from scratch, fine-tune with LoRA, quantize and deploy!</p>
+</div></div></div>`;
+rq('gr-q1',10);rq('gr-q2',10);rq('gr-q3',10);}}
+];
+
+
+// ═══ GAME FUNCTIONS ═══
+
+// MoE Router Simulator
+const moeTokenList=['The','cat','sat','on','a','warm','sunny','day'];
+const moeExpertNames=['Math','Logic','Grammar','Vocab','Style','Facts','Code','Safety'];
+const moeRouting={'The':[2,3],'cat':[3,5],'sat':[2,0],'on':[2,3],'a':[2,3],'warm':[3,4],'sunny':[3,5],'day':[3,5]};
+function initMoE(){
+  const td=document.getElementById('moeTokens');
+  td.innerHTML='';
+  moeTokenList.forEach(t=>{
+    const chip=document.createElement('span');
+    chip.className='token-chip';
+    chip.textContent=t;
+    chip.onclick=function(){selectMoEToken(t,this);};
+    td.appendChild(chip);
+  });
+  const ed=document.getElementById('moeExperts');
+  ed.innerHTML='';
+  for(let i=0;i<8;i++){
+    const box=document.createElement('div');
+    box.className='expert-box';
+    box.id='moe-expert-'+i;
+    box.innerHTML='E'+i+'<br><span style="font-size:8px;">'+moeExpertNames[i]+'</span>';
+    ed.appendChild(box);
+  }
+}
+function selectMoEToken(token,el){
+  document.querySelectorAll('.token-chip').forEach(c=>c.classList.remove('selected'));
+  el.classList.add('selected');
+  const active=moeRouting[token]||[0,1];
+  for(let i=0;i<8;i++){
+    const box=document.getElementById('moe-expert-'+i);
+    box.classList.toggle('active',active.includes(i));
+  }
+  const info=document.getElementById('moeInfo');
+  info.style.display='block';
+  info.innerHTML=`Token "<strong>${token}</strong>" \u2192 Router activates <strong>Expert ${active[0]} (${moeExpertNames[active[0]]})</strong> and <strong>Expert ${active[1]} (${moeExpertNames[active[1]]})</strong><br><span style="color:var(--dim);">Only 2 of 8 experts active = 25% compute used!</span>`;
+}
+
+// LoRA Parameter Calculator
+function updateLoRA(){
+  const d=parseInt(document.getElementById('loraD').value);
+  const r=parseInt(document.getElementById('loraR').value);
+  document.getElementById('loraDV').textContent=d;
+  document.getElementById('loraRV').textContent=r;
+  const full=d*d;
+  const lora=2*d*r;
+  const ratio=(full/lora).toFixed(1);
+  const pct=(lora/full*100).toFixed(2);
+  function fmt(v){if(v>=1e9)return(v/1e9).toFixed(1)+'B';if(v>=1e6)return(v/1e6).toFixed(1)+'M';if(v>=1e3)return(v/1e3).toFixed(1)+'K';return v;}
+  document.getElementById('loraFull').textContent=fmt(full);
+  document.getElementById('loraSmall').textContent=fmt(lora);
+  document.getElementById('loraRatio').textContent=ratio+'x fewer parameters with LoRA!';
+  const barPct=Math.min(100,pct*5);
+  document.getElementById('loraBarFill').style.width=barPct+'%';
+  document.getElementById('loraBarLabel').textContent='LoRA is '+pct+'% of full fine-tuning parameters';
+}
+
+// Quantization Simulator
+function updateQuant(){
+  const raw=parseInt(document.getElementById('quantSlider').value)/100;
+  const val=raw;
+  document.getElementById('quantVal').textContent=val.toFixed(2);
+  const minR=-3.15,maxR=3.15;
+  // INT8
+  const scale8=(maxR-minR)/255;
+  const zp8=Math.round(-minR/scale8);
+  const q8=Math.max(0,Math.min(255,Math.round(val/scale8+zp8)));
+  const dq8=(q8-zp8)*scale8;
+  const err8=Math.abs(val-dq8);
+  // INT4
+  const scale4=(maxR-minR)/15;
+  const zp4=Math.round(-minR/scale4);
+  const q4=Math.max(0,Math.min(15,Math.round(val/scale4+zp4)));
+  const dq4=(q4-zp4)*scale4;
+  const err4=Math.abs(val-dq4);
+  document.getElementById('quantOrig').textContent=val.toFixed(5);
+  document.getElementById('quantI8').textContent=q8;
+  document.getElementById('quantI8e').textContent='error: '+err8.toFixed(5);
+  document.getElementById('quantI4').textContent=q4;
+  document.getElementById('quantI4e').textContent='error: '+err4.toFixed(5);
+  document.getElementById('quantDequant').innerHTML=
+    '<strong>Dequantized values:</strong>\n'+
+    'INT8: '+q8+' \u2192 '+dq8.toFixed(5)+' (error: <span style="color:var(--blue);">'+err8.toFixed(5)+'</span>)\n'+
+    'INT4: '+q4+' \u2192 '+dq4.toFixed(5)+' (error: <span style="color:var(--purple);">'+err4.toFixed(5)+'</span>)\n'+
+    '<span style="color:var(--dim);">INT4 error is ~'+(err4>0&&err8>0?(err4/err8).toFixed(1):'?')+'x larger than INT8</span>';
+}
+
+// Chinchilla Calculator
+function updateChin(){
+  const n=parseInt(document.getElementById('chinSlider').value);
+  document.getElementById('chinModel').textContent=n+'B';
+  document.getElementById('chinParams').textContent=n+'B';
+  const tokens=n*20;
+  const flops=6*n*1e9*tokens*1e9;
+  function fmtT(v){if(v>=1000)return(v/1000).toFixed(1)+'T';return v+'B';}
+  function fmtF(v){if(v>=1e24)return(v/1e24).toFixed(1)+'e24';if(v>=1e21)return(v/1e21).toFixed(1)+'e21';if(v>=1e18)return(v/1e18).toFixed(1)+'e18';return v.toExponential(1);}
+  document.getElementById('chinTokens').textContent=fmtT(tokens);
+  document.getElementById('chinFlops').textContent=fmtF(flops);
+}
+
+// Speculative Decoding Race
+const raceTokens=['The','little','cat','sat','on','the','warm','sunny','windowsill','and','purred','softly'];
+let raceInterval=null,raceRunning=false;
+function resetRace(){
+  raceRunning=false;
+  if(raceInterval)clearInterval(raceInterval);
+  raceInterval=null;
+  const nb=document.getElementById('raceNormal');
+  const sb=document.getElementById('raceSpec');
+  nb.style.width='0%';nb.textContent='0%';
+  sb.style.width='0%';sb.textContent='0%';
+  document.getElementById('raceNormalTokens').textContent='';
+  document.getElementById('raceSpecTokens').textContent='';
+  document.getElementById('raceResult').textContent='';
+  const log=document.getElementById('raceLog');
+  log.style.display='none';log.innerHTML='';
+}
+function startRace(){
+  if(raceRunning)return;
+  resetRace();
+  raceRunning=true;
+  const total=raceTokens.length;
+  let nIdx=0,sIdx=0,tick=0;
+  let nTokens=[],sTokens=[];
+  let specPhase='draft',specDraftCount=0;
+  const log=document.getElementById('raceLog');
+  log.style.display='block';
+  function addLog(msg){log.innerHTML+=msg+'\n';log.scrollTop=log.scrollHeight;}
+  raceInterval=setInterval(()=>{
+    tick++;
+    // Normal: one token every 3 ticks (slow)
+    if(tick%3===0&&nIdx<total){
+      nTokens.push(raceTokens[nIdx]);
+      nIdx++;
+      const pct=Math.round(nIdx/total*100);
+      document.getElementById('raceNormal').style.width=pct+'%';
+      document.getElementById('raceNormal').textContent=pct+'%';
+      document.getElementById('raceNormalTokens').textContent=nTokens.join(' ');
+      addLog('<span style="color:var(--red);">[Normal]</span> Generated: "'+raceTokens[nIdx-1]+'" ('+nIdx+'/'+total+')');
+    }
+    // Speculative: draft 3 in 1 tick, verify in 2 ticks
+    if(sIdx<total){
+      if(specPhase==='draft'){
+        const draftCount=Math.min(3,total-sIdx);
+        specDraftCount=draftCount;
+        addLog('<span style="color:var(--green);">[Spec]</span> Drafting '+draftCount+' tokens...');
+        specPhase='verify';
+      }else if(specPhase==='verify'){
+        // Accept all drafted tokens (simplified)
+        for(let i=0;i<specDraftCount&&sIdx<total;i++){
+          sTokens.push(raceTokens[sIdx]);
+          sIdx++;
+        }
+        const pct=Math.round(sIdx/total*100);
+        document.getElementById('raceSpec').style.width=pct+'%';
+        document.getElementById('raceSpec').textContent=pct+'%';
+        document.getElementById('raceSpecTokens').textContent=sTokens.join(' ');
+        addLog('<span style="color:var(--green);">[Spec]</span> Verified & accepted '+specDraftCount+' tokens! ('+sIdx+'/'+total+')');
+        specPhase='draft';
+      }
+    }
+    // Check if done
+    if(nIdx>=total&&sIdx>=total){
+      clearInterval(raceInterval);
+      raceRunning=false;
+      document.getElementById('raceResult').innerHTML='\u{1F3C6} Speculative decoding finished first! <span style="color:var(--green);">~2.5x faster</span>';
+    }else if(sIdx>=total&&nIdx<total){
+      const pct=Math.round(sIdx/total*100);
+      document.getElementById('raceSpec').style.width=pct+'%';
+      document.getElementById('raceSpec').textContent='DONE!';
+      if(!document.getElementById('raceResult').textContent){
+        document.getElementById('raceResult').innerHTML='\u26A1 Speculative finished! Normal still at '+Math.round(nIdx/total*100)+'%';
+      }
+    }
+  },200);
+}
+
+// DPO Calculator
+function updateDPO(){
+  const beta=parseInt(document.getElementById('dpoBeta').value)/10;
+  const pC=parseInt(document.getElementById('dpoChosen').value)/100;
+  const pR=parseInt(document.getElementById('dpoRejected').value)/100;
+  document.getElementById('dpoBetaV').textContent=beta.toFixed(1);
+  document.getElementById('dpoChosenV').textContent=pC.toFixed(2);
+  document.getElementById('dpoRejectedV').textContent=pR.toFixed(2);
+  const logC=Math.log(pC);
+  const logR=Math.log(pR);
+  const diff=beta*(logC-logR);
+  const sigmoid=1/(1+Math.exp(-diff));
+  const loss=-Math.log(sigmoid);
+  const res=document.getElementById('dpoResult');
+  const lossColor=loss<0.5?'var(--green)':loss<1?'var(--yellow)':'var(--red)';
+  res.innerHTML=`<span style="color:${lossColor};">DPO Loss: ${loss.toFixed(3)}</span><br><span style="font-size:11px;color:var(--dim);">${pC>pR?'\u2705 Model prefers chosen (good!)':'\u274C Model prefers rejected (needs training!)'} | \u03C3(${diff.toFixed(2)}) = ${sigmoid.toFixed(3)}</span>`;
+}
+
+// INIT
+go(0);
+</script>
+</body>
+</html>

@@ -1,0 +1,3079 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LLM Master Course — All 38 Concepts</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fira+Code:wght@400;500;600&display=swap');
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --bg:#0a0a14;--bg2:#12121f;--bg3:#1a1a2e;--bg4:#16213e;
+  --accent:#00b4d8;--green:#06d6a0;--red:#e94560;--yellow:#ffd166;--purple:#a855f7;--orange:#f97316;--gold:#f59e0b;
+  --text:#e8e8f0;--dim:#6b7294;--code-bg:#0d1117;
+  --l1:#00b4d8;--l2:#a855f7;--l3:#f97316;--l4:#f59e0b;
+}
+html{scroll-behavior:smooth;}
+body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);height:100vh;overflow:hidden;display:flex;flex-direction:column;}
+
+/* ═══ TOP BAR ═══ */
+.topbar{height:48px;background:var(--bg2);display:flex;align-items:center;padding:0 20px;border-bottom:1px solid rgba(255,255,255,0.06);flex-shrink:0;z-index:200;}
+.topbar .logo{font-weight:900;font-size:17px;background:linear-gradient(135deg,var(--l1),var(--l2),var(--l3),var(--l4));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;margin-right:16px;white-space:nowrap;}
+.topbar .search-box{flex:1;max-width:340px;position:relative;}
+.topbar .search-box input{width:100%;padding:6px 12px 6px 32px;border-radius:8px;border:1px solid rgba(255,255,255,0.08);background:var(--bg3);color:var(--text);font-family:'Nunito',sans-serif;font-size:13px;outline:none;}
+.topbar .search-box input:focus{border-color:var(--accent);}
+.topbar .search-box::before{content:'🔍';position:absolute;left:8px;top:50%;transform:translateY(-50%);font-size:13px;}
+.top-stats{margin-left:auto;display:flex;align-items:center;gap:16px;font-size:13px;font-weight:700;}
+.top-stats .score-val{color:var(--yellow);}
+.top-stats .learned-val{color:var(--green);}
+
+/* ═══ LAYOUT ═══ */
+.layout{display:flex;flex:1;overflow:hidden;}
+
+/* ═══ SIDEBAR ═══ */
+.sidebar{width:220px;background:var(--bg2);border-right:1px solid rgba(255,255,255,0.06);display:flex;flex-direction:column;flex-shrink:0;overflow:hidden;transition:width .3s;}
+.sidebar-header{padding:14px 16px 10px;border-bottom:1px solid rgba(255,255,255,0.06);}
+.sidebar-header h3{font-size:13px;font-weight:800;color:var(--dim);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;}
+.progress-wrap{background:var(--bg4);border-radius:6px;height:8px;overflow:hidden;margin-bottom:6px;}
+.progress-fill{height:100%;border-radius:6px;background:linear-gradient(90deg,var(--l1),var(--l2),var(--l3),var(--l4));transition:width .5s;width:0%;}
+.progress-text{font-size:11px;color:var(--dim);font-weight:600;}
+.sidebar-scroll{flex:1;overflow-y:auto;padding:8px 0;}
+.level-group{margin-bottom:4px;}
+.level-toggle{display:flex;align-items:center;gap:8px;padding:8px 16px;cursor:pointer;font-size:13px;font-weight:800;transition:background .2s;user-select:none;}
+.level-toggle:hover{background:rgba(255,255,255,0.03);}
+.level-toggle .arrow{font-size:10px;transition:transform .3s;color:var(--dim);}
+.level-toggle .arrow.open{transform:rotate(90deg);}
+.level-toggle .lvl-badge{padding:2px 8px;border-radius:4px;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;}
+.lvl-badge.l1{background:rgba(0,180,216,0.15);color:var(--l1);}
+.lvl-badge.l2{background:rgba(168,85,247,0.15);color:var(--l2);}
+.lvl-badge.l3{background:rgba(249,115,22,0.15);color:var(--l3);}
+.lvl-badge.l4{background:rgba(245,158,11,0.15);color:var(--l4);}
+.level-items{overflow:hidden;transition:max-height .3s;max-height:0;}
+.level-items.open{max-height:600px;}
+.nav-item{display:flex;align-items:center;gap:8px;padding:5px 16px 5px 28px;cursor:pointer;font-size:12px;font-weight:600;color:var(--dim);transition:all .2s;border-left:3px solid transparent;}
+.nav-item:hover{color:var(--text);background:rgba(255,255,255,0.03);}
+.nav-item.active{color:var(--text);border-left-color:var(--accent);background:rgba(0,180,216,0.05);}
+.nav-item .nav-check{font-size:10px;opacity:0.4;}
+.nav-item .nav-check.done{opacity:1;color:var(--green);}
+.nav-item .nav-num{font-size:10px;font-weight:800;min-width:18px;color:var(--dim);}
+.sidebar-toggle{display:none;position:fixed;top:56px;left:8px;z-index:300;background:var(--bg3);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:6px 10px;cursor:pointer;font-size:16px;}
+
+/* ═══ MAIN CONTENT ═══ */
+.main-content{flex:1;overflow-y:auto;padding:24px 32px 80px;scroll-behavior:smooth;}
+
+/* ═══ CONCEPT CARD ═══ */
+.concept-card{background:var(--bg2);border-radius:16px;border:1px solid rgba(255,255,255,0.06);margin-bottom:24px;overflow:hidden;transition:border-color .3s;scroll-margin-top:16px;}
+.concept-card:hover{border-color:rgba(255,255,255,0.1);}
+.concept-card.learned{border-color:rgba(6,214,160,0.3);}
+.card-header{padding:18px 24px 14px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+.card-header h2{font-size:20px;font-weight:900;flex:1;}
+.card-header .level-badge{padding:3px 10px;border-radius:6px;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;}
+.card-header .gap-badge{padding:3px 8px;border-radius:6px;font-size:9px;font-weight:800;background:rgba(233,69,96,0.15);color:var(--red);text-transform:uppercase;}
+.card-body{padding:0 24px 20px;}
+
+/* Explanation */
+.explanation{background:var(--bg3);border-radius:12px;padding:14px 18px;margin-bottom:16px;border-left:4px solid var(--accent);font-size:14px;line-height:1.7;}
+
+/* Code block */
+.code-block{background:var(--code-bg);border-radius:10px;padding:14px 18px;margin-bottom:16px;font-family:'Fira Code',monospace;font-size:12px;line-height:1.8;overflow-x:auto;border:1px solid rgba(255,255,255,0.05);}
+.code-block .kw{color:#ff79c6;}.code-block .str{color:#f1fa8c;}.code-block .cm{color:#6272a4;font-style:italic;}.code-block .fn{color:#50fa7b;}.code-block .num{color:#bd93f9;}.code-block .op{color:#ff79c6;}.code-block .cls{color:#8be9fd;}
+
+/* Interactive area */
+.interactive-area{background:var(--bg3);border-radius:12px;padding:16px 20px;margin-bottom:16px;border:2px solid var(--bg4);}
+.interactive-area h4{font-size:14px;font-weight:800;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.ia-badge{display:inline-block;padding:2px 8px;border-radius:5px;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;background:rgba(168,85,247,0.15);color:var(--purple);}
+
+/* Quiz */
+.quiz-box{background:var(--bg3);border-radius:12px;padding:16px 20px;margin-bottom:16px;border:2px solid var(--bg4);}
+.quiz-box.correct{border-color:var(--green);background:rgba(6,214,160,0.03);}
+.quiz-box.wrong{border-color:var(--red);background:rgba(233,69,96,0.03);}
+.quiz-title{font-size:13px;font-weight:800;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.quiz-badge{display:inline-block;padding:2px 8px;border-radius:5px;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;background:rgba(249,115,22,0.15);color:var(--orange);}
+.quiz-options{display:flex;flex-direction:column;gap:6px;}
+.quiz-opt{padding:8px 14px;border-radius:8px;background:var(--bg4);cursor:pointer;font-size:13px;font-weight:600;transition:all .2s;border:2px solid transparent;}
+.quiz-opt:hover{border-color:var(--accent);background:rgba(0,180,216,0.05);}
+.quiz-opt.sel-correct{background:rgba(6,214,160,0.15);border-color:var(--green);color:var(--green);}
+.quiz-opt.sel-wrong{background:rgba(233,69,96,0.15);border-color:var(--red);color:var(--red);}
+.quiz-opt.disabled{pointer-events:none;opacity:0.5;}
+.quiz-opt.show-correct{border-color:var(--green);opacity:1!important;}
+.quiz-feedback{margin-top:8px;padding:8px 12px;border-radius:6px;font-size:12px;font-weight:600;display:none;}
+.quiz-feedback.show{display:block;}
+.quiz-feedback.correct{background:rgba(6,214,160,0.1);color:var(--green);}
+.quiz-feedback.wrong{background:rgba(233,69,96,0.1);color:var(--red);}
+
+/* Mark as learned */
+.learn-check{display:flex;align-items:center;gap:10px;padding:10px 0 0;border-top:1px solid rgba(255,255,255,0.05);margin-top:8px;cursor:pointer;user-select:none;}
+.learn-check input{accent-color:var(--green);width:18px;height:18px;cursor:pointer;}
+.learn-check label{font-size:13px;font-weight:700;color:var(--dim);cursor:pointer;transition:color .2s;}
+.learn-check input:checked+label{color:var(--green);}
+
+/* Buttons */
+.btn{padding:8px 16px;border:none;border-radius:8px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;}
+.btn:hover{transform:translateY(-1px);}
+.btn-primary{background:var(--accent);color:#000;}
+.btn-success{background:var(--green);color:#000;}
+.btn-reset{background:var(--bg4);color:var(--text);}
+
+/* Slider */
+.slider-row{display:flex;align-items:center;gap:10px;margin:8px 0;font-size:13px;}
+.slider-row input[type=range]{flex:1;accent-color:var(--accent);}
+.slider-val{font-family:'Fira Code',monospace;font-size:14px;font-weight:700;color:var(--yellow);min-width:36px;}
+
+/* Output box */
+.output-box{background:var(--code-bg);border-radius:8px;padding:10px 14px;font-family:'Fira Code',monospace;font-size:12px;line-height:1.7;margin:8px 0;border:1px solid rgba(255,255,255,0.05);}
+
+/* Canvas */
+canvas{border-radius:8px;display:block;}
+
+/* Quick Reference Table */
+.ref-table{width:100%;border-collapse:collapse;font-size:12px;margin:12px 0;}
+.ref-table th,.ref-table td{padding:8px 12px;text-align:left;border-bottom:1px solid rgba(255,255,255,0.06);}
+.ref-table th{color:var(--accent);font-weight:800;font-size:11px;text-transform:uppercase;letter-spacing:0.5px;position:sticky;top:0;background:var(--bg2);}
+.ref-table tr:hover{background:rgba(255,255,255,0.02);}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:6px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:3px;}
+::-webkit-scrollbar-thumb:hover{background:var(--dim);}
+
+/* Responsive */
+@media(max-width:768px){
+  .sidebar{position:fixed;left:-240px;top:48px;bottom:0;z-index:250;width:240px;transition:left .3s;}
+  .sidebar.open{left:0;}
+  .sidebar-toggle{display:block;}
+  .main-content{padding:16px 16px 80px;}
+  .card-header h2{font-size:17px;}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══ TOP BAR ═══ -->
+<div class="topbar">
+  <div class="logo">🧠 LLM Master Course</div>
+  <div class="search-box">
+    <input type="text" id="searchInput" placeholder="Search concepts..." oninput="filterConcepts(this.value)">
+  </div>
+  <div class="top-stats">
+    <span>⭐ Score: <span class="score-val" id="totalScore">0</span></span>
+    <span>✅ Learned: <span class="learned-val" id="learnedCount">0</span>/38</span>
+  </div>
+</div>
+
+<!-- ═══ SIDEBAR TOGGLE (mobile) ═══ -->
+<div class="sidebar-toggle" onclick="document.querySelector('.sidebar').classList.toggle('open')">☰</div>
+
+<!-- ═══ LAYOUT ═══ -->
+<div class="layout">
+
+<!-- ═══ SIDEBAR ═══ -->
+<div class="sidebar">
+  <div class="sidebar-header">
+    <h3>Progress</h3>
+    <div class="progress-wrap"><div class="progress-fill" id="progressFill"></div></div>
+    <div class="progress-text" id="progressText">0 / 38 concepts</div>
+  </div>
+  <div class="sidebar-scroll">
+
+    <!-- Level 1 -->
+    <div class="level-group">
+      <div class="level-toggle" onclick="toggleLevel(this)">
+        <span class="arrow open">▶</span>
+        <span class="lvl-badge l1">L1</span>
+        <span>Baby</span>
+      </div>
+      <div class="level-items open">
+        <div class="nav-item" onclick="scrollTo_('c1')"><span class="nav-num">1</span><span class="nav-check" id="nav-c1">○</span>Training Data</div>
+        <div class="nav-item" onclick="scrollTo_('c2')"><span class="nav-num">2</span><span class="nav-check" id="nav-c2">○</span>Char Tokenizer</div>
+        <div class="nav-item" onclick="scrollTo_('c3')"><span class="nav-num">3</span><span class="nav-check" id="nav-c3">○</span>Embeddings</div>
+        <div class="nav-item" onclick="scrollTo_('c4')"><span class="nav-num">4</span><span class="nav-check" id="nav-c4">○</span>Softmax &amp; Temp</div>
+        <div class="nav-item" onclick="scrollTo_('c5')"><span class="nav-num">5</span><span class="nav-check" id="nav-c5">○</span>Self-Attention</div>
+        <div class="nav-item" onclick="scrollTo_('c6')"><span class="nav-num">6</span><span class="nav-check" id="nav-c6">○</span>Multi-Head Attn</div>
+        <div class="nav-item" onclick="scrollTo_('c7')"><span class="nav-num">7</span><span class="nav-check" id="nav-c7">○</span>Feed-Forward</div>
+        <div class="nav-item" onclick="scrollTo_('c8')"><span class="nav-num">8</span><span class="nav-check" id="nav-c8">○</span>Transformer Block</div>
+        <div class="nav-item" onclick="scrollTo_('c9')"><span class="nav-num">9</span><span class="nav-check" id="nav-c9">○</span>Cross-Entropy</div>
+        <div class="nav-item" onclick="scrollTo_('c10')"><span class="nav-num">10</span><span class="nav-check" id="nav-c10">○</span>Backpropagation</div>
+      </div>
+    </div>
+
+    <!-- Level 2 -->
+    <div class="level-group">
+      <div class="level-toggle" onclick="toggleLevel(this)">
+        <span class="arrow">▶</span>
+        <span class="lvl-badge l2">L2</span>
+        <span>Teenage</span>
+      </div>
+      <div class="level-items">
+        <div class="nav-item" onclick="scrollTo_('c11')"><span class="nav-num">11</span><span class="nav-check" id="nav-c11">○</span>BPE Tokenizer</div>
+        <div class="nav-item" onclick="scrollTo_('c12')"><span class="nav-num">12</span><span class="nav-check" id="nav-c12">○</span>Special Tokens</div>
+        <div class="nav-item" onclick="scrollTo_('c13')"><span class="nav-num">13</span><span class="nav-check" id="nav-c13">○</span>Dropout</div>
+        <div class="nav-item" onclick="scrollTo_('c14')"><span class="nav-num">14</span><span class="nav-check" id="nav-c14">○</span>GELU Activation</div>
+        <div class="nav-item" onclick="scrollTo_('c15')"><span class="nav-num">15</span><span class="nav-check" id="nav-c15">○</span>KV-Cache</div>
+        <div class="nav-item" onclick="scrollTo_('c16')"><span class="nav-num">16</span><span class="nav-check" id="nav-c16">○</span>LR Scheduling</div>
+        <div class="nav-item" onclick="scrollTo_('c17')"><span class="nav-num">17</span><span class="nav-check" id="nav-c17">○</span>Top-p Sampling</div>
+        <div class="nav-item" onclick="scrollTo_('c18')"><span class="nav-num">18</span><span class="nav-check" id="nav-c18">○</span>Perplexity</div>
+        <div class="nav-item" onclick="scrollTo_('c19')"><span class="nav-num">19</span><span class="nav-check" id="nav-c19">○</span>Overfitting</div>
+      </div>
+    </div>
+
+    <!-- Level 3 -->
+    <div class="level-group">
+      <div class="level-toggle" onclick="toggleLevel(this)">
+        <span class="arrow">▶</span>
+        <span class="lvl-badge l3">L3</span>
+        <span>Adult</span>
+      </div>
+      <div class="level-items">
+        <div class="nav-item" onclick="scrollTo_('c20')"><span class="nav-num">20</span><span class="nav-check" id="nav-c20">○</span>RoPE</div>
+        <div class="nav-item" onclick="scrollTo_('c21')"><span class="nav-num">21</span><span class="nav-check" id="nav-c21">○</span>Grouped-Query Attn</div>
+        <div class="nav-item" onclick="scrollTo_('c22')"><span class="nav-num">22</span><span class="nav-check" id="nav-c22">○</span>SwiGLU</div>
+        <div class="nav-item" onclick="scrollTo_('c23')"><span class="nav-num">23</span><span class="nav-check" id="nav-c23">○</span>Flash Attention</div>
+        <div class="nav-item" onclick="scrollTo_('c24')"><span class="nav-num">24</span><span class="nav-check" id="nav-c24">○</span>Context Window</div>
+        <div class="nav-item" onclick="scrollTo_('c25')"><span class="nav-num">25</span><span class="nav-check" id="nav-c25">○</span>Beam Search</div>
+        <div class="nav-item" onclick="scrollTo_('c26')"><span class="nav-num">26</span><span class="nav-check" id="nav-c26">○</span>RMSNorm</div>
+        <div class="nav-item" onclick="scrollTo_('c27')"><span class="nav-num">27</span><span class="nav-check" id="nav-c27">○</span>Mixed Precision</div>
+        <div class="nav-item" onclick="scrollTo_('c28')"><span class="nav-num">28</span><span class="nav-check" id="nav-c28">○</span>RLHF</div>
+        <div class="nav-item" onclick="scrollTo_('c29')"><span class="nav-num">29</span><span class="nav-check" id="nav-c29">○</span>Weight Tying</div>
+      </div>
+    </div>
+
+    <!-- Level 4 -->
+    <div class="level-group">
+      <div class="level-toggle" onclick="toggleLevel(this)">
+        <span class="arrow">▶</span>
+        <span class="lvl-badge l4">L4</span>
+        <span>Expert</span>
+      </div>
+      <div class="level-items">
+        <div class="nav-item" onclick="scrollTo_('c30')"><span class="nav-num">30</span><span class="nav-check" id="nav-c30">○</span>Mixture of Experts</div>
+        <div class="nav-item" onclick="scrollTo_('c31')"><span class="nav-num">31</span><span class="nav-check" id="nav-c31">○</span>LoRA</div>
+        <div class="nav-item" onclick="scrollTo_('c32')"><span class="nav-num">32</span><span class="nav-check" id="nav-c32">○</span>Quantization</div>
+        <div class="nav-item" onclick="scrollTo_('c33')"><span class="nav-num">33</span><span class="nav-check" id="nav-c33">○</span>Scaling Laws</div>
+        <div class="nav-item" onclick="scrollTo_('c34')"><span class="nav-num">34</span><span class="nav-check" id="nav-c34">○</span>Speculative Decoding</div>
+        <div class="nav-item" onclick="scrollTo_('c35')"><span class="nav-num">35</span><span class="nav-check" id="nav-c35">○</span>DPO</div>
+        <div class="nav-item" onclick="scrollTo_('c36')"><span class="nav-num">36</span><span class="nav-check" id="nav-c36">○</span>RAG</div>
+        <div class="nav-item" onclick="scrollTo_('c37')"><span class="nav-num">37</span><span class="nav-check" id="nav-c37">○</span>Hallucination</div>
+        <div class="nav-item" onclick="scrollTo_('c38')"><span class="nav-num">38</span><span class="nav-check" id="nav-c38">○</span>Full Architecture</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══ MAIN CONTENT ═══ -->
+<div class="main-content" id="mainContent">
+
+<!-- ════════════════════════════════════════════ -->
+<!-- LEVEL 1: BABY (Concepts 1-10)               -->
+<!-- ════════════════════════════════════════════ -->
+
+<!-- C1: Training Data -->
+<div class="concept-card" id="c1" data-level="1" data-name="Training Data">
+  <div class="card-header">
+    <h2>1. Training Data</h2>
+    <span class="level-badge lvl-badge l1">Level 1 — Baby</span>
+  </div>
+  <div class="card-body">
+    <div class="explanation" style="border-left-color:var(--l1);">
+      🍳 <strong>Cooking Analogy:</strong> Training data is the recipe book your LLM reads millions of times. If you feed it Shakespeare, it learns poetry; if you feed it code, it learns programming. The quality and diversity of data determines what the model can do — garbage in, garbage out!
+    </div>
+    <div class="code-block"><span class="cm"># Training data = text the model learns from</span>
+<span class="kw">def</span> <span class="fn">get_training_data</span>():
+    text = <span class="str">"The cat sat on the mat. The cat loved the garden."</span>
+    <span class="kw">return</span> text
+
+text = get_training_data()
+<span class="fn">print</span>(<span class="str">f"Chars: <span class="kw">{</span>len(text)<span class="kw">}</span>, Unique: <span class="kw">{</span>len(set(text))<span class="kw">}</span>"</span>)</div>
+    <div class="interactive-area">
+      <h4><span class="ia-badge">INTERACTIVE</span> Word Frequency Explorer</h4>
+      <p style="font-size:12px;color:var(--dim);margin-bottom:8px;">Click words to count them in the story:</p>
+      <div id="c1-words" style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px;"></div>
+      <div id="c1-counts" class="output-box" style="min-height:30px;font-size:11px;">Click words above...</div>
+    </div>
+    <div class="quiz-box" id="q1">
+      <div class="quiz-title"><span class="quiz-badge">QUIZ</span> What determines an LLM's capabilities?</div>
+      <div class="quiz-options">
+        <div class="quiz-opt" onclick="checkQuiz('q1',this,false)">A) The programming language used</div>
+        <div class="quiz-opt" onclick="checkQuiz('q1',this,true)">B) The quality and diversity of training data</div>
+        <div class="quiz-opt" onclick="checkQuiz('q1',this,false)">C) The color of the terminal</div>
+      </div>
+      <div class="quiz-feedback" id="q1-fb"></div>
+    </div>
+    <div class="learn-check">
+      <input type="checkbox" id="learn-c1" onchange="toggleLearned('c1')">
+      <label for="learn-c1">Mark as learned</label>
+    </div>
+  </div>
+</div>
+
+<!-- C2: Character Tokenizer -->
+<div class="concept-card" id="c2" data-level="1" data-name="Character Tokenizer">
+  <div class="card-header">
+    <h2>2. Character Tokenizer</h2>
+    <span class="level-badge lvl-badge l1">Level 1 — Baby</span>
+  </div>
+  <div class="card-body">
+    <div class="explanation" style="border-left-color:var(--l1);">
+      🍕 <strong>Pizza Analogy:</strong> You can't eat a whole pizza at once — you slice it! A tokenizer slices text into pieces (tokens) and gives each piece a number. Character-level tokenization is the simplest: each letter gets its own ID. "cat" → [c=2, a=0, t=19].
+    </div>
+    <div class="code-block"><span class="cm"># Character tokenizer: each letter = one token</span>
+chars = <span class="fn">sorted</span>(<span class="fn">set</span>(text))  <span class="cm"># unique chars</span>
+char_to_idx = {ch: i <span class="kw">for</span> i, ch <span class="kw">in</span> <span class="fn">enumerate</span>(chars)}
+
+<span class="kw">def</span> <span class="fn">encode</span>(s): <span class="kw">return</span> [char_to_idx[c] <span class="kw">for</span> c <span class="kw">in</span> s]
+<span class="kw">def</span> <span class="fn">decode</span>(ids): <span class="kw">return</span> <span class="str">""</span>.join(chars[i] <span class="kw">for</span> i <span class="kw">in</span> ids)
+
+<span class="fn">print</span>(encode(<span class="str">"cat"</span>))  <span class="cm"># [13, 11, 29]</span></div>
+    <div class="interactive-area">
+      <h4><span class="ia-badge">INTERACTIVE</span> Live Tokenizer</h4>
+      <input type="text" id="c2-input" placeholder="Type a word: cat, hello..." maxlength="15"
+        style="width:100%;padding:8px 12px;border-radius:8px;border:1px solid var(--bg4);background:var(--code-bg);color:var(--text);font-family:'Fira Code',monospace;font-size:14px;outline:none;margin-bottom:8px;"
+        oninput="tokenizeC2()">
+      <div id="c2-result" style="display:flex;flex-wrap:wrap;gap:6px;min-height:40px;"></div>
+    </div>
+    <div class="quiz-box" id="q2">
+      <div class="quiz-title"><span class="quiz-badge">QUIZ</span> If vocab has 34 chars, what's the ID range?</div>
+      <div class="quiz-options">
+        <div class="quiz-opt" onclick="checkQuiz('q2',this,true)">A) 0 to 33</div>
+        <div class="quiz-opt" onclick="checkQuiz('q2',this,false)">B) 1 to 34</div>
+        <div class="quiz-opt" onclick="checkQuiz('q2',this,false)">C) 0 to 34</div>
+      </div>
+      <div class="quiz-feedback" id="q2-fb"></div>
+    </div>
+    <div class="learn-check">
+      <input type="checkbox" id="learn-c2" onchange="toggleLearned('c2')">
+      <label for="learn-c2">Mark as learned</label>
+    </div>
+  </div>
+</div>
+
+<!-- C3: Embeddings -->
+<div class="concept-card" id="c3" data-level="1" data-name="Embeddings">
+  <div class="card-header">
+    <h2>3. Embeddings (Token + Position)</h2>
+    <span class="level-badge lvl-badge l1">Level 1 — Baby</span>
+  </div>
+  <div class="card-body">
+    <div class="explanation" style="border-left-color:var(--l1);">
+      📍 <strong>GPS Analogy:</strong> Token embeddings give each word a "meaning coordinate" in a high-dimensional space — similar words land nearby. Position embeddings add a "timestamp" so the model knows word ORDER. Together: "what it is" + "where it is."
+    </div>
+    <div class="code-block"><span class="cm"># Token embedding: what the token means</span>
+tok_emb = nn.Embedding(vocab_size, n_embd)  <span class="cm"># [34 × 64]</span>
+<span class="cm"># Position embedding: where it sits in the sequence</span>
+pos_emb = nn.Embedding(block_size, n_embd)  <span class="cm"># [32 × 64]</span>
+
+<span class="cm"># Combined: meaning + position</span>
+x = tok_emb(tokens) + pos_emb(positions)</div>
+    <div class="interactive-area">
+      <h4><span class="ia-badge">INTERACTIVE</span> Embedding Space (2D)</h4>
+      <canvas id="c3-canvas" width="360" height="200" style="width:100%;background:var(--bg4);"></canvas>
+      <p style="font-size:11px;color:var(--dim);margin-top:4px;">Similar words cluster together in embedding space. Click to see distances.</p>
+    </div>
+    <div class="quiz-box" id="q3">
+      <div class="quiz-title"><span class="quiz-badge">QUIZ</span> Why do we need POSITION embeddings?</div>
+      <div class="quiz-options">
+        <div class="quiz-opt" onclick="checkQuiz('q3',this,false)">A) To make the model faster</div>
+        <div class="quiz-opt" onclick="checkQuiz('q3',this,true)">B) Without them, "cat sat" and "sat cat" look identical</div>
+        <div class="quiz-opt" onclick="checkQuiz('q3',this,false)">C) They're optional and not really needed</div>
+      </div>
+      <div class="quiz-feedback" id="q3-fb"></div>
+    </div>
+    <div class="learn-check">
+      <input type="checkbox" id="learn-c3" onchange="toggleLearned('c3')">
+      <label for="learn-c3">Mark as learned</label>
+    </div>
+  </div>
+</div>
+
+<!-- C4: Softmax & Temperature (GAP) -->
+<div class="concept-card" id="c4" data-level="1" data-name="Softmax Temperature">
+  <div class="card-header">
+    <h2>4. Softmax & Temperature</h2>
+    <span class="level-badge lvl-badge l1">Level 1 — Baby</span>
+    <span class="gap-badge">GAP FILLER</span>
+  </div>
+  <div class="card-body">
+    <div class="explanation" style="border-left-color:var(--l1);">
+      🌡️ <strong>Thermostat Analogy:</strong> Softmax converts raw scores (logits) into probabilities that sum to 1. Temperature controls "creativity": low temp (0.1) = very confident/predictable, high temp (2.0) = wild and random. It's the creativity dial on your LLM!
+    </div>
+    <div class="code-block"><span class="cm"># Softmax: raw scores → probabilities</span>
+<span class="kw">def</span> <span class="fn">softmax</span>(logits, temperature=<span class="num">1.0</span>):
+    scaled = logits / temperature  <span class="cm"># temperature scaling</span>
+    exps = np.exp(scaled - np.max(scaled))
+    <span class="kw">return</span> exps / exps.sum()
+
+<span class="cm"># Low temp → confident: [0.95, 0.03, 0.02]</span>
+<span class="cm"># High temp → spread:   [0.40, 0.35, 0.25]</span></div>
+    <div class="interactive-area">
+      <h4><span class="ia-badge">INTERACTIVE</span> Temperature Slider</h4>
+      <div class="slider-row">
+        <span>Temp:</span>
+        <input type="range" id="c4-temp" min="1" max="30" value="10" oninput="updateTemp()">
+        <span class="slider-val" id="c4-temp-val">1.0</span>
+      </div>
+      <div id="c4-bars" style="margin-top:8px;"></div>
+    </div>
+    <div class="quiz-box" id="q4">
+      <div class="quiz-title"><span class="quiz-badge">QUIZ</span> Temperature = 0.1 makes the model...</div>
+      <div class="quiz-options">
+        <div class="quiz-opt" onclick="checkQuiz('q4',this,true)">A) Very confident — almost always picks the top choice</div>
+        <div class="quiz-opt" onclick="checkQuiz('q4',this,false)">B) Very random and creative</div>
+        <div class="quiz-opt" onclick="checkQuiz('q4',this,false)">C) Completely frozen — outputs nothing</div>
+      </div>
+      <div class="quiz-feedback" id="q4-fb"></div>
+    </div>
+    <div class="learn-check">
+      <input type="checkbox" id="learn-c4" onchange="toggleLearned('c4')">
+      <label for="learn-c4">Mark as learned</label>
+    </div>
+  </div>
+</div>
+
+<!-- C5: Self-Attention -->
+<div class="concept-card" id="c5" data-level="1" data-name="Self-Attention">
+  <div class="card-header">
+    <h2>5. Self-Attention (Q, K, V)</h2>
+    <span class="level-badge lvl-badge l1">Level 1 — Baby</span>
+  </div>
+  <div class="card-body">
+    <div class="explanation" style="border-left-color:var(--l1);">
+      🔍 <strong>Library Analogy:</strong> Query (Q) = your question, Key (K) = book titles on the shelf, Value (V) = book contents. You compare your question to each title (Q·K), find the best matches, then read those books (weighted sum of V). That's attention!
+    </div>
+    <div class="code-block"><span class="cm"># Self-Attention: every token looks at every other token</span>
+Q = x @ W_q  <span class="cm"># What am I looking for?</span>
+K = x @ W_k  <span class="cm"># What do I contain?</span>
+V = x @ W_v  <span class="cm"># What info do I have?</span>
+
+scores = (Q @ K.T) / sqrt(d_k)  <span class="cm"># compatibility</span>
+weights = softmax(scores)        <span class="cm"># normalize</span>
+output = weights @ V             <span class="cm"># weighted sum</span></div>
+    <div class="interactive-area">
+      <h4><span class="ia-badge">INTERACTIVE</span> Attention Heatmap</h4>
+      <p style="font-size:11px;color:var(--dim);margin-bottom:6px;">Click cells to see which words attend to which:</p>
+      <canvas id="c5-canvas" width="300" height="300" style="width:100%;max-width:300px;background:var(--bg4);cursor:pointer;" onclick="clickAttnMap(event)"></canvas>
+      <div id="c5-info" class="output-box" style="font-size:11px;">Click a cell to see attention weight</div>
+    </div>
+    <div class="quiz-box" id="q5">
+      <div class="quiz-title"><span class="quiz-badge">QUIZ</span> In "The cat sat on the mat", what does "sat" attend to most?</div>
+      <div class="quiz-options">
+        <div class="quiz-opt" onclick="checkQuiz('q5',this,true)">A) "cat" — because it's the subject doing the sitting</div>
+        <div class="quiz-opt" onclick="checkQuiz('q5',this,false)">B) "the" — because it appears most often</div>
+        <div class="quiz-opt" onclick="checkQuiz('q5',this,false)">C) "mat" — because it rhymes</div>
+      </div>
+      <div class="quiz-feedback" id="q5-fb"></div>
+    </div>
+    <div class="learn-check">
+      <input type="checkbox" id="learn-c5" onchange="toggleLearned('c5')">
+      <label for="learn-c5">Mark as learned</label>
+    </div>
+  </div>
+</div>
+
+<!-- C6: Multi-Head Attention -->
+<div class="concept-card" id="c6" data-level="1" data-name="Multi-Head Attention">
+  <div class="card-header">
+    <h2>6. Multi-Head Attention</h2>
+    <span class="level-badge lvl-badge l1">Level 1 — Baby</span>
+  </div>
+  <div class="card-body">
+    <div class="explanation" style="border-left-color:var(--l1);">
+      👀 <strong>Committee Analogy:</strong> One attention head might focus on grammar, another on meaning, another on position. Multi-head attention runs several attention operations in parallel — like a committee where each member watches for different things, then they combine their findings.
+    </div>
+    <div class="code-block"><span class="cm"># Multi-Head: run attention N times in parallel</span>
+n_heads = <span class="num">4</span>
+head_size = n_embd // n_heads  <span class="cm"># 64/4 = 16 each</span>
+
+heads = [SelfAttention(head_size) <span class="kw">for</span> _ <span class="kw">in</span> <span class="fn">range</span>(n_heads)]
+out = torch.cat([h(x) <span class="kw">for</span> h <span class="kw">in</span> heads], dim=-<span class="num">1</span>)
+out = W_o(out)  <span class="cm"># project back to n_embd</span></div>
+    <div class="interactive-area">
+      <h4><span class="ia-badge">INTERACTIVE</span> Head Specialization</h4>
+      <p style="font-size:12px;margin-bottom:8px;">Each head learns different patterns. Click to see what each focuses on:</p>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;" id="c6-heads">
+        <div class="btn btn-primary" onclick="showHead(0)" style="font-size:11px;text-align:center;">Head 1<br><small>Grammar</small></div>
+        <div class="btn" onclick="showHead(1)" style="font-size:11px;text-align:center;background:var(--bg4);">Head 2<br><small>Position</small></div>
+        <div class="btn" onclick="showHead(2)" style="font-size:11px;text-align:center;background:var(--bg4);">Head 3<br><small>Meaning</small></div>
+        <div class="btn" onclick="showHead(3)" style="font-size:11px;text-align:center;background:var(--bg4);">Head 4<br><small>Syntax</small></div>
+      </div>
+      <div id="c6-info" class="output-box" style="font-size:11px;margin-top:8px;">Head 1 focuses on grammatical relationships: subject→verb, adjective→noun</div>
+    </div>
+    <div class="quiz-box" id="q6">
+      <div class="quiz-title"><span class="quiz-badge">QUIZ</span> Why use 4 small heads instead of 1 big one?</div>
+      <div class="quiz-options">
+        <div class="quiz-opt" onclick="checkQuiz('q6',this,false)">A) It's faster to compute</div>
+        <div class="quiz-opt" onclick="checkQuiz('q6',this,true)">B) Each head can learn different patterns (grammar, meaning, etc.)</div>
+        <div class="quiz-opt" onclick="checkQuiz('q6',this,false)">C) It uses less memory</div>
+      </div>
+      <div class="quiz-feedback" id="q6-fb"></div>
+    </div>
+    <div class="learn-check">
+      <input type="checkbox" id="learn-c6" onchange="toggleLearned('c6')">
+      <label for="learn-c6">Mark as learned</label>
+    </div>
+  </div>
+</div>
+
+<!-- C7: Feed-Forward Network -->
+<div class="concept-card" id="c7" data-level="1" data-name="Feed-Forward Network">
+  <div class="card-header">
+    <h2>7. Feed-Forward Network</h2>
+    <span class="level-badge lvl-badge l1">Level 1 — Baby</span>
+  </div>
+  <div class="card-body">
+    <div class="explanation" style="border-left-color:var(--l1);">
+      🧮 <strong>Thinking Analogy:</strong> After attention gathers information from other tokens, the feed-forward network "thinks" about it. It expands the data to a bigger space (4× wider), applies a non-linear activation, then compresses back. This is where the model stores learned "facts."
+    </div>
+    <div class="code-block"><span class="cm"># Feed-Forward: expand → activate → compress</span>
+<span class="kw">class</span> <span class="cls">FeedForward</span>(nn.Module):
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, n_embd):
+        self.net = nn.Sequential(
+            nn.Linear(n_embd, <span class="num">4</span> * n_embd),  <span class="cm"># expand 4×</span>
+            nn.ReLU(),                      <span class="cm"># non-linearity</span>
+            nn.Linear(<span class="num">4</span> * n_embd, n_embd),  <span class="cm"># compress back</span>
+        )</div>
+    <div class="interactive-area">
+      <h4><span class="ia-badge">INTERACTIVE</span> Expand & Compress</h4>
+      <p style="font-size:12px;margin-bottom:8px;">Watch data flow: 64 → 256 → 64 dimensions</p>
+      <div style="display:flex;align-items:center;justify-content:center;gap:8px;padding:10px;">
+        <div style="width:30px;height:60px;background:var(--l1);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#000;">64</div>
+        <div style="font-size:18px;color:var(--dim);">→</div>
+        <div style="width:80px;height:100px;background:var(--green);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#000;" id="c7-mid">256<br>ReLU</div>
+        <div style="font-size:18px;color:var(--dim);">→</div>
+        <div style="width:30px;height:60px;background:var(--l1);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#000;">64</div>
+      </div>
+      <button class="btn btn-primary" onclick="animateFF()" style="font-size:11px;">Animate Flow ▶</button>
+    </div>
+    <div class="quiz-box" id="q7">
+      <div class="quiz-title"><span class="quiz-badge">QUIZ</span> Why expand to 4× then compress back?</div>
+      <div class="quiz-options">
+        <div class="quiz-opt" onclick="checkQuiz('q7',this,true)">A) The larger space lets the model learn complex patterns before summarizing</div>
+        <div class="quiz-opt" onclick="checkQuiz('q7',this,false)">B) It's just tradition, no real reason</div>
+        <div class="quiz-opt" onclick="checkQuiz('q7',this,false)">C) To use more GPU memory</div>
+      </div>
+      <div class="quiz-feedback" id="q7-fb"></div>
+    </div>
+    <div class="learn-check">
+      <input type="checkbox" id="learn-c7" onchange="toggleLearned('c7')">
+      <label for="learn-c7">Mark as learned</label>
+    </div>
+  </div>
+</div>
+
+<!-- C8: Transformer Block -->
+<div class="concept-card" id="c8" data-level="1" data-name="Transformer Block">
+  <div class="card-header">
+    <h2>8. Transformer Block</h2>
+    <span class="level-badge lvl-badge l1">Level 1 — Baby</span>
+  </div>
+  <div class="card-body">
+    <div class="explanation" style="border-left-color:var(--l1);">
+      🧱 <strong>LEGO Analogy:</strong> A Transformer block = Attention + Feed-Forward + Residual connections + Layer Norm. Stack these blocks like LEGO bricks: GPT-2 has 12, LLaMA-7B has 32, GPT-4 has ~120. Each block refines the representation a little more.
+    </div>
+    <div class="code-block"><span class="cm"># One Transformer Block</span>
+<span class="kw">class</span> <span class="cls">TransformerBlock</span>(nn.Module):
+    <span class="kw">def</span> <span class="fn">forward</span>(self, x):
+        x = x + self.attention(self.norm1(x))  <span class="cm"># attend + residual</span>
+        x = x + self.ff(self.norm2(x))         <span class="cm"># think + residual</span>
+        <span class="kw">return</span> x
+
+<span class="cm"># Stack N blocks: Baby=4, GPT-2=12, LLaMA=32</span>
+blocks = nn.Sequential(*[TransformerBlock() <span class="kw">for</span> _ <span class="kw">in</span> <span class="fn">range</span>(<span class="num">4</span>)])</div>
+    <div class="interactive-area">
+      <h4><span class="ia-badge">INTERACTIVE</span> Block Stacker</h4>
+      <div class="slider-row">
+        <span>Blocks:</span>
+        <input type="range" id="c8-blocks" min="1" max="12" value="4" oninput="updateBlocks()">
+        <span class="slider-val" id="c8-val">4</span>
+      </div>
+      <div id="c8-stack" style="display:flex;flex-direction:column-reverse;gap:3px;align-items:center;margin:8px 0;"></div>
+      <div id="c8-info" class="output-box" style="font-size:11px;"></div>
+    </div>
+    <div class="quiz-box" id="q8">
+      <div class="quiz-title"><span class="quiz-badge">QUIZ</span> What does the residual connection (x + ...) do?</div>
+      <div class="quiz-options">
+        <div class="quiz-opt" onclick="checkQuiz('q8',this,false)">A) Makes the model bigger</div>
+        <div class="quiz-opt" onclick="checkQuiz('q8',this,true)">B) Lets gradients flow easily through deep networks (prevents vanishing gradients)</div>
+        <div class="quiz-opt" onclick="checkQuiz('q8',this,false)">C) Doubles the output size</div>
+      </div>
+      <div class="quiz-feedback" id="q8-fb"></div>
+    </div>
+    <div class="learn-check">
+      <input type="checkbox" id="learn-c8" onchange="toggleLearned('c8')">
+      <label for="learn-c8">Mark as learned</label>
+    </div>
+  </div>
+</div>
+
+<!-- C9: Cross-Entropy Loss (GAP) -->
+<div class="concept-card" id="c9" data-level="1" data-name="Cross-Entropy Loss">
+  <div class="card-header">
+    <h2>9. Cross-Entropy Loss</h2>
+    <span class="level-badge lvl-badge l1">Level 1 — Baby</span>
+    <span class="gap-badge">GAP FILLER</span>
+  </div>
+  <div class="card-body">
+    <div class="explanation" style="border-left-color:var(--l1);">
+      🎯 <strong>Report Card Analogy:</strong> Cross-entropy loss is the model's "grade" — it measures how wrong the predictions are. If the model predicts the right next token with 90% confidence, loss is low (good!). If it's only 1% confident, loss is high (bad!). Training = minimizing this grade.
+    </div>
+    <div class="code-block"><span class="cm"># Cross-Entropy: -log(probability of correct answer)</span>
+<span class="cm"># Correct token has prob 0.9 → loss = -log(0.9) = 0.105</span>
+<span class="cm"># Correct token has prob 0.01 → loss = -log(0.01) = 4.6!</span>
+
+loss = F.cross_entropy(logits, targets)
+<span class="cm"># logits: model's raw predictions [batch, vocab_size]</span>
+<span class="cm"># targets: actual next tokens [batch]</span></div>
+    <div class="interactive-area">
+      <h4><span class="ia-badge">INTERACTIVE</span> Loss Calculator</h4>
+      <div class="slider-row">
+        <span>Confidence:</span>
+        <input type="range" id="c9-conf" min="1" max="99" value="50" oninput="updateLoss()">
+        <span class="slider-val" id="c9-conf-val">50%</span>
+      </div>
+      <div id="c9-loss" style="text-align:center;font-size:28px;font-weight:900;margin:8px 0;color:var(--yellow);"></div>
+      <div id="c9-bar" style="height:20px;background:var(--bg4);border-radius:10px;overflow:hidden;"><div id="c9-bar-fill" style="height:100%;border-radius:10px;transition:all .3s;"></div></div>
+    </div>
+    <div class="quiz-box" id="q9">
+      <div class="quiz-title"><span class="quiz-badge">QUIZ</span> Lower cross-entropy loss means...</div>
+      <div class="quiz-options">
+        <div class="quiz-opt" onclick="checkQuiz('q9',this,true)">A) The model is more confident about the correct answer</div>
+        <div class="quiz-opt" onclick="checkQuiz('q9',this,false)">B) The model is more confused</div>
+        <div class="quiz-opt" onclick="checkQuiz('q9',this,false)">C) The model needs more data</div>
+      </div>
+      <div class="quiz-feedback" id="q9-fb"></div>
+    </div>
+    <div class="learn-check">
+      <input type="checkbox" id="learn-c9" onchange="toggleLearned('c9')">
+      <label for="learn-c9">Mark as learned</label>
+    </div>
+  </div>
+</div>
+
+<!-- C10: Backpropagation (GAP) -->
+<div class="concept-card" id="c10" data-level="1" data-name="Backpropagation">
+  <div class="card-header">
+    <h2>10. Backpropagation</h2>
+    <span class="level-badge lvl-badge l1">Level 1 — Baby</span>
+    <span class="gap-badge">GAP FILLER</span>
+  </div>
+  <div class="card-body">
+    <div class="explanation" style="border-left-color:var(--l1);">
+      🏹 <strong>Archery Analogy:</strong> You shoot an arrow (forward pass), see where it lands (compute loss), then adjust your aim (backward pass). Backpropagation calculates exactly how much each weight contributed to the error, then nudges them in the right direction. Repeat millions of times!
+    </div>
+    <div class="code-block"><span class="cm"># Training loop: forward → loss → backward → update</span>
+<span class="kw">for</span> epoch <span class="kw">in</span> <span class="fn">range</span>(<span class="num">1000</span>):
+    logits = model(x)                    <span class="cm"># forward pass</span>
+    loss = F.cross_entropy(logits, y)    <span class="cm"># compute loss</span>
+    loss.backward()                      <span class="cm"># backpropagation!</span>
+    optimizer.step()                     <span class="cm"># update weights</span>
+    optimizer.zero_grad()                <span class="cm"># reset gradients</span></div>
+    <div class="interactive-area">
+      <h4><span class="ia-badge">INTERACTIVE</span> Training Simulator</h4>
+      <p style="font-size:12px;margin-bottom:8px;">Click "Train" to watch loss decrease over epochs:</p>
+      <button class="btn btn-primary" onclick="trainSim()" id="c10-btn">Train 10 Epochs ▶</button>
+      <div style="display:flex;align-items:flex-end;gap:2px;height:80px;margin:10px 0;background:var(--bg4);border-radius:8px;padding:8px;" id="c10-bars"></div>
+      <div id="c10-info" class="output-box" style="font-size:11px;">Click Train to start...</div>
+    </div>
+    <div class="quiz-box" id="q10">
+      <div class="quiz-title"><span class="quiz-badge">QUIZ</span> What does loss.backward() compute?</div>
+      <div class="quiz-options">
+        <div class="quiz-opt" onclick="checkQuiz('q10',this,false)">A) The model's predictions</div>
+        <div class="quiz-opt" onclick="checkQuiz('q10',this,true)">B) Gradients — how much each weight should change</div>
+        <div class="quiz-opt" onclick="checkQuiz('q10',this,false)">C) The training data</div>
+      </div>
+      <div class="quiz-feedback" id="q10-fb"></div>
+    </div>
+    <div class="learn-check">
+      <input type="checkbox" id="learn-c10" onchange="toggleLearned('c10')">
+      <label for="learn-c10">Mark as learned</label>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════ -->
+<!-- LEVEL 2: TEENAGE (Concepts 11-19)           -->
+<!-- ════════════════════════════════════════════ -->
+
+<!-- C11: BPE Tokenizer -->
+<div class="concept-card" id="c11" data-level="2" data-name="BPE Tokenizer">
+  <div class="card-header">
+    <h2>11. BPE Tokenizer</h2>
+    <span class="level-badge lvl-badge l2">Level 2 — Teenage</span>
+  </div>
+  <div class="card-body">
+    <div class="explanation" style="border-left-color:var(--l2);">
+      📦 <strong>Compression Analogy:</strong> BPE (Byte-Pair Encoding) starts with individual characters, then repeatedly merges the most common pair. "t"+"h"→"th", "th"+"e"→"the". It's like ZIP compression for text — common patterns get shorter codes. GPT uses ~50,000 BPE tokens.
+    </div>
+    <div class="code-block"><span class="cm"># BPE: merge most frequent pairs iteratively</span>
+<span class="cm"># Start: ['l','o','w','e','r'] → freq of 'lo'=5, 'ow'=3</span>
+<span class="cm"># Merge 1: 'l'+'o' → 'lo'  → ['lo','w','e','r']</span>
+<span class="cm"># Merge 2: 'lo'+'w' → 'low' → ['low','e','r']</span>
+
+<span class="kw">def</span> <span class="fn">get_most_frequent_pair</span>(tokens):
+    pairs = Counter(zip(tokens, tokens[<span class="num">1</span>:]))
+    <span class="kw">return</span> pairs.most_common(<span class="num">1</span>)[<span class="num">0</span>][<span class="num">0</span>]</div>
+    <div class="interactive-area">
+      <h4><span class="ia-badge">INTERACTIVE</span> BPE Merge Simulator</h4>
+      <p style="font-size:12px;margin-bottom:8px;">Watch BPE merge character pairs step by step:</p>
+      <div id="c11-tokens" class="output-box" style="font-size:13px;">['l','o','w','e','r','_','l','o','w','e','s','t']</div>
+      <button class="btn btn-primary" onclick="bpeMerge()" style="margin-top:6px;font-size:11px;">Merge Next Pair ▶</button>
+      <div id="c11-info" style="font-size:11px;color:var(--dim);margin-top:4px;">Click to merge the most frequent pair</div>
+    </div>
+    <div class="quiz-box" id="q11">
+      <div class="quiz-title"><span class="quiz-badge">QUIZ</span> Why is BPE better than character-level tokenization?</div>
+      <div class="quiz-options">
+        <div class="quiz-opt" onclick="checkQuiz('q11',this,true)">A) Common words become single tokens, so sequences are shorter and more meaningful</div>
+        <div class="quiz-opt" onclick="checkQuiz('q11',this,false)">B) It uses less memory for the vocabulary</div>
+        <div class="quiz-opt" onclick="checkQuiz('q11',this,false)">C) It's simpler to implement</div>
+      </div>
+      <div class="quiz-feedback" id="q11-fb"></div>
+    </div>
+    <div class="learn-check">
+      <input type="checkbox" id="learn-c11" onchange="toggleLearned('c11')">
+      <label for="learn-c11">Mark as learned</label>
+    </div>
+  </div>
+</div>
+
+<!-- C12: Special Tokens (GAP) -->
+<div class="concept-card" id="c12" data-level="2" data-name="Special Tokens">
+  <div class="card-header">
+    <h2>12. Special Tokens (BOS, EOS, PAD)</h2>
+    <span class="level-badge lvl-badge l2">Level 2 — Teenage</span>
+    <span class="gap-badge">GAP FILLER</span>
+  </div>
+  <div class="card-body">
+    <div class="explanation" style="border-left-color:var(--l2);">
+      🚦 <strong>Traffic Signal Analogy:</strong> Special tokens are like traffic signals for the model. BOS (Begin of Sequence) = green light, "start here!" EOS (End of Sequence) = red light, "stop generating!" PAD = empty parking spots that fill batches to equal length. Without them, the model wouldn't know when to start or stop.
+    </div>
+    <div class="code-block"><span class="cm"># Special tokens give the model structure</span>
+BOS = <span class="str">"&lt;BOS&gt;"</span>  <span class="cm"># Begin of Sequence — "start here"</span>
+EOS = <span class="str">"&lt;EOS&gt;"</span>  <span class="cm"># End of Sequence — "stop here"</span>
+PAD = <span class="str">"&lt;PAD&gt;"</span>  <span class="cm"># Padding — fill to equal length</span>
+
+<span class="cm"># Example batch (padded to same length):</span>
+<span class="cm"># ["&lt;BOS&gt; the cat &lt;EOS&gt; &lt;PAD&gt; &lt;PAD&gt;"]</span>
+<span class="cm"># ["&lt;BOS&gt; the big dog sat &lt;EOS&gt;"]</span></div>
+    <div class="interactive-area">
+      <h4><span class="ia-badge">INTERACTIVE</span> Token Tagger</h4>
+      <p style="font-size:12px;margin-bottom:8px;">See how a sentence gets wrapped with special tokens:</p>
+      <input type="text" id="c12-input" placeholder="Type a sentence..." maxlength="30"
+        style="width:100%;padding:8px 12px;border-radius:8px;border:1px solid var(--bg4);background:var(--code-bg);color:var(--text);font-family:'Fira Code',monospace;font-size:13px;outline:none;"
+        oninput="updateSpecialTokens()" value="the cat sat">
+      <div id="c12-result" class="output-box" style="font-size:12px;margin-top:6px;"></div>
+    </div>
+    <div class="quiz-box" id="q12">
+      <div class="quiz-title"><span class="quiz-badge">QUIZ</span> Why do we need PAD tokens?</div>
+      <div class="quiz-options">
+        <div class="quiz-opt" onclick="checkQuiz('q12',this,false)">A) To make the text longer</div>
+        <div class="quiz-opt" onclick="checkQuiz('q12',this,true)">B) GPUs process batches — all sequences must be the same length</div>
+        <div class="quiz-opt" onclick="checkQuiz('q12',this,false)">C) To add extra meaning to the text</div>
+      </div>
+      <div class="quiz-feedback" id="q12-fb"></div>
+    </div>
+    <div class="learn-check">
+      <input type="checkbox" id="learn-c12" onchange="toggleLearned('c12')">
+      <label for="learn-c12">Mark as learned</label>
+    </div>
+  </div>
+</div>
+
+<!-- C13: Dropout -->
+<div class="concept-card" id="c13" data-level="2" data-name="Dropout">
+  <div class="card-header">
+    <h2>13. Dropout</h2>
+    <span class="level-badge lvl-badge l2">Level 2 — Teenage</span>
+  </div>
+  <div class="card-body">
+    <div class="explanation" style="border-left-color:var(--l2);">
+      🎲 <strong>Study Group Analogy:</strong> Dropout randomly "turns off" neurons during training (like randomly removing students from a study group). This forces the remaining neurons to be more robust — no single neuron can be a lazy freeloader. At test time, everyone participates.
+    </div>
+    <div class="code-block"><span class="cm"># Dropout: randomly zero out neurons during training</span>
+dropout = nn.Dropout(p=<span class="num">0.1</span>)  <span class="cm"># 10% chance to drop</span>
+
+<span class="cm"># Training: [0.5, 0.0, 0.3, 0.0, 0.8] (some zeroed)</span>
+<span class="cm"># Testing:  [0.5, 0.2, 0.3, 0.1, 0.8] (all active)</span>
+<span class="cm"># Surviving values scaled up by 1/(1-p) to compensate</span></div>
+    <div class="interactive-area">
+      <h4><span class="ia-badge">INTERACTIVE</span> Dropout Visualizer</h4>
+      <div class="slider-row">
+        <span>Drop rate:</span>
+        <input type="range" id="c13-rate" min="0" max="80" value="20" oninput="updateDropout()">
+        <span class="slider-val" id="c13-val">0.2</span>
+      </div>
+      <div id="c13-grid" style="display:grid;grid-template-columns:repeat(8,1fr);gap:4px;margin:8px 0;"></div>
+      <button class="btn btn-primary" onclick="updateDropout()" style="font-size:11px;">Re-roll 🎲</button>
+    </div>
+    <div class="quiz-box" id="q13">
+      <div class="quiz-title"><span class="quiz-badge">QUIZ</span> Is dropout active during inference (generation)?</div>
+      <div class="quiz-options">
+        <div class="quiz-opt" onclick="checkQuiz('q13',this,false)">A) Yes, always active</div>
+        <div class="quiz-opt" onclick="checkQuiz('q13',this,true)">B) No — only during training. At inference, all neurons are active</div>
+        <div class="quiz-opt" onclick="checkQuiz('q13',this,false)">C) It depends on the model size</div>
+      </div>
+      <div class="quiz-feedback" id="q13-fb"></div>
+    </div>
+    <div class="learn-check">
+      <input type="checkbox" id="learn-c13" onchange="toggleLearned('c13')">
+      <label for="learn-c13">Mark as learned</label>
+    </div>
+  </div>
+</div>
+
+<!-- C14: GELU Activation -->
+<div class="concept-card" id="c14" data-level="2" data-name="GELU Activation">
+  <div class="card-header">
+    <h2>14. GELU Activation</h2>
+    <span class="level-badge lvl-badge l2">Level 2 — Teenage</span>
+  </div>
+  <div class="card-body">
+    <div class="explanation" style="border-left-color:var(--l2);">
+      🚪 <strong>Smart Door Analogy:</strong> ReLU is a simple door: open (positive) or closed (negative). GELU is a smart door that opens gradually — slightly negative values can still peek through. This smooth transition helps gradients flow better and is used by GPT-2, BERT, and most modern LLMs.
+    </div>
+    <div class="code-block"><span class="cm"># ReLU: max(0, x) — hard cutoff at 0</span>
+<span class="cm"># GELU: x * Φ(x) — smooth, probabilistic gate</span>
+<span class="cm"># Φ(x) = cumulative distribution of normal dist.</span>
+
+<span class="kw">def</span> <span class="fn">gelu</span>(x):
+    <span class="kw">return</span> <span class="num">0.5</span> * x * (<span class="num">1</span> + torch.tanh(
+        math.sqrt(<span class="num">2</span>/math.pi) * (x + <span class="num">0.044715</span> * x**<span class="num">3</span>)))</div>
+    <div class="interactive-area">
+      <h4><span class="ia-badge">INTERACTIVE</span> ReLU vs GELU</h4>
+      <canvas id="c14-canvas" width="360" height="160" style="width:100%;background:var(--bg4);"></canvas>
+      <p style="font-size:10px;color:var(--dim);margin-top:4px;"><span style="color:var(--l1);">■</span> ReLU <span style="color:var(--l2);">■</span> GELU — notice GELU's smooth curve near 0</p>
+    </div>
+    <div class="quiz-box" id="q14">
+      <div class="quiz-title"><span class="quiz-badge">QUIZ</span> What happens to x = -0.5 in GELU vs ReLU?</div>
+      <div class="quiz-options">
+        <div class="quiz-opt" onclick="checkQuiz('q14',this,false)">A) Both output 0</div>
+        <div class="quiz-opt" onclick="checkQuiz('q14',this,true)">B) ReLU outputs 0, GELU outputs a small negative value (~-0.15)</div>
+        <div class="quiz-opt" onclick="checkQuiz('q14',this,false)">C) Both output -0.5</div>
+      </div>
+      <div class="quiz-feedback" id="q14-fb"></div>
+    </div>
+    <div class="learn-check">
+      <input type="checkbox" id="learn-c14" onchange="toggleLearned('c14')">
+      <label for="learn-c14">Mark as learned</label>
+    </div>
+  </div>
+</div>
+
+<!-- C15: KV-Cache -->
+<div class="concept-card" id="c15" data-level="2" data-name="KV-Cache">
+  <div class="card-header">
+    <h2>15. KV-Cache</h2>
+    <span class="level-badge lvl-badge l2">Level 2 — Teenage</span>
+  </div>
+  <div class="card-body">
+    <div class="explanation" style="border-left-color:var(--l2);">
+      📝 <strong>Notes Analogy:</strong> Without KV-Cache, the model re-reads the entire conversation every time it generates one token. With KV-Cache, it keeps notes (cached Keys and Values) from previous tokens and only computes the new token's Q, K, V. Like taking notes in class instead of re-reading the textbook every question!
+    </div>
+    <div class="code-block"><span class="cm"># Without cache: recompute K,V for ALL tokens each step</span>
+<span class="cm"># With cache: only compute K,V for the NEW token</span>
+
+<span class="cm"># Step 1: "The"      → compute K,V for [The]</span>
+<span class="cm"># Step 2: "The cat"  → reuse K,V for [The], compute for [cat]</span>
+<span class="cm"># Step 3: "The cat sat" → reuse [The,cat], compute [sat]</span>
+
+<span class="cm"># Speedup: O(n²) → O(n) per step!</span>
+cached_k = torch.cat([cached_k, new_k], dim=<span class="num">1</span>)</div>
+    <div class="interactive-area">
+      <h4><span class="ia-badge">INTERACTIVE</span> Cache Speedup Calculator</h4>
+      <div class="slider-row">
+        <span>Tokens:</span>
+        <input type="range" id="c15-tokens" min="1" max="50" value="10" oninput="updateKVCache()">
+        <span class="slider-val" id="c15-val">10</span>
+      </div>
+      <div style="display:flex;gap:10px;margin:8px 0;">
+        <div style="flex:1;text-align:center;padding:10px;background:var(--bg4);border-radius:8px;">
+          <div style="font-size:10px;color:var(--dim);">Without Cache</div>
+          <div id="c15-no" style="font-size:20px;font-weight:900;color:var(--red);"></div>
+        </div>
+        <div style="flex:1;text-align:center;padding:10px;background:var(--bg4);border-radius:8px;">
+          <div style="font-size:10px;color:var(--dim);">With Cache</div>
+          <div id="c15-yes" style="font-size:20px;font-weight:900;color:var(--green);"></div>
+        </div>
+      </div>
+    </div>
+    <div class="quiz-box" id="q15">
+      <div class="quiz-title"><span class="quiz-badge">QUIZ</span> What does KV-Cache store?</div>
+      <div class="quiz-options">
+        <div class="quiz-opt" onclick="checkQuiz('q15',this,true)">A) The Key and Value matrices from previous tokens</div>
+        <div class="quiz-opt" onclick="checkQuiz('q15',this,false)">B) The model weights</div>
+        <div class="quiz-opt" onclick="checkQuiz('q15',this,false)">C) The training data</div>
+      </div>
+      <div class="quiz-feedback" id="q15-fb"></div>
+    </div>
+    <div class="learn-check">
+      <input type="checkbox" id="learn-c15" onchange="toggleLearned('c15')">
+      <label for="learn-c15">Mark as learned</label>
+    </div>
+  </div>
+</div>
+
+<!-- C16: Learning Rate Scheduling -->
+<div class="concept-card" id="c16" data-level="2" data-name="Learning Rate Scheduling">
+  <div class="card-header">
+    <h2>16. Learning Rate Scheduling</h2>
+    <span class="level-badge lvl-badge l2">Level 2 — Teenage</span>
+  </div>
+  <div class="card-body">
+    <div class="explanation" style="border-left-color:var(--l2);">
+      🚗 <strong>Driving Analogy:</strong> Learning rate is your speed. Start slow (warmup — getting on the highway), go fast (peak learning), then slow down (cosine decay — approaching your destination). If you go too fast the whole time, you'll overshoot. Too slow, you'll never arrive.
+    </div>
+    <div class="code-block"><span class="cm"># Cosine LR schedule with warmup</span>
+<span class="kw">def</span> <span class="fn">get_lr</span>(step, warmup=<span class="num">100</span>, max_steps=<span class="num">1000</span>):
+    <span class="kw">if</span> step < warmup:
+        <span class="kw">return</span> max_lr * step / warmup  <span class="cm"># linear warmup</span>
+    progress = (step - warmup) / (max_steps - warmup)
+    <span class="kw">return</span> min_lr + <span class="num">0.5</span>*(max_lr-min_lr)*(
+        <span class="num">1</span> + math.cos(math.pi * progress))  <span class="cm"># cosine decay</span></div>
+    <div class="interactive-area">
+      <h4><span class="ia-badge">INTERACTIVE</span> LR Schedule Visualizer</h4>
+      <canvas id="c16-canvas" width="360" height="140" style="width:100%;background:var(--bg4);"></canvas>
+      <div class="slider-row">
+        <span>Warmup:</span>
+        <input type="range" id="c16-warmup" min="0" max="30" value="10" oninput="drawLRSchedule()">
+        <span class="slider-val" id="c16-val">10%</span>
+      </div>
+    </div>
+    <div class="quiz-box" id="q16">
+      <div class="quiz-title"><span class="quiz-badge">QUIZ</span> Why start with a warmup (low LR)?</div>
+      <div class="quiz-options">
+        <div class="quiz-opt" onclick="checkQuiz('q16',this,true)">A) Random initial weights need gentle updates to avoid instability</div>
+        <div class="quiz-opt" onclick="checkQuiz('q16',this,false)">B) To save electricity</div>
+        <div class="quiz-opt" onclick="checkQuiz('q16',this,false)">C) The GPU needs time to warm up physically</div>
+      </div>
+      <div class="quiz-feedback" id="q16-fb"></div>
+    </div>
+    <div class="learn-check">
+      <input type="checkbox" id="learn-c16" onchange="toggleLearned('c16')">
+      <label for="learn-c16">Mark as learned</label>
+    </div>
+  </div>
+</div>
+
+<!-- C17: Top-p Sampling -->
+<div class="concept-card" id="c17" data-level="2" data-name="Top-p Sampling">
+  <div class="card-header">
+    <h2>17. Top-p (Nucleus) Sampling</h2>
+    <span class="level-badge lvl-badge l2">Level 2 — Teenage</span>
+  </div>
+  <div class="card-body">
+    <div class="explanation" style="border-left-color:var(--l2);">
+      🎰 <strong>VIP List Analogy:</strong> Top-p sampling keeps the smallest set of tokens whose combined probability exceeds p (e.g., 0.9). If one token has 95% probability, only that one is considered. If probabilities are spread out, many tokens make the cut. It adapts automatically!
+    </div>
+    <div class="code-block"><span class="cm"># Top-p: keep smallest set with cumulative prob ≥ p</span>
+<span class="kw">def</span> <span class="fn">top_p_sample</span>(logits, p=<span class="num">0.9</span>):
+    sorted_probs, indices = torch.sort(
+        softmax(logits), descending=<span class="kw">True</span>)
+    cumsum = torch.cumsum(sorted_probs, dim=-<span class="num">1</span>)
+    mask = cumsum - sorted_probs > p  <span class="cm"># remove excess</span>
+    sorted_probs[mask] = <span class="num">0</span>
+    <span class="kw">return</span> torch.multinomial(sorted_probs, <span class="num">1</span>)</div>
+    <div class="interactive-area">
+      <h4><span class="ia-badge">INTERACTIVE</span> Top-p Filter</h4>
+      <div class="slider-row">
+        <span>p value:</span>
+        <input type="range" id="c17-p" min="10" max="100" value="90" oninput="updateTopP()">
+        <span class="slider-val" id="c17-val">0.90</span>
+      </div>
+      <div id="c17-bars" style="margin:8px 0;"></div>
+      <div id="c17-info" style="font-size:11px;color:var(--dim);"></div>
+    </div>
+    <div class="quiz-box" id="q17">
+      <div class="quiz-title"><span class="quiz-badge">QUIZ</span> Top-p=0.1 vs Top-p=0.95 — which is more creative?</div>
+      <div class="quiz-options">
+        <div class="quiz-opt" onclick="checkQuiz('q17',this,false)">A) Top-p=0.1 (considers more tokens)</div>
+        <div class="quiz-opt" onclick="checkQuiz('q17',this,true)">B) Top-p=0.95 (considers more tokens, more variety)</div>
+        <div class="quiz-opt" onclick="checkQuiz('q17',this,false)">C) They're the same</div>
+      </div>
+      <div class="quiz-feedback" id="q17-fb"></div>
+    </div>
+    <div class="learn-check">
+      <input type="checkbox" id="learn-c17" onchange="toggleLearned('c17')">
+      <label for="learn-c17">Mark as learned</label>
+    </div>
+  </div>
+</div>
+
+<!-- C18: Perplexity -->
+<div class="concept-card" id="c18" data-level="2" data-name="Perplexity">
+  <div class="card-header">
+    <h2>18. Perplexity</h2>
+    <span class="level-badge lvl-badge l2">Level 2 — Teenage</span>
+  </div>
+  <div class="card-body">
+    <div class="explanation" style="border-left-color:var(--l2);">
+      🤔 <strong>Confusion Meter:</strong> Perplexity = 2^(cross-entropy loss). It measures how "confused" the model is. Perplexity of 10 means the model is as confused as if it had to randomly choose between 10 equally likely options. Lower = better. GPT-4 has perplexity ~5 on common text.
+    </div>
+    <div class="code-block"><span class="cm"># Perplexity = e^(average cross-entropy loss)</span>
+<span class="cm"># Or equivalently: 2^(loss in bits)</span>
+
+loss = F.cross_entropy(logits, targets)
+perplexity = torch.exp(loss)
+
+<span class="cm"># PPL=1: perfect prediction (impossible)</span>
+<span class="cm"># PPL=10: choosing between ~10 options</span>
+<span class="cm"># PPL=50000: random guess over full vocab</span></div>
+    <div class="interactive-area">
+      <h4><span class="ia-badge">INTERACTIVE</span> Perplexity Calculator</h4>
+      <div class="slider-row">
+        <span>Loss:</span>
+        <input type="range" id="c18-loss" min="1" max="50" value="15" oninput="updatePerplexity()">
+        <span class="slider-val" id="c18-loss-val">1.5</span>
+      </div>
+      <div id="c18-ppl" style="text-align:center;font-size:32px;font-weight:900;color:var(--l2);margin:8px 0;"></div>
+      <div id="c18-info" style="font-size:11px;color:var(--dim);text-align:center;"></div>
+    </div>
+    <div class="quiz-box" id="q18">
+      <div class="quiz-title"><span class="quiz-badge">QUIZ</span> A model with perplexity 1 would be...</div>
+      <div class="quiz-options">
+        <div class="quiz-opt" onclick="checkQuiz('q18',this,true)">A) Perfect — it always predicts the exact next token</div>
+        <div class="quiz-opt" onclick="checkQuiz('q18',this,false)">B) Terrible — completely random</div>
+        <div class="quiz-opt" onclick="checkQuiz('q18',this,false)">C) Average — about as good as a human</div>
+      </div>
+      <div class="quiz-feedback" id="q18-fb"></div>
+    </div>
+    <div class="learn-check">
+      <input type="checkbox" id="learn-c18" onchange="toggleLearned('c18')">
+      <label for="learn-c18">Mark as learned</label>
+    </div>
+  </div>
+</div>
+
+<!-- C19: Overfitting & Data Splits (GAP) -->
+<div class="concept-card" id="c19" data-level="2" data-name="Overfitting Data Splits">
+  <div class="card-header">
+    <h2>19. Overfitting & Data Splits</h2>
+    <span class="level-badge lvl-badge l2">Level 2 — Teenage</span>
+    <span class="gap-badge">GAP FILLER</span>
+  </div>
+  <div class="card-body">
+    <div class="explanation" style="border-left-color:var(--l2);">
+      📚 <strong>Exam Analogy:</strong> Overfitting = memorizing the textbook word-for-word but failing the exam because you can't generalize. We split data into train (study), validation (practice test), and test (final exam). If train loss is low but val loss is high, you're overfitting!
+    </div>
+    <div class="code-block"><span class="cm"># Split data: 80% train, 10% val, 10% test</span>
+n = len(data)
+train = data[:int(<span class="num">0.8</span>*n)]
+val   = data[int(<span class="num">0.8</span>*n):int(<span class="num">0.9</span>*n)]
+test  = data[int(<span class="num">0.9</span>*n):]
+
+<span class="cm"># Overfitting signal:</span>
+<span class="cm"># train_loss: 0.1 (great!) val_loss: 2.5 (terrible!)</span>
+<span class="cm"># Fix: more data, dropout, early stopping</span></div>
+    <div class="interactive-area">
+      <h4><span class="ia-badge">INTERACTIVE</span> Overfitting Detector</h4>
+      <canvas id="c19-canvas" width="360" height="160" style="width:100%;background:var(--bg4);"></canvas>
+      <button class="btn btn-primary" onclick="animateOverfit()" style="font-size:11px;margin-top:6px;">Simulate Training ▶</button>
+      <p style="font-size:10px;color:var(--dim);margin-top:4px;"><span style="color:var(--l1);">■</span> Train loss <span style="color:var(--red);">■</span> Val loss — watch them diverge!</p>
+    </div>
+    <div class="quiz-box" id="q19">
+      <div class="quiz-title"><span class="quiz-badge">QUIZ</span> Train loss=0.05, Val loss=3.2 — what's happening?</div>
+      <div class="quiz-options">
+        <div class="quiz-opt" onclick="checkQuiz('q19',this,false)">A) The model is underfitting</div>
+        <div class="quiz-opt" onclick="checkQuiz('q19',this,true)">B) The model is overfitting — memorized training data but can't generalize</div>
+        <div class="quiz-opt" onclick="checkQuiz('q19',this,false)">C) The model is perfectly trained</div>
+      </div>
+      <div class="quiz-feedback" id="q19-fb"></div>
+    </div>
+    <div class="learn-check">
+      <input type="checkbox" id="learn-c19" onchange="toggleLearned('c19')">
+      <label for="learn-c19">Mark as learned</label>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════ -->
+<!-- LEVEL 3: ADULT (Concepts 20-29)             -->
+<!-- ════════════════════════════════════════════ -->
+
+<!-- C20: RoPE -->
+<div class="concept-card" id="c20" data-level="3" data-name="RoPE">
+  <div class="card-header">
+    <h2>20. RoPE (Rotary Position Embeddings)</h2>
+    <span class="level-badge lvl-badge l3">Level 3 — Adult</span>
+  </div>
+  <div class="card-body">
+    <div class="explanation" style="border-left-color:var(--l3);">
+      🕐 <strong>Clock Analogy:</strong> Instead of a lookup table for positions (limited length!), RoPE rotates Q and K vectors by an angle proportional to their position. Position 0 = 12 o'clock, position 1 = rotated slightly. The angle BETWEEN two positions encodes their relative distance. Used by LLaMA, Mistral, and most modern LLMs.
+    </div>
+    <div class="code-block"><span class="cm"># RoPE: rotate Q,K by position-dependent angle</span>
+freqs = <span class="num">1.0</span> / (<span class="num">10000</span> ** (torch.arange(<span class="num">0</span>, dim, <span class="num">2</span>) / dim))
+angles = positions.unsqueeze(<span class="num">1</span>) * freqs.unsqueeze(<span class="num">0</span>)
+
+<span class="cm"># Apply 2D rotation to each dimension pair</span>
+x_rot = x_even * cos(θ) - x_odd * sin(θ)
+y_rot = x_even * sin(θ) + x_odd * cos(θ)</div>
+    <div class="interactive-area">
+      <h4><span class="ia-badge">INTERACTIVE</span> RoPE Rotation Visualizer</h4>
+      <canvas id="c20-canvas" width="300" height="200" style="width:100%;background:var(--bg4);"></canvas>
+      <div class="slider-row">
+        <span>Position:</span>
+        <input type="range" id="c20-pos" min="0" max="31" value="0" oninput="drawRoPE()">
+        <span class="slider-val" id="c20-val">0</span>
+      </div>
+    </div>
+    <div class="quiz-box" id="q20">
+      <div class="quiz-title"><span class="quiz-badge">QUIZ</span> Why can RoPE handle longer sequences than learned embeddings?</div>
+      <div class="quiz-options">
+        <div class="quiz-opt" onclick="checkQuiz('q20',this,true)">A) It uses mathematical rotation — can compute any position, even unseen ones</div>
+        <div class="quiz-opt" onclick="checkQuiz('q20',this,false)">B) It uses more parameters</div>
+        <div class="quiz-opt" onclick="checkQuiz('q20',this,false)">C) It's faster to compute</div>
+      </div>
+      <div class="quiz-feedback" id="q20-fb"></div>
+    </div>
+    <div class="quiz-box" id="q20b">
+      <div class="quiz-title"><span class="quiz-badge">QUIZ</span> RoPE encodes RELATIVE position (not absolute). Why is this better?</div>
+      <div class="quiz-options">
+        <div class="quiz-opt" onclick="checkQuiz('q20b',this,true)">A) "The cat" has the same relationship whether at position 0-1 or position 500-501 — relative distance is what matters for meaning</div>
+        <div class="quiz-opt" onclick="checkQuiz('q20b',this,false)">B) Absolute positions are more accurate</div>
+        <div class="quiz-opt" onclick="checkQuiz('q20b',this,false)">C) It uses fewer parameters</div>
+      </div>
+      <div class="quiz-feedback" id="q20b-fb"></div>
+    </div>
+    <div class="learn-check">
+      <input type="checkbox" id="learn-c20" onchange="toggleLearned('c20')">
+      <label for="learn-c20">Mark as learned</label>
+    </div>
+  </div>
+</div>
+
+<!-- C21: Grouped-Query Attention -->
+<div class="concept-card" id="c21" data-level="3" data-name="Grouped-Query Attention">
+  <div class="card-header">
+    <h2>21. Grouped-Query Attention (GQA)</h2>
+    <span class="level-badge lvl-badge l3">Level 3 — Adult</span>
+  </div>
+  <div class="card-body">
+    <div class="explanation" style="border-left-color:var(--l3);">
+      🏢 <strong>Office Analogy:</strong> In standard MHA, every Q head has its own K and V heads (expensive!). In GQA, multiple Q heads share K,V heads — like employees sharing secretaries. MQA = everyone shares ONE secretary. GQA = groups of 2-4 share. Saves 50-75% KV-cache memory!
+    </div>
+    <div class="code-block"><span class="cm"># Standard MHA: 8 Q heads, 8 K heads, 8 V heads</span>
+<span class="cm"># GQA:          8 Q heads, 2 K heads, 2 V heads</span>
+<span class="cm"># MQA:          8 Q heads, 1 K head,  1 V head</span>
+
+<span class="cm"># KV heads are repeated to match Q heads</span>
+<span class="kw">def</span> <span class="fn">repeat_kv</span>(kv, n_rep):
+    <span class="kw">return</span> kv.repeat_interleave(n_rep, dim=<span class="num">1</span>)
+<span class="cm"># 2 KV heads → repeat 4× → matches 8 Q heads</span></div>
+    <div class="interactive-area">
+      <h4><span class="ia-badge">INTERACTIVE</span> Memory Savings Calculator</h4>
+      <div class="slider-row">
+        <span>KV heads:</span>
+        <input type="range" id="c21-kv" min="1" max="8" value="8" oninput="updateGQA()">
+        <span class="slider-val" id="c21-val">8</span>
+      </div>
+      <div style="display:flex;gap:6px;margin:8px 0;flex-wrap:wrap;" id="c21-viz"></div>
+      <div id="c21-info" class="output-box" style="font-size:11px;"></div>
+    </div>
+    <div class="quiz-box" id="q21">
+      <div class="quiz-title"><span class="quiz-badge">QUIZ</span> 8 Q heads, 2 KV heads — how much KV memory saved?</div>
+      <div class="quiz-options">
+        <div class="quiz-opt" onclick="checkQuiz('q21',this,false)">A) 50%</div>
+        <div class="quiz-opt" onclick="checkQuiz('q21',this,true)">B) 75% (only 2/8 of original KV cache needed)</div>
+        <div class="quiz-opt" onclick="checkQuiz('q21',this,false)">C) 25%</div>
+      </div>
+      <div class="quiz-feedback" id="q21-fb"></div>
+    </div>
+    <div class="learn-check">
+      <input type="checkbox" id="learn-c21" onchange="toggleLearned('c21')">
+      <label for="learn-c21">Mark as learned</label>
+    </div>
+  </div>
+</div>
+
+<!-- C22: SwiGLU -->
+<div class="concept-card" id="c22" data-level="3" data-name="SwiGLU Activation">
+  <div class="card-header">
+    <h2>22. SwiGLU Activation</h2>
+    <span class="level-badge lvl-badge l3">Level 3 — Adult</span>
+  </div>
+  <div class="card-body">
+    <div class="explanation" style="border-left-color:var(--l3);">
+      🚪 <strong>Bouncer Analogy:</strong> SwiGLU has two parallel paths: a "gate" (bouncer) and a "value" (guests). The gate uses Swish activation to decide what passes through. Swish(xW₁) × (xW₂) — the gate controls the flow. Used by LLaMA, PaLM, and outperforms plain GELU.
+    </div>
+    <div class="code-block"><span class="cm"># SwiGLU: gated activation</span>
+<span class="kw">def</span> <span class="fn">forward</span>(self, x):
+    gate = F.silu(self.w_gate(x))  <span class="cm"># Swish gate</span>
+    value = self.w_up(x)            <span class="cm"># information</span>
+    <span class="kw">return</span> self.w_down(gate * value)  <span class="cm"># gate controls flow</span>
+
+<span class="cm"># Swish(x) = x * sigmoid(x)</span>
+<span class="cm"># Unlike ReLU, allows small negative values</span></div>
+    <div class="interactive-area">
+      <h4><span class="ia-badge">INTERACTIVE</span> Activation Comparison</h4>
+      <div class="slider-row">
+        <span>Input x:</span>
+        <input type="range" id="c22-x" min="-30" max="30" value="0" oninput="updateSwiGLU()">
+        <span class="slider-val" id="c22-val">0.0</span>
+      </div>
+      <div style="display:flex;gap:8px;margin:8px 0;">
+        <div style="flex:1;text-align:center;padding:8px;background:var(--bg4);border-radius:8px;">
+          <div style="font-size:10px;color:var(--dim);">ReLU</div>
+          <div id="c22-relu" style="font-size:20px;font-weight:900;color:var(--l1);">0</div>
+        </div>
+        <div style="flex:1;text-align:center;padding:8px;background:var(--bg4);border-radius:8px;">
+          <div style="font-size:10px;color:var(--dim);">GELU</div>
+          <div id="c22-gelu" style="font-size:20px;font-weight:900;color:var(--l2);">0</div>
+        </div>
+        <div style="flex:1;text-align:center;padding:8px;background:var(--bg4);border-radius:8px;">
+          <div style="font-size:10px;color:var(--dim);">Swish</div>
+          <div id="c22-swish" style="font-size:20px;font-weight:900;color:var(--l3);">0</div>
+        </div>
+      </div>
+    </div>
+    <div class="quiz-box" id="q22">
+      <div class="quiz-title"><span class="quiz-badge">QUIZ</span> What makes SwiGLU "gated"?</div>
+      <div class="quiz-options">
+        <div class="quiz-opt" onclick="checkQuiz('q22',this,true)">A) Two parallel paths where one (gate) controls the other (value)</div>
+        <div class="quiz-opt" onclick="checkQuiz('q22',this,false)">B) It has a larger hidden dimension</div>
+        <div class="quiz-opt" onclick="checkQuiz('q22',this,false)">C) It uses dropout internally</div>
+      </div>
+      <div class="quiz-feedback" id="q22-fb"></div>
+    </div>
+    <div class="learn-check">
+      <input type="checkbox" id="learn-c22" onchange="toggleLearned('c22')">
+      <label for="learn-c22">Mark as learned</label>
+    </div>
+  </div>
+</div>
+
+<!-- C23: Flash Attention -->
+<div class="concept-card" id="c23" data-level="3" data-name="Flash Attention">
+  <div class="card-header">
+    <h2>23. Flash Attention</h2>
+    <span class="level-badge lvl-badge l3">Level 3 — Adult</span>
+  </div>
+  <div class="card-body">
+    <div class="explanation" style="border-left-color:var(--l3);">
+      📖 <strong>Book Analogy:</strong> Standard attention photocopies the entire book (N×N matrix) into memory, then reads it. Flash Attention reads one page at a time using fast SRAM — same result, way less memory! O(N) instead of O(N²) memory, 2-4× faster, mathematically identical.
+    </div>
+    <div class="code-block"><span class="cm"># Standard: materialize full N×N attention matrix</span>
+<span class="cm"># Flash: process in tiles, never store full matrix</span>
+
+<span class="cm"># PyTorch (auto-uses Flash when available):</span>
+out = F.scaled_dot_product_attention(
+    query, key, value, is_causal=<span class="kw">True</span>)
+
+<span class="cm"># Memory: N=4096 → Standard: 64MB, Flash: 16KB</span></div>
+    <div class="interactive-area">
+      <h4><span class="ia-badge">INTERACTIVE</span> Memory Comparison</h4>
+      <div class="slider-row">
+        <span>Seq len:</span>
+        <input type="range" id="c23-len" min="1" max="32" value="4" oninput="updateFlashAttn()">
+        <span class="slider-val" id="c23-val">4K</span>
+      </div>
+      <div style="display:flex;gap:10px;margin:8px 0;">
+        <div style="flex:1;text-align:center;padding:10px;background:var(--bg4);border-radius:8px;">
+          <div style="font-size:10px;color:var(--dim);">Standard O(N²)</div>
+          <div id="c23-std" style="font-size:18px;font-weight:900;color:var(--red);"></div>
+        </div>
+        <div style="flex:1;text-align:center;padding:10px;background:var(--bg4);border-radius:8px;">
+          <div style="font-size:10px;color:var(--dim);">Flash O(N)</div>
+          <div id="c23-flash" style="font-size:18px;font-weight:900;color:var(--green);"></div>
+        </div>
+      </div>
+    </div>
+    <div class="quiz-box" id="q23">
+      <div class="quiz-title"><span class="quiz-badge">QUIZ</span> Does Flash Attention change the mathematical result?</div>
+      <div class="quiz-options">
+        <div class="quiz-opt" onclick="checkQuiz('q23',this,true)">A) No — mathematically identical, just computed more efficiently</div>
+        <div class="quiz-opt" onclick="checkQuiz('q23',this,false)">B) Yes — it's an approximation</div>
+        <div class="quiz-opt" onclick="checkQuiz('q23',this,false)">C) Only for short sequences</div>
+      </div>
+      <div class="quiz-feedback" id="q23-fb"></div>
+    </div>
+    <div class="learn-check">
+      <input type="checkbox" id="learn-c23" onchange="toggleLearned('c23')">
+      <label for="learn-c23">Mark as learned</label>
+    </div>
+  </div>
+</div>
+
+<!-- C24: Context Window & Sliding Window (GAP) -->
+<div class="concept-card" id="c24" data-level="3" data-name="Context Window">
+  <div class="card-header">
+    <h2>24. Context Window & Sliding Window</h2>
+    <span class="level-badge lvl-badge l3">Level 3 — Adult</span>
+    <span class="gap-badge">GAP FILLER</span>
+  </div>
+  <div class="card-body">
+    <div class="explanation" style="border-left-color:var(--l3);">
+      📋 <strong>Clipboard Analogy:</strong> The context window is the model's "working memory" — how many tokens it can see at once. GPT-4 = 128K tokens, Claude = 200K. Sliding window attention (Mistral) only attends to the last W tokens, like a moving spotlight. Saves memory while still working well because info propagates through layers.
+    </div>
+    <div class="code-block"><span class="cm"># Full context: every token sees ALL previous tokens</span>
+<span class="cm"># Sliding window: each token sees last W tokens only</span>
+
+<span class="cm"># Mistral uses W=4096 sliding window</span>
+<span class="cm"># Layer 1: token sees 4096 tokens back</span>
+<span class="cm"># Layer 2: effectively sees 8192 tokens back</span>
+<span class="cm"># Layer N: effectively sees N×4096 tokens back!</span>
+
+mask = torch.triu(torch.ones(n,n), diagonal=-window)</div>
+    <div class="interactive-area">
+      <h4><span class="ia-badge">INTERACTIVE</span> Sliding Window Visualizer</h4>
+      <div class="slider-row">
+        <span>Window:</span>
+        <input type="range" id="c24-win" min="1" max="8" value="3" oninput="updateSlidingWindow()">
+        <span class="slider-val" id="c24-val">3</span>
+      </div>
+      <div id="c24-grid" style="display:grid;gap:2px;margin:8px 0;"></div>
+    </div>
+    <div class="quiz-box" id="q24">
+      <div class="quiz-title"><span class="quiz-badge">QUIZ</span> With 32 layers and window=4096, effective context is...</div>
+      <div class="quiz-options">
+        <div class="quiz-opt" onclick="checkQuiz('q24',this,false)">A) 4,096 tokens</div>
+        <div class="quiz-opt" onclick="checkQuiz('q24',this,true)">B) ~131,072 tokens (32 × 4096) through layer propagation</div>
+        <div class="quiz-opt" onclick="checkQuiz('q24',this,false)">C) Unlimited</div>
+      </div>
+      <div class="quiz-feedback" id="q24-fb"></div>
+    </div>
+    <div class="learn-check">
+      <input type="checkbox" id="learn-c24" onchange="toggleLearned('c24')">
+      <label for="learn-c24">Mark as learned</label>
+    </div>
+  </div>
+</div>
+
+<!-- C25: Beam Search -->
+<div class="concept-card" id="c25" data-level="3" data-name="Beam Search">
+  <div class="card-header">
+    <h2>25. Beam Search</h2>
+    <span class="level-badge lvl-badge l3">Level 3 — Adult</span>
+  </div>
+  <div class="card-body">
+    <div class="explanation" style="border-left-color:var(--l3);">
+      🌳 <strong>Path Analogy:</strong> Greedy search always takes the best-looking path at each fork. Beam search explores B paths simultaneously and picks the best OVERALL journey. Beam width=1 is greedy, width=5 explores 5 candidates. Used for translation and when you need deterministic, high-quality output.
+    </div>
+    <div class="code-block"><span class="cm"># Beam search: keep top B candidates at each step</span>
+beams = [(start_tokens, <span class="num">0.0</span>)]  <span class="cm"># (sequence, score)</span>
+
+<span class="kw">for</span> step <span class="kw">in</span> <span class="fn">range</span>(max_len):
+    candidates = []
+    <span class="kw">for</span> seq, score <span class="kw">in</span> beams:
+        probs = model(seq)[-<span class="num">1</span>]  <span class="cm"># next token probs</span>
+        <span class="kw">for</span> tok, p <span class="kw">in</span> top_k(probs, B):
+            candidates.append((seq+[tok], score+log(p)))
+    beams = sorted(candidates)[:B]  <span class="cm"># keep top B</span></div>
+    <div class="interactive-area">
+      <h4><span class="ia-badge">INTERACTIVE</span> Beam Search Tree</h4>
+      <div class="slider-row">
+        <span>Beam width:</span>
+        <input type="range" id="c25-beam" min="1" max="5" value="3" oninput="document.getElementById('c25-val').textContent=this.value">
+        <span class="slider-val" id="c25-val">3</span>
+      </div>
+      <button class="btn btn-primary" onclick="expandBeam()" style="font-size:11px;">Expand Step ▶</button>
+      <button class="btn btn-reset" onclick="resetBeam()" style="font-size:11px;">Reset</button>
+      <div id="c25-tree" class="output-box" style="font-size:11px;margin-top:6px;min-height:60px;"></div>
+    </div>
+    <div class="quiz-box" id="q25">
+      <div class="quiz-title"><span class="quiz-badge">QUIZ</span> Beam width=1 is equivalent to...</div>
+      <div class="quiz-options">
+        <div class="quiz-opt" onclick="checkQuiz('q25',this,true)">A) Greedy search — always pick the single best token</div>
+        <div class="quiz-opt" onclick="checkQuiz('q25',this,false)">B) Random sampling</div>
+        <div class="quiz-opt" onclick="checkQuiz('q25',this,false)">C) Top-p sampling</div>
+      </div>
+      <div class="quiz-feedback" id="q25-fb"></div>
+    </div>
+    <div class="learn-check">
+      <input type="checkbox" id="learn-c25" onchange="toggleLearned('c25')">
+      <label for="learn-c25">Mark as learned</label>
+    </div>
+  </div>
+</div>
+
+<!-- C26: RMSNorm -->
+<div class="concept-card" id="c26" data-level="3" data-name="RMSNorm">
+  <div class="card-header">
+    <h2>26. RMSNorm</h2>
+    <span class="level-badge lvl-badge l3">Level 3 — Adult</span>
+  </div>
+  <div class="card-body">
+    <div class="explanation" style="border-left-color:var(--l3);">
+      📏 <strong>Ruler Analogy:</strong> LayerNorm measures both center (mean) and spread (variance), then adjusts both. RMSNorm only measures the "size" (root mean square) and scales it — skipping the mean computation and the shift parameter. Simpler, ~10% faster, same quality. Used by LLaMA.
+    </div>
+    <div class="code-block"><span class="cm"># RMSNorm: simpler than LayerNorm</span>
+<span class="kw">def</span> <span class="fn">rms_norm</span>(x, weight, eps=<span class="num">1e-6</span>):
+    rms = torch.sqrt(x.pow(<span class="num">2</span>).mean(-<span class="num">1</span>, keepdim=<span class="kw">True</span>) + eps)
+    <span class="kw">return</span> x / rms * weight  <span class="cm"># no shift (beta)!</span>
+
+<span class="cm"># LayerNorm: 2×dim params (gamma + beta)</span>
+<span class="cm"># RMSNorm:   1×dim params (gamma only)</span></div>
+    <div class="interactive-area">
+      <h4><span class="ia-badge">INTERACTIVE</span> Norm Calculator</h4>
+      <p style="font-size:12px;margin-bottom:6px;">Input: [2.0, -1.0, 0.5, 3.0]</p>
+      <button class="btn btn-primary" onclick="calcNorms()" style="font-size:11px;">Calculate Both</button>
+      <div id="c26-result" class="output-box" style="font-size:11px;margin-top:6px;"></div>
+    </div>
+    <div class="quiz-box" id="q26">
+      <div class="quiz-title"><span class="quiz-badge">QUIZ</span> What does RMSNorm skip compared to LayerNorm?</div>
+      <div class="quiz-options">
+        <div class="quiz-opt" onclick="checkQuiz('q26',this,true)">A) Mean computation and the shift (beta) parameter</div>
+        <div class="quiz-opt" onclick="checkQuiz('q26',this,false)">B) The scale (gamma) parameter</div>
+        <div class="quiz-opt" onclick="checkQuiz('q26',this,false)">C) The entire normalization step</div>
+      </div>
+      <div class="quiz-feedback" id="q26-fb"></div>
+    </div>
+    <div class="learn-check">
+      <input type="checkbox" id="learn-c26" onchange="toggleLearned('c26')">
+      <label for="learn-c26">Mark as learned</label>
+    </div>
+  </div>
+</div>
+
+<!-- C27: Mixed Precision -->
+<div class="concept-card" id="c27" data-level="3" data-name="Mixed Precision">
+  <div class="card-header">
+    <h2>27. Mixed Precision (FP16/BF16)</h2>
+    <span class="level-badge lvl-badge l3">Level 3 — Adult</span>
+  </div>
+  <div class="card-body">
+    <div class="explanation" style="border-left-color:var(--l3);">
+      📦 <strong>Packing Analogy:</strong> FP32 uses 32 bits per number (high precision). FP16/BF16 use only 16 bits — half the memory, 2× faster! BF16 keeps the same range as FP32 but with less precision. Most computations don't need full precision, so we use FP16 for speed and keep a FP32 "master copy" of weights.
+    </div>
+    <div class="code-block"><span class="cm"># Mixed precision: FP16 for speed, FP32 for accuracy</span>
+<span class="cm"># FP32: 32 bits → 4 bytes per number</span>
+<span class="cm"># FP16: 16 bits → 2 bytes (2× less memory!)</span>
+<span class="cm"># BF16: 16 bits, same range as FP32</span>
+
+scaler = torch.cuda.amp.GradScaler()
+<span class="kw">with</span> torch.cuda.amp.autocast(dtype=torch.bfloat16):
+    output = model(input)  <span class="cm"># runs in BF16</span>
+    loss = criterion(output, target)</div>
+    <div class="interactive-area">
+      <h4><span class="ia-badge">INTERACTIVE</span> Precision Comparison</h4>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:8px 0;">
+        <div style="text-align:center;padding:10px;background:var(--bg4);border-radius:8px;">
+          <div style="font-size:10px;color:var(--dim);">FP32</div>
+          <div style="font-size:18px;font-weight:900;color:var(--l1);">4 bytes</div>
+          <div style="font-size:10px;color:var(--dim);">High precision</div>
+        </div>
+        <div style="text-align:center;padding:10px;background:var(--bg4);border-radius:8px;">
+          <div style="font-size:10px;color:var(--dim);">FP16</div>
+          <div style="font-size:18px;font-weight:900;color:var(--l3);">2 bytes</div>
+          <div style="font-size:10px;color:var(--dim);">Less range</div>
+        </div>
+        <div style="text-align:center;padding:10px;background:var(--bg4);border-radius:8px;">
+          <div style="font-size:10px;color:var(--dim);">BF16</div>
+          <div style="font-size:18px;font-weight:900;color:var(--green);">2 bytes</div>
+          <div style="font-size:10px;color:var(--dim);">Same range ✓</div>
+        </div>
+      </div>
+      <div class="output-box" style="font-size:11px;">7B model: FP32=28GB → BF16=14GB → 2× less VRAM!</div>
+    </div>
+    <div class="quiz-box" id="q27">
+      <div class="quiz-title"><span class="quiz-badge">QUIZ</span> Why is BF16 preferred over FP16 for LLM training?</div>
+      <div class="quiz-options">
+        <div class="quiz-opt" onclick="checkQuiz('q27',this,true)">A) BF16 has the same numerical range as FP32, avoiding overflow issues</div>
+        <div class="quiz-opt" onclick="checkQuiz('q27',this,false)">B) BF16 is more precise than FP16</div>
+        <div class="quiz-opt" onclick="checkQuiz('q27',this,false)">C) BF16 uses less memory than FP16</div>
+      </div>
+      <div class="quiz-feedback" id="q27-fb"></div>
+    </div>
+    <div class="learn-check">
+      <input type="checkbox" id="learn-c27" onchange="toggleLearned('c27')">
+      <label for="learn-c27">Mark as learned</label>
+    </div>
+  </div>
+</div>
+
+<!-- C28: RLHF -->
+<div class="concept-card" id="c28" data-level="3" data-name="RLHF">
+  <div class="card-header">
+    <h2>28. RLHF</h2>
+    <span class="level-badge lvl-badge l3">Level 3 — Adult</span>
+  </div>
+  <div class="card-body">
+    <div class="explanation" style="border-left-color:var(--l3);">
+      👨‍🏫 <strong>Teacher Analogy:</strong> RLHF (Reinforcement Learning from Human Feedback) is like having a teacher grade the model's essays. Step 1: Humans rank model outputs (A > B). Step 2: Train a "reward model" to predict human preferences. Step 3: Use RL (PPO) to make the LLM maximize the reward. This is what makes ChatGPT helpful and safe!
+    </div>
+    <div class="code-block"><span class="cm"># RLHF Pipeline:</span>
+<span class="cm"># 1. SFT: Fine-tune on human-written examples</span>
+<span class="cm"># 2. Reward Model: train on human preferences</span>
+<span class="cm">#    Human says: Response A > Response B</span>
+<span class="cm"># 3. PPO: optimize LLM to maximize reward</span>
+
+reward = reward_model(response)
+loss = -reward + β * KL(policy || reference)
+<span class="cm"># KL penalty prevents model from going too far</span></div>
+    <div class="interactive-area">
+      <h4><span class="ia-badge">INTERACTIVE</span> Be the Human Rater!</h4>
+      <p style="font-size:12px;margin-bottom:8px;">Which response is better? (This is what RLHF annotators do)</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+        <div class="btn" onclick="rateRLHF('A')" id="c28-a" style="background:var(--bg4);padding:12px;text-align:left;font-size:12px;border:2px solid transparent;border-radius:8px;">
+          <strong>Response A:</strong><br>"The capital of France is Paris, located on the Seine river."
+        </div>
+        <div class="btn" onclick="rateRLHF('B')" id="c28-b" style="background:var(--bg4);padding:12px;text-align:left;font-size:12px;border:2px solid transparent;border-radius:8px;">
+          <strong>Response B:</strong><br>"France capital Paris maybe? I think so probably."
+        </div>
+      </div>
+      <div id="c28-info" style="font-size:11px;color:var(--dim);margin-top:6px;"></div>
+    </div>
+    <div class="quiz-box" id="q28">
+      <div class="quiz-title"><span class="quiz-badge">QUIZ</span> What prevents RLHF from making the model "hack" the reward?</div>
+      <div class="quiz-options">
+        <div class="quiz-opt" onclick="checkQuiz('q28',this,true)">A) KL divergence penalty — keeps the model close to the original</div>
+        <div class="quiz-opt" onclick="checkQuiz('q28',this,false)">B) More training data</div>
+        <div class="quiz-opt" onclick="checkQuiz('q28',this,false)">C) Larger model size</div>
+      </div>
+      <div class="quiz-feedback" id="q28-fb"></div>
+    </div>
+    <div class="learn-check">
+      <input type="checkbox" id="learn-c28" onchange="toggleLearned('c28')">
+      <label for="learn-c28">Mark as learned</label>
+    </div>
+  </div>
+</div>
+
+<!-- C29: Weight Tying -->
+<div class="concept-card" id="c29" data-level="3" data-name="Weight Tying">
+  <div class="card-header">
+    <h2>29. Weight Tying</h2>
+    <span class="level-badge lvl-badge l3">Level 3 — Adult</span>
+  </div>
+  <div class="card-body">
+    <div class="explanation" style="border-left-color:var(--l3);">
+      🪞 <strong>Mirror Analogy:</strong> The input embedding matrix converts tokens→vectors. The output layer converts vectors→token probabilities. Weight tying shares the SAME matrix for both — like using a mirror! If "cat" maps to vector [0.3, 0.7] going in, the same mapping works going out. Saves millions of parameters.
+    </div>
+    <div class="code-block"><span class="cm"># Without tying: 2 separate matrices</span>
+embed = nn.Embedding(vocab, dim)   <span class="cm"># vocab × dim</span>
+output = nn.Linear(dim, vocab)     <span class="cm"># dim × vocab</span>
+
+<span class="cm"># With tying: share the same weights!</span>
+output.weight = embed.weight  <span class="cm"># same matrix!</span>
+
+<span class="cm"># Savings: vocab=50000, dim=4096</span>
+<span class="cm"># = 200M fewer parameters!</span></div>
+    <div class="interactive-area">
+      <h4><span class="ia-badge">INTERACTIVE</span> Parameter Savings</h4>
+      <div class="slider-row">
+        <span>Vocab:</span>
+        <input type="range" id="c29-vocab" min="1" max="100" value="50" oninput="updateWeightTying()">
+        <span class="slider-val" id="c29-val">50K</span>
+      </div>
+      <div style="display:flex;gap:10px;margin:8px 0;">
+        <div style="flex:1;text-align:center;padding:10px;background:var(--bg4);border-radius:8px;">
+          <div style="font-size:10px;color:var(--dim);">Without Tying</div>
+          <div id="c29-no" style="font-size:16px;font-weight:900;color:var(--red);"></div>
+        </div>
+        <div style="flex:1;text-align:center;padding:10px;background:var(--bg4);border-radius:8px;">
+          <div style="font-size:10px;color:var(--dim);">With Tying</div>
+          <div id="c29-yes" style="font-size:16px;font-weight:900;color:var(--green);"></div>
+        </div>
+      </div>
+    </div>
+    <div class="quiz-box" id="q29">
+      <div class="quiz-title"><span class="quiz-badge">QUIZ</span> Why does weight tying work?</div>
+      <div class="quiz-options">
+        <div class="quiz-opt" onclick="checkQuiz('q29',this,true)">A) The embedding and output layers perform inverse operations on the same vocabulary</div>
+        <div class="quiz-opt" onclick="checkQuiz('q29',this,false)">B) It makes training faster</div>
+        <div class="quiz-opt" onclick="checkQuiz('q29',this,false)">C) It improves accuracy by 50%</div>
+      </div>
+      <div class="quiz-feedback" id="q29-fb"></div>
+    </div>
+    <div class="learn-check">
+      <input type="checkbox" id="learn-c29" onchange="toggleLearned('c29')">
+      <label for="learn-c29">Mark as learned</label>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════ -->
+<!-- LEVEL 4: EXPERT (Concepts 30-38)            -->
+<!-- ════════════════════════════════════════════ -->
+
+<!-- C30: Mixture of Experts -->
+<div class="concept-card" id="c30" data-level="4" data-name="Mixture of Experts">
+  <div class="card-header">
+    <h2>30. Mixture of Experts (MoE)</h2>
+    <span class="level-badge lvl-badge l4">Level 4 — Expert</span>
+  </div>
+  <div class="card-body">
+    <div class="explanation" style="border-left-color:var(--l4);">
+      🏥 <strong>Hospital Analogy:</strong> Instead of one doctor who knows everything, MoE has specialist doctors (experts). A router/receptionist sends each patient (token) to the top 2 specialists. Mixtral 8×7B has 8 experts but only activates 2 per token — so it has 47B total params but only uses 13B per forward pass!
+    </div>
+    <div class="code-block"><span class="cm"># MoE: route each token to top-K experts</span>
+<span class="kw">class</span> <span class="cls">MoELayer</span>(nn.Module):
+    experts = [FFN() <span class="kw">for</span> _ <span class="kw">in</span> <span class="fn">range</span>(<span class="num">8</span>)]  <span class="cm"># 8 experts</span>
+    router = nn.Linear(dim, <span class="num">8</span>)          <span class="cm"># gating network</span>
+
+    <span class="kw">def</span> <span class="fn">forward</span>(self, x):
+        gates = softmax(self.router(x))  <span class="cm"># which experts?</span>
+        top2 = gates.topk(<span class="num">2</span>)              <span class="cm"># pick top 2</span>
+        <span class="kw">return</span> sum(g * expert(x) <span class="kw">for</span> g, expert <span class="kw">in</span> top2)</div>
+    <div class="interactive-area">
+      <h4><span class="ia-badge">INTERACTIVE</span> Expert Router</h4>
+      <p style="font-size:12px;margin-bottom:8px;">Click a token to see which experts it routes to:</p>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;">
+        <span class="btn btn-primary" onclick="routeExpert('math')" style="font-size:11px;">math</span>
+        <span class="btn" onclick="routeExpert('poetry')" style="font-size:11px;background:var(--bg4);">poetry</span>
+        <span class="btn" onclick="routeExpert('code')" style="font-size:11px;background:var(--bg4);">code</span>
+        <span class="btn" onclick="routeExpert('history')" style="font-size:11px;background:var(--bg4);">history</span>
+      </div>
+      <div id="c30-experts" style="display:grid;grid-template-columns:repeat(4,1fr);gap:4px;"></div>
+      <div id="c30-info" class="output-box" style="font-size:11px;margin-top:6px;"></div>
+    </div>
+    <div class="quiz-box" id="q30">
+      <div class="quiz-title"><span class="quiz-badge">QUIZ</span> Mixtral 8×7B has 47B params but uses how many per token?</div>
+      <div class="quiz-options">
+        <div class="quiz-opt" onclick="checkQuiz('q30',this,true)">A) ~13B (only 2 of 8 experts active per token)</div>
+        <div class="quiz-opt" onclick="checkQuiz('q30',this,false)">B) 47B (all experts always active)</div>
+        <div class="quiz-opt" onclick="checkQuiz('q30',this,false)">C) 7B (only 1 expert)</div>
+      </div>
+      <div class="quiz-feedback" id="q30-fb"></div>
+    </div>
+    <div class="learn-check">
+      <input type="checkbox" id="learn-c30" onchange="toggleLearned('c30')">
+      <label for="learn-c30">Mark as learned</label>
+    </div>
+  </div>
+</div>
+
+<!-- C31: LoRA -->
+<div class="concept-card" id="c31" data-level="4" data-name="LoRA">
+  <div class="card-header">
+    <h2>31. LoRA (Low-Rank Adaptation)</h2>
+    <span class="level-badge lvl-badge l4">Level 4 — Expert</span>
+  </div>
+  <div class="card-body">
+    <div class="explanation" style="border-left-color:var(--l4);">
+      🎨 <strong>Sticker Analogy:</strong> Instead of repainting an entire car (full fine-tuning), LoRA adds small stickers (low-rank matrices A and B). The original weights stay frozen, and you only train tiny adapter matrices. A 7B model needs ~14GB for full fine-tuning but only ~50MB for LoRA! Rank r=8 is common.
+    </div>
+    <div class="code-block"><span class="cm"># LoRA: W_new = W_frozen + A × B</span>
+<span class="cm"># W: [4096 × 4096] = 16M params (frozen!)</span>
+<span class="cm"># A: [4096 × 8]    = 32K params (trainable)</span>
+<span class="cm"># B: [8 × 4096]    = 32K params (trainable)</span>
+<span class="cm"># Total trainable: 64K vs 16M = 0.4%!</span>
+
+<span class="kw">class</span> <span class="cls">LoRALinear</span>(nn.Module):
+    <span class="kw">def</span> <span class="fn">forward</span>(self, x):
+        <span class="kw">return</span> self.frozen(x) + self.B(self.A(x)) * α/r</div>
+    <div class="interactive-area">
+      <h4><span class="ia-badge">INTERACTIVE</span> LoRA Rank Calculator</h4>
+      <div class="slider-row">
+        <span>Rank r:</span>
+        <input type="range" id="c31-rank" min="1" max="64" value="8" oninput="updateLoRA()">
+        <span class="slider-val" id="c31-val">8</span>
+      </div>
+      <div style="display:flex;gap:10px;margin:8px 0;">
+        <div style="flex:1;text-align:center;padding:10px;background:var(--bg4);border-radius:8px;">
+          <div style="font-size:10px;color:var(--dim);">Full Fine-tune</div>
+          <div id="c31-full" style="font-size:16px;font-weight:900;color:var(--red);">16.8M</div>
+        </div>
+        <div style="flex:1;text-align:center;padding:10px;background:var(--bg4);border-radius:8px;">
+          <div style="font-size:10px;color:var(--dim);">LoRA</div>
+          <div id="c31-lora" style="font-size:16px;font-weight:900;color:var(--green);"></div>
+        </div>
+      </div>
+      <div id="c31-info" style="font-size:11px;color:var(--dim);text-align:center;"></div>
+    </div>
+    <div class="quiz-box" id="q31">
+      <div class="quiz-title"><span class="quiz-badge">QUIZ</span> What stays frozen during LoRA training?</div>
+      <div class="quiz-options">
+        <div class="quiz-opt" onclick="checkQuiz('q31',this,true)">A) The original model weights — only small A and B matrices are trained</div>
+        <div class="quiz-opt" onclick="checkQuiz('q31',this,false)">B) The optimizer state</div>
+        <div class="quiz-opt" onclick="checkQuiz('q31',this,false)">C) Nothing — everything is trained</div>
+      </div>
+      <div class="quiz-feedback" id="q31-fb"></div>
+    </div>
+    <div class="learn-check">
+      <input type="checkbox" id="learn-c31" onchange="toggleLearned('c31')">
+      <label for="learn-c31">Mark as learned</label>
+    </div>
+  </div>
+</div>
+
+<!-- C32: Quantization -->
+<div class="concept-card" id="c32" data-level="4" data-name="Quantization">
+  <div class="card-header">
+    <h2>32. Quantization (INT4/INT8)</h2>
+    <span class="level-badge lvl-badge l4">Level 4 — Expert</span>
+  </div>
+  <div class="card-body">
+    <div class="explanation" style="border-left-color:var(--l4);">
+      🗜️ <strong>JPEG Analogy:</strong> Like compressing a photo from RAW to JPEG — you lose some detail but the file is way smaller. Quantization converts FP16 weights (16 bits) to INT8 (8 bits) or INT4 (4 bits). A 7B model: FP16=14GB → INT8=7GB → INT4=3.5GB. Runs on consumer GPUs!
+    </div>
+    <div class="code-block"><span class="cm"># Quantization: reduce precision of weights</span>
+<span class="cm"># FP16: 3.14159 → 16 bits</span>
+<span class="cm"># INT8: 3.14159 → 3 (8 bits, 256 levels)</span>
+<span class="cm"># INT4: 3.14159 → 3 (4 bits, 16 levels!)</span>
+
+scale = (max_val - min_val) / (<span class="num">2</span>**bits - <span class="num">1</span>)
+quantized = round((weight - min_val) / scale)
+<span class="cm"># Dequantize: weight ≈ quantized * scale + min_val</span></div>
+    <div class="interactive-area">
+      <h4><span class="ia-badge">INTERACTIVE</span> Quantization Simulator</h4>
+      <div class="slider-row">
+        <span>Bits:</span>
+        <input type="range" id="c32-bits" min="2" max="16" value="8" oninput="updateQuantization()">
+        <span class="slider-val" id="c32-val">8</span>
+      </div>
+      <div id="c32-info" class="output-box" style="font-size:11px;"></div>
+      <div style="display:flex;gap:10px;margin:8px 0;">
+        <div style="flex:1;text-align:center;padding:8px;background:var(--bg4);border-radius:8px;">
+          <div style="font-size:10px;color:var(--dim);">Levels</div>
+          <div id="c32-levels" style="font-size:18px;font-weight:900;color:var(--l4);"></div>
+        </div>
+        <div style="flex:1;text-align:center;padding:8px;background:var(--bg4);border-radius:8px;">
+          <div style="font-size:10px;color:var(--dim);">7B Model Size</div>
+          <div id="c32-size" style="font-size:18px;font-weight:900;color:var(--green);"></div>
+        </div>
+      </div>
+    </div>
+    <div class="quiz-box" id="q32">
+      <div class="quiz-title"><span class="quiz-badge">QUIZ</span> INT4 quantization of a 7B model uses approximately...</div>
+      <div class="quiz-options">
+        <div class="quiz-opt" onclick="checkQuiz('q32',this,false)">A) 14 GB</div>
+        <div class="quiz-opt" onclick="checkQuiz('q32',this,true)">B) 3.5 GB (4 bits × 7B params / 8 bits per byte)</div>
+        <div class="quiz-opt" onclick="checkQuiz('q32',this,false)">C) 7 GB</div>
+      </div>
+      <div class="quiz-feedback" id="q32-fb"></div>
+    </div>
+    <div class="learn-check">
+      <input type="checkbox" id="learn-c32" onchange="toggleLearned('c32')">
+      <label for="learn-c32">Mark as learned</label>
+    </div>
+  </div>
+</div>
+
+<!-- C33: Scaling Laws -->
+<div class="concept-card" id="c33" data-level="4" data-name="Scaling Laws">
+  <div class="card-header">
+    <h2>33. Scaling Laws (Chinchilla)</h2>
+    <span class="level-badge lvl-badge l4">Level 4 — Expert</span>
+  </div>
+  <div class="card-body">
+    <div class="explanation" style="border-left-color:var(--l4);">
+      📈 <strong>Recipe Scaling:</strong> Scaling laws predict model performance from size and data. Chinchilla's key finding: for compute-optimal training, tokens ≈ 20× parameters. A 7B model needs ~140B tokens. GPT-3 (175B params) was undertrained! Chinchilla (70B params, 1.4T tokens) matched it with 4× less compute.
+    </div>
+    <div class="code-block"><span class="cm"># Chinchilla Scaling Law:</span>
+<span class="cm"># Optimal tokens ≈ 20 × parameters</span>
+<span class="cm"># Loss ≈ A/N^α + B/D^β + constant</span>
+<span class="cm">#   N = parameters, D = data tokens</span>
+
+<span class="cm"># Examples:</span>
+<span class="cm"># 1B params  → need ~20B tokens</span>
+<span class="cm"># 7B params  → need ~140B tokens</span>
+<span class="cm"># 70B params → need ~1.4T tokens</span></div>
+    <div class="interactive-area">
+      <h4><span class="ia-badge">INTERACTIVE</span> Compute-Optimal Calculator</h4>
+      <div class="slider-row">
+        <span>Params:</span>
+        <input type="range" id="c33-params" min="1" max="70" value="7" oninput="updateScaling()">
+        <span class="slider-val" id="c33-val">7B</span>
+      </div>
+      <div id="c33-info" class="output-box" style="font-size:11px;"></div>
+    </div>
+    <div class="quiz-box" id="q33">
+      <div class="quiz-title"><span class="quiz-badge">QUIZ</span> According to Chinchilla, a 10B param model needs...</div>
+      <div class="quiz-options">
+        <div class="quiz-opt" onclick="checkQuiz('q33',this,false)">A) 10B tokens</div>
+        <div class="quiz-opt" onclick="checkQuiz('q33',this,true)">B) ~200B tokens (20× the parameters)</div>
+        <div class="quiz-opt" onclick="checkQuiz('q33',this,false)">C) 1T tokens</div>
+      </div>
+      <div class="quiz-feedback" id="q33-fb"></div>
+    </div>
+    <div class="learn-check">
+      <input type="checkbox" id="learn-c33" onchange="toggleLearned('c33')">
+      <label for="learn-c33">Mark as learned</label>
+    </div>
+  </div>
+</div>
+
+<!-- C34: Speculative Decoding -->
+<div class="concept-card" id="c34" data-level="4" data-name="Speculative Decoding">
+  <div class="card-header">
+    <h2>34. Speculative Decoding</h2>
+    <span class="level-badge lvl-badge l4">Level 4 — Expert</span>
+  </div>
+  <div class="card-body">
+    <div class="explanation" style="border-left-color:var(--l4);">
+      🏃 <strong>Assistant Analogy:</strong> A fast, small "draft" model guesses the next K tokens. Then the big "target" model verifies them all at once (in parallel!). If the draft is right (often 70-90% of the time), you get K tokens for the cost of 1. If wrong, you reject and regenerate. 2-3× speedup with identical output!
+    </div>
+    <div class="code-block"><span class="cm"># Speculative Decoding</span>
+<span class="cm"># 1. Draft model generates K tokens quickly</span>
+draft_tokens = small_model.generate(K=<span class="num">5</span>)
+
+<span class="cm"># 2. Target model verifies ALL at once</span>
+target_probs = big_model(draft_tokens)  <span class="cm"># parallel!</span>
+
+<span class="cm"># 3. Accept tokens where draft matches target</span>
+<span class="kw">for</span> i, tok <span class="kw">in</span> <span class="fn">enumerate</span>(draft_tokens):
+    <span class="kw">if</span> random() < target_probs[i][tok] / draft_probs[i][tok]:
+        accept(tok)  <span class="cm"># keep it!</span>
+    <span class="kw">else</span>: reject_and_resample()  <span class="cm"># fix it</span></div>
+    <div class="interactive-area">
+      <h4><span class="ia-badge">INTERACTIVE</span> Speculation Simulator</h4>
+      <button class="btn btn-primary" onclick="simulateSpec()" style="font-size:11px;">Generate 5 Tokens ▶</button>
+      <div id="c34-result" class="output-box" style="font-size:11px;margin-top:6px;min-height:50px;"></div>
+    </div>
+    <div class="quiz-box" id="q34">
+      <div class="quiz-title"><span class="quiz-badge">QUIZ</span> Does speculative decoding change the output distribution?</div>
+      <div class="quiz-options">
+        <div class="quiz-opt" onclick="checkQuiz('q34',this,true)">A) No — the rejection sampling ensures identical distribution to the target model</div>
+        <div class="quiz-opt" onclick="checkQuiz('q34',this,false)">B) Yes — it's an approximation</div>
+        <div class="quiz-opt" onclick="checkQuiz('q34',this,false)">C) Only when the draft model is very different</div>
+      </div>
+      <div class="quiz-feedback" id="q34-fb"></div>
+    </div>
+    <div class="learn-check">
+      <input type="checkbox" id="learn-c34" onchange="toggleLearned('c34')">
+      <label for="learn-c34">Mark as learned</label>
+    </div>
+  </div>
+</div>
+
+<!-- C35: DPO -->
+<div class="concept-card" id="c35" data-level="4" data-name="DPO">
+  <div class="card-header">
+    <h2>35. DPO (Direct Preference Optimization)</h2>
+    <span class="level-badge lvl-badge l4">Level 4 — Expert</span>
+  </div>
+  <div class="card-body">
+    <div class="explanation" style="border-left-color:var(--l4);">
+      🎯 <strong>Shortcut Analogy:</strong> RLHF needs 3 steps (SFT → Reward Model → PPO). DPO is a shortcut — it skips the reward model entirely! It directly optimizes the LLM using preference pairs (chosen vs rejected). Same result, simpler pipeline, more stable training. Used by LLaMA-3, Zephyr, and many open models.
+    </div>
+    <div class="code-block"><span class="cm"># DPO: directly optimize from preferences</span>
+<span class="cm"># No reward model needed!</span>
+
+<span class="cm"># Loss = -log σ(β * (log π(y_w|x)/π_ref(y_w|x)</span>
+<span class="cm">#              - log π(y_l|x)/π_ref(y_l|x)))</span>
+<span class="cm"># y_w = chosen (winner), y_l = rejected (loser)</span>
+
+loss = -F.logsigmoid(β * (
+    log_ratio_chosen - log_ratio_rejected))</div>
+    <div class="interactive-area">
+      <h4><span class="ia-badge">INTERACTIVE</span> RLHF vs DPO Pipeline</h4>
+      <div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap;margin:8px 0;">
+        <div style="padding:6px 10px;background:var(--bg4);border-radius:6px;font-size:11px;font-weight:700;">RLHF:</div>
+        <div style="padding:6px 10px;background:rgba(0,180,216,0.15);border-radius:6px;font-size:11px;">SFT</div>
+        <span style="color:var(--dim);">→</span>
+        <div style="padding:6px 10px;background:rgba(168,85,247,0.15);border-radius:6px;font-size:11px;">Reward Model</div>
+        <span style="color:var(--dim);">→</span>
+        <div style="padding:6px 10px;background:rgba(249,115,22,0.15);border-radius:6px;font-size:11px;">PPO</div>
+      </div>
+      <div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap;margin:8px 0;">
+        <div style="padding:6px 10px;background:var(--bg4);border-radius:6px;font-size:11px;font-weight:700;">DPO:</div>
+        <div style="padding:6px 10px;background:rgba(0,180,216,0.15);border-radius:6px;font-size:11px;">SFT</div>
+        <span style="color:var(--dim);">→</span>
+        <div style="padding:6px 10px;background:rgba(6,214,160,0.15);border-radius:6px;font-size:11px;">DPO (direct!)</div>
+        <span style="color:var(--green);font-size:11px;font-weight:700;">✓ Simpler!</span>
+      </div>
+    </div>
+    <div class="quiz-box" id="q35">
+      <div class="quiz-title"><span class="quiz-badge">QUIZ</span> What does DPO eliminate compared to RLHF?</div>
+      <div class="quiz-options">
+        <div class="quiz-opt" onclick="checkQuiz('q35',this,true)">A) The separate reward model and PPO training — it optimizes directly from preferences</div>
+        <div class="quiz-opt" onclick="checkQuiz('q35',this,false)">B) The need for preference data</div>
+        <div class="quiz-opt" onclick="checkQuiz('q35',this,false)">C) The SFT step</div>
+      </div>
+      <div class="quiz-feedback" id="q35-fb"></div>
+    </div>
+    <div class="quiz-box" id="q35b">
+      <div class="quiz-title"><span class="quiz-badge">QUIZ</span> DPO uses a frozen "reference model". Why?</div>
+      <div class="quiz-options">
+        <div class="quiz-opt" onclick="checkQuiz('q35b',this,true)">A) To prevent the model from drifting too far from its pre-trained knowledge — acts as a KL penalty anchor</div>
+        <div class="quiz-opt" onclick="checkQuiz('q35b',this,false)">B) To generate training data</div>
+        <div class="quiz-opt" onclick="checkQuiz('q35b',this,false)">C) To speed up training</div>
+      </div>
+      <div class="quiz-feedback" id="q35b-fb"></div>
+    </div>
+      <div class="quiz-feedback" id="q35-fb"></div>
+    </div>
+    <div class="learn-check">
+      <input type="checkbox" id="learn-c35" onchange="toggleLearned('c35')">
+      <label for="learn-c35">Mark as learned</label>
+    </div>
+  </div>
+</div>
+
+<!-- C36: RAG (GAP) -->
+<div class="concept-card" id="c36" data-level="4" data-name="RAG">
+  <div class="card-header">
+    <h2>36. RAG (Retrieval-Augmented Generation)</h2>
+    <span class="level-badge lvl-badge l4">Level 4 — Expert</span>
+    <span class="gap-badge">GAP FILLER</span>
+  </div>
+  <div class="card-body">
+    <div class="explanation" style="border-left-color:var(--l4);">
+      📚 <strong>Open-Book Exam:</strong> Instead of relying only on memorized knowledge (which can be outdated or wrong), RAG lets the model "look things up" first. Step 1: Convert the question to an embedding. Step 2: Search a vector database for relevant documents. Step 3: Feed those documents + question to the LLM. Reduces hallucination!
+    </div>
+    <div class="code-block"><span class="cm"># RAG Pipeline:</span>
+<span class="cm"># 1. Embed the query</span>
+query_vec = embed_model(<span class="str">"What is RoPE?"</span>)
+
+<span class="cm"># 2. Search vector database for similar docs</span>
+docs = vector_db.search(query_vec, top_k=<span class="num">3</span>)
+
+<span class="cm"># 3. Augment the prompt with retrieved context</span>
+prompt = <span class="str">f"Context: {docs}\nQuestion: {query}"</span>
+answer = llm.generate(prompt)  <span class="cm"># grounded answer!</span></div>
+    <div class="interactive-area">
+      <h4><span class="ia-badge">INTERACTIVE</span> RAG vs No-RAG</h4>
+      <p style="font-size:12px;margin-bottom:8px;">See how retrieval improves answers:</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+        <div style="padding:10px;background:var(--bg4);border-radius:8px;border-left:3px solid var(--red);">
+          <div style="font-size:10px;font-weight:800;color:var(--red);margin-bottom:4px;">Without RAG</div>
+          <div style="font-size:11px;">"RoPE was invented in 2019 by OpenAI..." <span style="color:var(--red);">❌ hallucinated</span></div>
+        </div>
+        <div style="padding:10px;background:var(--bg4);border-radius:8px;border-left:3px solid var(--green);">
+          <div style="font-size:10px;font-weight:800;color:var(--green);margin-bottom:4px;">With RAG</div>
+          <div style="font-size:11px;">"RoPE was proposed by Su et al. (2021)..." <span style="color:var(--green);">✓ grounded</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="quiz-box" id="q36">
+      <div class="quiz-title"><span class="quiz-badge">QUIZ</span> What is the main benefit of RAG?</div>
+      <div class="quiz-options">
+        <div class="quiz-opt" onclick="checkQuiz('q36',this,true)">A) Grounds answers in retrieved documents, reducing hallucination</div>
+        <div class="quiz-opt" onclick="checkQuiz('q36',this,false)">B) Makes the model faster</div>
+        <div class="quiz-opt" onclick="checkQuiz('q36',this,false)">C) Reduces model size</div>
+      </div>
+      <div class="quiz-feedback" id="q36-fb"></div>
+    </div>
+    <div class="quiz-box" id="q36b">
+      <div class="quiz-title"><span class="quiz-badge">QUIZ</span> RAG vs fine-tuning: when to use RAG?</div>
+      <div class="quiz-options">
+        <div class="quiz-opt" onclick="checkQuiz('q36b',this,true)">A) When knowledge changes frequently (docs, APIs, news) — RAG updates instantly by swapping documents</div>
+        <div class="quiz-opt" onclick="checkQuiz('q36b',this,false)">B) When you want to change the model's personality</div>
+        <div class="quiz-opt" onclick="checkQuiz('q36b',this,false)">C) When you have no documents</div>
+      </div>
+      <div class="quiz-feedback" id="q36b-fb"></div>
+    </div>
+    <div class="learn-check">
+      <input type="checkbox" id="learn-c36" onchange="toggleLearned('c36')">
+      <label for="learn-c36">Mark as learned</label>
+    </div>
+  </div>
+</div>
+
+<!-- C37: Hallucination & Safety (GAP) -->
+<div class="concept-card" id="c37" data-level="4" data-name="Hallucination Safety">
+  <div class="card-header">
+    <h2>37. Hallucination & Safety</h2>
+    <span class="level-badge lvl-badge l4">Level 4 — Expert</span>
+    <span class="gap-badge">GAP FILLER</span>
+  </div>
+  <div class="card-body">
+    <div class="explanation" style="border-left-color:var(--l4);">
+      🎭 <strong>Confident Liar Analogy:</strong> LLMs don't "know" things — they predict likely next tokens. When they generate plausible-sounding but false information, that's hallucination. Safety measures include: RLHF alignment, constitutional AI, guardrails, output filtering, and RAG for grounding. No model is hallucination-free yet!
+    </div>
+    <div class="code-block"><span class="cm"># Types of hallucination:</span>
+<span class="cm"># 1. Factual: "The Eiffel Tower is in London"</span>
+<span class="cm"># 2. Fabrication: inventing fake citations</span>
+<span class="cm"># 3. Inconsistency: contradicting itself</span>
+
+<span class="cm"># Mitigation strategies:</span>
+<span class="cm"># - RAG: ground in retrieved documents</span>
+<span class="cm"># - RLHF/DPO: train to say "I don't know"</span>
+<span class="cm"># - Temperature: lower temp = less creative</span>
+<span class="cm"># - Self-consistency: generate multiple, vote</span></div>
+    <div class="interactive-area">
+      <h4><span class="ia-badge">INTERACTIVE</span> Spot the Hallucination!</h4>
+      <p style="font-size:12px;margin-bottom:8px;">Which response contains a hallucination?</p>
+      <div style="display:flex;flex-direction:column;gap:6px;">
+        <div class="btn" onclick="spotHallucination(1)" id="c37-a" style="background:var(--bg4);text-align:left;font-size:12px;padding:10px;border:2px solid transparent;border-radius:8px;">
+          A) "Python was created by Guido van Rossum and first released in 1991."
+        </div>
+        <div class="btn" onclick="spotHallucination(2)" id="c37-b" style="background:var(--bg4);text-align:left;font-size:12px;padding:10px;border:2px solid transparent;border-radius:8px;">
+          B) "Python was created by James Gosling at Sun Microsystems in 1995."
+        </div>
+      </div>
+      <div id="c37-info" style="font-size:11px;color:var(--dim);margin-top:6px;"></div>
+    </div>
+    <div class="quiz-box" id="q37">
+      <div class="quiz-title"><span class="quiz-badge">QUIZ</span> Why do LLMs hallucinate?</div>
+      <div class="quiz-options">
+        <div class="quiz-opt" onclick="checkQuiz('q37',this,true)">A) They predict statistically likely tokens, not verified facts</div>
+        <div class="quiz-opt" onclick="checkQuiz('q37',this,false)">B) They have bad memory</div>
+        <div class="quiz-opt" onclick="checkQuiz('q37',this,false)">C) They intentionally lie</div>
+      </div>
+      <div class="quiz-feedback" id="q37-fb"></div>
+    </div>
+    <div class="learn-check">
+      <input type="checkbox" id="learn-c37" onchange="toggleLearned('c37')">
+      <label for="learn-c37">Mark as learned</label>
+    </div>
+  </div>
+</div>
+
+<!-- C38: Complete Architecture -->
+<div class="concept-card" id="c38" data-level="4" data-name="Complete Architecture">
+  <div class="card-header">
+    <h2>38. Complete Architecture (Putting It All Together)</h2>
+    <span class="level-badge lvl-badge l4">Level 4 — Expert</span>
+  </div>
+  <div class="card-body">
+    <div class="explanation" style="border-left-color:var(--l4);">
+      🏗️ <strong>The Full Picture:</strong> A modern LLM (like LLaMA) combines ALL 37 concepts above: BPE tokenizer → Token + RoPE embeddings → N × [RMSNorm → GQA with Flash Attention → RMSNorm → SwiGLU FFN] → RMSNorm → Weight-tied output head. Trained with mixed precision, cosine LR, then aligned with DPO. You now understand the entire stack!
+    </div>
+    <div class="code-block"><span class="cm"># The Complete LLaMA-style Architecture</span>
+<span class="kw">class</span> <span class="cls">ModernLLM</span>(nn.Module):
+    tokenizer = BPETokenizer(vocab=<span class="num">32000</span>)
+    embed     = nn.Embedding(<span class="num">32000</span>, <span class="num">4096</span>)  <span class="cm"># + RoPE</span>
+    blocks    = [TransformerBlock(           <span class="cm"># × 32</span>
+        attn=GQA(heads=<span class="num">32</span>, kv_heads=<span class="num">8</span>),   <span class="cm"># GQA</span>
+        ff=SwiGLU(<span class="num">4096</span>),                  <span class="cm"># SwiGLU</span>
+        norm=RMSNorm(<span class="num">4096</span>)                <span class="cm"># RMSNorm</span>
+    ) <span class="kw">for</span> _ <span class="kw">in</span> <span class="fn">range</span>(<span class="num">32</span>)]
+    head      = Linear(<span class="num">4096</span>, <span class="num">32000</span>)     <span class="cm"># weight-tied!</span></div>
+    <div class="interactive-area">
+      <h4><span class="ia-badge">INTERACTIVE</span> Architecture Diagram</h4>
+      <div style="display:flex;flex-direction:column;gap:4px;align-items:center;padding:10px;">
+        <div style="padding:8px 20px;background:rgba(0,180,216,0.15);border:1px solid var(--l1);border-radius:8px;font-size:11px;font-weight:700;color:var(--l1);">Input Tokens → BPE Tokenizer</div>
+        <div style="color:var(--dim);">↓</div>
+        <div style="padding:8px 20px;background:rgba(0,180,216,0.15);border:1px solid var(--l1);border-radius:8px;font-size:11px;font-weight:700;color:var(--l1);">Token Embedding + RoPE</div>
+        <div style="color:var(--dim);">↓</div>
+        <div style="padding:12px 20px;background:rgba(249,115,22,0.1);border:2px solid var(--l3);border-radius:10px;font-size:11px;text-align:center;width:80%;">
+          <div style="font-weight:800;color:var(--l3);margin-bottom:4px;">× 32 Transformer Blocks</div>
+          <div style="font-size:10px;color:var(--dim);">RMSNorm → GQA (Flash Attn) → RMSNorm → SwiGLU FFN</div>
+          <div style="font-size:10px;color:var(--dim);">+ Residual connections + Dropout</div>
+        </div>
+        <div style="color:var(--dim);">↓</div>
+        <div style="padding:8px 20px;background:rgba(245,158,11,0.15);border:1px solid var(--l4);border-radius:8px;font-size:11px;font-weight:700;color:var(--l4);">RMSNorm → Output Head (weight-tied)</div>
+        <div style="color:var(--dim);">↓</div>
+        <div style="padding:8px 20px;background:rgba(6,214,160,0.15);border:1px solid var(--green);border-radius:8px;font-size:11px;font-weight:700;color:var(--green);">Softmax → Next Token Probabilities</div>
+      </div>
+    </div>
+    <div class="quiz-box" id="q38">
+      <div class="quiz-title"><span class="quiz-badge">QUIZ</span> How many of the 38 concepts can you identify in a modern LLM?</div>
+      <div class="quiz-options">
+        <div class="quiz-opt" onclick="checkQuiz('q38',this,false)">A) About 10 — most are theoretical</div>
+        <div class="quiz-opt" onclick="checkQuiz('q38',this,false)">B) About 20 — half are used in practice</div>
+        <div class="quiz-opt" onclick="checkQuiz('q38',this,true)">C) All 38 — every concept plays a role in modern LLM systems</div>
+      </div>
+      <div class="quiz-feedback" id="q38-fb"></div>
+    </div>
+    <div class="learn-check">
+      <input type="checkbox" id="learn-c38" onchange="toggleLearned('c38')">
+      <label for="learn-c38">Mark as learned</label>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════ -->
+<!-- QUICK REFERENCE TABLE                        -->
+<!-- ════════════════════════════════════════════ -->
+<div class="concept-card" id="quick-ref" data-level="0" data-name="Quick Reference">
+  <div class="card-header">
+    <h2>📋 Quick Reference — All 38 Concepts</h2>
+  </div>
+  <div class="card-body">
+    <div style="overflow-x:auto;">
+      <table class="ref-table">
+        <thead>
+          <tr><th>#</th><th>Concept</th><th>Level</th><th>One-Line Summary</th><th>Used By</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>1</td><td>Training Data</td><td style="color:var(--l1);">L1</td><td>Text the model learns from — quality determines capability</td><td>All LLMs</td></tr>
+          <tr><td>2</td><td>Char Tokenizer</td><td style="color:var(--l1);">L1</td><td>Split text into individual characters, each gets an ID</td><td>Baby LLM</td></tr>
+          <tr><td>3</td><td>Embeddings</td><td style="color:var(--l1);">L1</td><td>Convert tokens to vectors (meaning) + positions (order)</td><td>All LLMs</td></tr>
+          <tr><td>4</td><td>Softmax & Temp</td><td style="color:var(--l1);">L1</td><td>Convert logits to probabilities; temperature controls randomness</td><td>All LLMs</td></tr>
+          <tr><td>5</td><td>Self-Attention</td><td style="color:var(--l1);">L1</td><td>Q·K similarity → weighted sum of V; tokens attend to each other</td><td>All Transformers</td></tr>
+          <tr><td>6</td><td>Multi-Head Attn</td><td style="color:var(--l1);">L1</td><td>Run attention N times in parallel for different patterns</td><td>All Transformers</td></tr>
+          <tr><td>7</td><td>Feed-Forward</td><td style="color:var(--l1);">L1</td><td>Expand 4×, activate, compress — stores learned knowledge</td><td>All Transformers</td></tr>
+          <tr><td>8</td><td>Transformer Block</td><td style="color:var(--l1);">L1</td><td>Attention + FFN + residuals + norm — stack N of these</td><td>All Transformers</td></tr>
+          <tr><td>9</td><td>Cross-Entropy</td><td style="color:var(--l1);">L1</td><td>Loss function: -log(prob of correct token)</td><td>All LLMs</td></tr>
+          <tr><td>10</td><td>Backpropagation</td><td style="color:var(--l1);">L1</td><td>Compute gradients and update weights to reduce loss</td><td>All neural nets</td></tr>
+          <tr><td>11</td><td>BPE Tokenizer</td><td style="color:var(--l2);">L2</td><td>Merge frequent character pairs → subword tokens</td><td>GPT, LLaMA</td></tr>
+          <tr><td>12</td><td>Special Tokens</td><td style="color:var(--l2);">L2</td><td>BOS, EOS, PAD — structural markers for sequences</td><td>All LLMs</td></tr>
+          <tr><td>13</td><td>Dropout</td><td style="color:var(--l2);">L2</td><td>Randomly zero neurons during training to prevent overfitting</td><td>Most LLMs</td></tr>
+          <tr><td>14</td><td>GELU</td><td style="color:var(--l2);">L2</td><td>Smooth activation: x·Φ(x), allows small negatives through</td><td>GPT-2, BERT</td></tr>
+          <tr><td>15</td><td>KV-Cache</td><td style="color:var(--l2);">L2</td><td>Cache K,V from previous tokens to avoid recomputation</td><td>All inference</td></tr>
+          <tr><td>16</td><td>LR Scheduling</td><td style="color:var(--l2);">L2</td><td>Warmup → peak → cosine decay for stable training</td><td>All LLMs</td></tr>
+          <tr><td>17</td><td>Top-p Sampling</td><td style="color:var(--l2);">L2</td><td>Sample from smallest set with cumulative prob ≥ p</td><td>All generation</td></tr>
+          <tr><td>18</td><td>Perplexity</td><td style="color:var(--l2);">L2</td><td>e^loss — measures model confusion (lower = better)</td><td>Evaluation</td></tr>
+          <tr><td>19</td><td>Overfitting</td><td style="color:var(--l2);">L2</td><td>Memorizing training data; fix with splits, dropout, regularization</td><td>All ML</td></tr>
+          <tr><td>20</td><td>RoPE</td><td style="color:var(--l3);">L3</td><td>Rotary position encoding via 2D rotation of Q,K pairs</td><td>LLaMA, Mistral</td></tr>
+          <tr><td>21</td><td>GQA</td><td style="color:var(--l3);">L3</td><td>Share K,V heads across Q heads to save KV-cache memory</td><td>LLaMA-2, Mistral</td></tr>
+          <tr><td>22</td><td>SwiGLU</td><td style="color:var(--l3);">L3</td><td>Gated FFN: Swish(xW₁) × (xW₂) — outperforms GELU</td><td>LLaMA, PaLM</td></tr>
+          <tr><td>23</td><td>Flash Attention</td><td style="color:var(--l3);">L3</td><td>Tiled attention: O(N) memory, 2-4× faster, same result</td><td>All modern LLMs</td></tr>
+          <tr><td>24</td><td>Context Window</td><td style="color:var(--l3);">L3</td><td>Max tokens visible; sliding window limits per-layer attention</td><td>Mistral, GPT-4</td></tr>
+          <tr><td>25</td><td>Beam Search</td><td style="color:var(--l3);">L3</td><td>Explore B candidates simultaneously for best overall sequence</td><td>Translation</td></tr>
+          <tr><td>26</td><td>RMSNorm</td><td style="color:var(--l3);">L3</td><td>Normalize by RMS only (no mean/shift) — simpler, faster</td><td>LLaMA</td></tr>
+          <tr><td>27</td><td>Mixed Precision</td><td style="color:var(--l3);">L3</td><td>BF16 for compute, FP32 master weights — 2× less memory</td><td>All training</td></tr>
+          <tr><td>28</td><td>RLHF</td><td style="color:var(--l3);">L3</td><td>SFT → Reward Model → PPO to align with human preferences</td><td>ChatGPT, Claude</td></tr>
+          <tr><td>29</td><td>Weight Tying</td><td style="color:var(--l3);">L3</td><td>Share embedding and output matrices — saves millions of params</td><td>LLaMA, GPT-2</td></tr>
+          <tr><td>30</td><td>MoE</td><td style="color:var(--l4);">L4</td><td>Route tokens to top-K of N experts — more params, same compute</td><td>Mixtral, GPT-4</td></tr>
+          <tr><td>31</td><td>LoRA</td><td style="color:var(--l4);">L4</td><td>Low-rank adapters: train 0.1-1% of params for fine-tuning</td><td>Fine-tuning</td></tr>
+          <tr><td>32</td><td>Quantization</td><td style="color:var(--l4);">L4</td><td>Reduce weight precision: FP16→INT8→INT4 for smaller models</td><td>Deployment</td></tr>
+          <tr><td>33</td><td>Scaling Laws</td><td style="color:var(--l4);">L4</td><td>Optimal tokens ≈ 20× params (Chinchilla)</td><td>Training planning</td></tr>
+          <tr><td>34</td><td>Spec. Decoding</td><td style="color:var(--l4);">L4</td><td>Draft model guesses, target verifies in parallel — 2-3× faster</td><td>Inference</td></tr>
+          <tr><td>35</td><td>DPO</td><td style="color:var(--l4);">L4</td><td>Direct preference optimization — simpler alternative to RLHF</td><td>LLaMA-3, Zephyr</td></tr>
+          <tr><td>36</td><td>RAG</td><td style="color:var(--l4);">L4</td><td>Retrieve documents, augment prompt — reduces hallucination</td><td>Enterprise LLMs</td></tr>
+          <tr><td>37</td><td>Hallucination</td><td style="color:var(--l4);">L4</td><td>Plausible but false output; mitigate with RAG, RLHF, guardrails</td><td>Safety</td></tr>
+          <tr><td>38</td><td>Full Architecture</td><td style="color:var(--l4);">L4</td><td>All concepts combined into a modern LLM like LLaMA</td><td>Everything!</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+</div><!-- end main-content -->
+</div><!-- end layout -->
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// STATE MANAGEMENT
+// ═══════════════════════════════════════════════════════════
+let score = 0;
+let learnedSet = new Set();
+let answeredQuizzes = {};
+
+// Load from localStorage
+try {
+  const saved = JSON.parse(localStorage.getItem('llm_master_state') || '{}');
+  if (saved.learned) { learnedSet = new Set(saved.learned); }
+  if (saved.score) { score = saved.score; }
+  if (saved.quizzes) { answeredQuizzes = saved.quizzes; }
+} catch(e) {}
+
+function saveState() {
+  localStorage.setItem('llm_master_state', JSON.stringify({
+    learned: [...learnedSet],
+    score: score,
+    quizzes: answeredQuizzes
+  }));
+}
+
+function updateProgress() {
+  const count = learnedSet.size;
+  document.getElementById('learnedCount').textContent = count;
+  document.getElementById('totalScore').textContent = score;
+  document.getElementById('progressFill').style.width = (count / 38 * 100) + '%';
+  document.getElementById('progressText').textContent = count + ' / 38 concepts';
+  // Update nav checks
+  for (let i = 1; i <= 38; i++) {
+    const el = document.getElementById('nav-c' + i);
+    if (el) el.textContent = learnedSet.has('c' + i) ? '●' : '○';
+    if (el) el.classList.toggle('done', learnedSet.has('c' + i));
+    const card = document.getElementById('c' + i);
+    if (card) card.classList.toggle('learned', learnedSet.has('c' + i));
+  }
+}
+
+function toggleLearned(id) {
+  const cb = document.getElementById('learn-' + id);
+  if (cb.checked) { learnedSet.add(id); } else { learnedSet.delete(id); }
+  saveState();
+  updateProgress();
+}
+
+// ═══════════════════════════════════════════════════════════
+// QUIZ SYSTEM
+// ═══════════════════════════════════════════════════════════
+function checkQuiz(qid, el, correct) {
+  const box = document.getElementById(qid);
+  if (box.classList.contains('correct') || box.classList.contains('wrong')) return;
+  const fb = document.getElementById(qid + '-fb');
+  const opts = box.querySelectorAll('.quiz-opt');
+  if (correct) {
+    el.classList.add('sel-correct');
+    box.classList.add('correct');
+    fb.className = 'quiz-feedback show correct';
+    fb.textContent = '✅ Correct! +10 points';
+    if (!answeredQuizzes[qid]) { score += 10; answeredQuizzes[qid] = true; }
+  } else {
+    el.classList.add('sel-wrong');
+    box.classList.add('wrong');
+    fb.className = 'quiz-feedback show wrong';
+    fb.textContent = '❌ Not quite — see the correct answer highlighted.';
+  }
+  opts.forEach(o => {
+    o.classList.add('disabled');
+    if (o !== el && o.getAttribute('onclick') && o.getAttribute('onclick').includes('true')) {
+      o.classList.add('show-correct');
+    }
+  });
+  saveState();
+  updateProgress();
+}
+
+// ═══════════════════════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════════════════════
+function scrollTo_(id) {
+  const el = document.getElementById(id);
+  if (el) {
+    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    // Highlight nav
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    event.currentTarget.classList.add('active');
+    // Close mobile sidebar
+    document.querySelector('.sidebar').classList.remove('open');
+  }
+}
+
+function toggleLevel(el) {
+  const arrow = el.querySelector('.arrow');
+  const items = el.nextElementSibling;
+  arrow.classList.toggle('open');
+  items.classList.toggle('open');
+}
+
+function filterConcepts(query) {
+  const q = query.toLowerCase();
+  document.querySelectorAll('.concept-card').forEach(card => {
+    const name = (card.dataset.name || '').toLowerCase();
+    const text = card.textContent.toLowerCase();
+    card.style.display = (!q || name.includes(q) || text.includes(q)) ? '' : 'none';
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+// C1: Word Frequency Explorer
+// ═══════════════════════════════════════════════════════════
+(function initC1() {
+  const words = 'Once upon a time there was a little cat The little cat loved to play in the garden Every day the little cat would chase butterflies'.split(' ');
+  const area = document.getElementById('c1-words');
+  const counts = {};
+  if (!area) return;
+  words.forEach(w => {
+    const span = document.createElement('span');
+    span.textContent = w;
+    span.style.cssText = 'padding:3px 8px;border-radius:6px;background:var(--bg4);cursor:pointer;font-size:12px;font-weight:600;transition:all .2s;';
+    span.onclick = function() {
+      const lw = w.toLowerCase();
+      counts[lw] = (counts[lw] || 0) + 1;
+      this.style.background = 'rgba(0,180,216,0.3)';
+      setTimeout(() => this.style.background = 'var(--bg4)', 300);
+      const sorted = Object.entries(counts).sort((a,b) => b[1]-a[1]).slice(0, 6);
+      document.getElementById('c1-counts').innerHTML = sorted.map(([w,c]) =>
+        '<span style="color:var(--accent);font-weight:700;">' + w + '</span>:' + c
+      ).join(' &nbsp;|&nbsp; ');
+    };
+    area.appendChild(span);
+  });
+})();
+
+// ═══════════════════════════════════════════════════════════
+// C2: Live Tokenizer
+// ═══════════════════════════════════════════════════════════
+const VOCAB = ' .ETacbdefghijklmnoprstuvwy';
+function tokenizeC2() {
+  const input = document.getElementById('c2-input').value;
+  const result = document.getElementById('c2-result');
+  result.innerHTML = '';
+  [...input].forEach(ch => {
+    const idx = VOCAB.indexOf(ch.toLowerCase());
+    const id = idx >= 0 ? idx : '?';
+    const colors = ['#00b4d8','#06d6a0','#a855f7','#f97316','#f59e0b','#e94560'];
+    const color = colors[id % colors.length] || '#6b7294';
+    const div = document.createElement('div');
+    div.style.cssText = 'display:flex;flex-direction:column;align-items:center;padding:6px 10px;border-radius:8px;background:' + color + '22;border:1px solid ' + color + '44;';
+    div.innerHTML = '<span style="font-size:18px;font-weight:800;color:' + color + ';">' + (ch === ' ' ? '␣' : ch) + '</span><span style="font-size:10px;color:var(--dim);">ID:' + id + '</span>';
+    result.appendChild(div);
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+// C3: Embedding Space Canvas
+// ═══════════════════════════════════════════════════════════
+function drawEmbeddingSpace() {
+  const canvas = document.getElementById('c3-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0, 0, W, H);
+  const words = [
+    { w: 'cat', x: 0.3, y: 0.3, c: '#00b4d8' },
+    { w: 'dog', x: 0.35, y: 0.35, c: '#00b4d8' },
+    { w: 'kitten', x: 0.28, y: 0.25, c: '#00b4d8' },
+    { w: 'car', x: 0.7, y: 0.7, c: '#f97316' },
+    { w: 'truck', x: 0.75, y: 0.65, c: '#f97316' },
+    { w: 'bus', x: 0.72, y: 0.75, c: '#f97316' },
+    { w: 'happy', x: 0.5, y: 0.15, c: '#06d6a0' },
+    { w: 'joyful', x: 0.55, y: 0.12, c: '#06d6a0' },
+    { w: 'sad', x: 0.5, y: 0.85, c: '#e94560' },
+  ];
+  // Draw grid
+  ctx.strokeStyle = 'rgba(255,255,255,0.05)';
+  for (let i = 0; i < 10; i++) { ctx.beginPath(); ctx.moveTo(i*W/10,0); ctx.lineTo(i*W/10,H); ctx.stroke(); ctx.beginPath(); ctx.moveTo(0,i*H/10); ctx.lineTo(W,i*H/10); ctx.stroke(); }
+  // Draw words
+  words.forEach(wd => {
+    const px = wd.x * W, py = wd.y * H;
+    ctx.beginPath(); ctx.arc(px, py, 5, 0, Math.PI * 2); ctx.fillStyle = wd.c; ctx.fill();
+    ctx.font = '11px Nunito'; ctx.fillStyle = wd.c; ctx.fillText(wd.w, px + 8, py + 4);
+  });
+  // Labels
+  ctx.font = '10px Fira Code'; ctx.fillStyle = '#6b7294';
+  ctx.fillText('Similar words cluster together', 10, H - 8);
+}
+</script>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// C4: Temperature Slider
+// ═══════════════════════════════════════════════════════════
+function updateTemp() {
+  const temp = document.getElementById('c4-temp').value / 10;
+  document.getElementById('c4-temp-val').textContent = temp.toFixed(1);
+  const logits = [2.0, 1.0, 0.5, 0.1, -0.5];
+  const labels = ['the', 'cat', 'sat', 'on', 'a'];
+  const scaled = logits.map(l => Math.exp(l / temp));
+  const sum = scaled.reduce((a, b) => a + b, 0);
+  const probs = scaled.map(s => s / sum);
+  const bars = document.getElementById('c4-bars');
+  bars.innerHTML = probs.map((p, i) =>
+    '<div style="display:flex;align-items:center;gap:8px;margin:3px 0;">' +
+    '<span style="width:30px;font-family:Fira Code;font-size:12px;font-weight:700;text-align:right;">' + labels[i] + '</span>' +
+    '<div style="flex:1;height:18px;background:var(--bg4);border-radius:4px;overflow:hidden;">' +
+    '<div style="height:100%;width:' + (p * 100) + '%;background:linear-gradient(90deg,var(--l1),var(--green));border-radius:4px;transition:width .3s;"></div></div>' +
+    '<span style="width:40px;font-family:Fira Code;font-size:11px;color:var(--dim);text-align:right;">' + (p * 100).toFixed(1) + '%</span></div>'
+  ).join('');
+}
+
+// ═══════════════════════════════════════════════════════════
+// C5: Attention Heatmap
+// ═══════════════════════════════════════════════════════════
+const ATTN_WORDS = ['The', 'cat', 'sat', 'on', 'mat'];
+const ATTN_WEIGHTS = [
+  [0.5, 0.1, 0.1, 0.1, 0.2],
+  [0.2, 0.4, 0.2, 0.1, 0.1],
+  [0.1, 0.5, 0.3, 0.05, 0.05],
+  [0.1, 0.1, 0.3, 0.3, 0.2],
+  [0.15, 0.1, 0.15, 0.2, 0.4],
+];
+
+function drawAttnMap() {
+  const canvas = document.getElementById('c5-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  const n = ATTN_WORDS.length;
+  const cellW = (W - 50) / n, cellH = (H - 50) / n;
+  ctx.clearRect(0, 0, W, H);
+  // Labels
+  ctx.font = '11px Fira Code'; ctx.fillStyle = '#00b4d8';
+  ATTN_WORDS.forEach((w, i) => {
+    ctx.fillText(w, 55 + i * cellW + cellW/2 - ctx.measureText(w).width/2, 18);
+    ctx.fillText(w, 2, 42 + i * cellH + cellH/2 + 4);
+  });
+  // Cells
+  for (let i = 0; i < n; i++) {
+    for (let j = 0; j < n; j++) {
+      const v = ATTN_WEIGHTS[i][j];
+      const x = 50 + j * cellW, y = 28 + i * cellH;
+      ctx.fillStyle = `rgba(0,180,216,${v})`;
+      ctx.fillRect(x + 1, y + 1, cellW - 2, cellH - 2);
+      ctx.font = '11px Fira Code'; ctx.fillStyle = v > 0.3 ? '#fff' : '#6b7294';
+      ctx.fillText(v.toFixed(2), x + cellW/2 - 14, y + cellH/2 + 4);
+    }
+  }
+}
+
+function clickAttnMap(event) {
+  const canvas = document.getElementById('c5-canvas');
+  const rect = canvas.getBoundingClientRect();
+  const scaleX = canvas.width / rect.width;
+  const x = (event.clientX - rect.left) * scaleX - 50;
+  const y = (event.clientY - rect.top) * scaleX - 28;
+  const n = ATTN_WORDS.length;
+  const cellW = (canvas.width - 50) / n, cellH = (canvas.height - 50) / n;
+  const col = Math.floor(x / cellW), row = Math.floor(y / cellH);
+  if (row >= 0 && row < n && col >= 0 && col < n) {
+    document.getElementById('c5-info').innerHTML =
+      '"<strong>' + ATTN_WORDS[row] + '</strong>" attends to "<strong>' + ATTN_WORDS[col] + '</strong>" with weight <strong style="color:var(--yellow);">' + ATTN_WEIGHTS[row][col].toFixed(2) + '</strong>';
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// C6: Head Specialization
+// ═══════════════════════════════════════════════════════════
+const HEAD_INFO = [
+  'Head 1 focuses on <strong>grammatical relationships</strong>: subject→verb, adjective→noun. It learns "cat" relates to "sat" because subjects connect to their verbs.',
+  'Head 2 focuses on <strong>positional patterns</strong>: nearby tokens attend to each other more. It captures local context like "the cat" being a phrase.',
+  'Head 3 focuses on <strong>semantic meaning</strong>: "cat" attends to "kitten" and "pet" because they share meaning, even if far apart in the sentence.',
+  'Head 4 focuses on <strong>syntactic structure</strong>: matching brackets, sentence boundaries, and punctuation patterns. It learns the "shape" of language.'
+];
+function showHead(idx) {
+  document.getElementById('c6-info').innerHTML = HEAD_INFO[idx];
+  document.querySelectorAll('#c6-heads .btn').forEach((b, i) => {
+    b.style.background = i === idx ? 'var(--accent)' : 'var(--bg4)';
+    b.style.color = i === idx ? '#000' : 'var(--text)';
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+// C7: Feed-Forward Animation
+// ═══════════════════════════════════════════════════════════
+function animateFF() {
+  const mid = document.getElementById('c7-mid');
+  mid.style.transition = 'all 0.5s';
+  mid.style.transform = 'scale(1.2)';
+  mid.style.background = 'var(--yellow)';
+  setTimeout(() => { mid.style.transform = 'scale(1)'; mid.style.background = 'var(--green)'; }, 500);
+}
+
+// ═══════════════════════════════════════════════════════════
+// C8: Block Stacker
+// ═══════════════════════════════════════════════════════════
+function updateBlocks() {
+  const n = parseInt(document.getElementById('c8-blocks').value);
+  document.getElementById('c8-val').textContent = n;
+  const stack = document.getElementById('c8-stack');
+  stack.innerHTML = '';
+  for (let i = 0; i < n; i++) {
+    const div = document.createElement('div');
+    div.style.cssText = 'width:80%;padding:6px;text-align:center;border-radius:6px;font-size:10px;font-weight:700;background:linear-gradient(90deg,rgba(0,180,216,0.2),rgba(168,85,247,0.2));border:1px solid rgba(0,180,216,0.3);';
+    div.textContent = 'Block ' + (i + 1) + ': Attn → FFN';
+    stack.appendChild(div);
+  }
+  const models = {1:'Tiny',2:'Tiny',3:'Tiny',4:'Baby LLM',6:'GPT-1',12:'GPT-2',};
+  const closest = Object.keys(models).reverse().find(k => n >= k) || 1;
+  document.getElementById('c8-info').innerHTML = n + ' blocks ≈ <strong>' + (models[closest] || 'Custom') + '</strong> | ~' + (n * 50) + 'K params (at dim=64)';
+}
+
+// ═══════════════════════════════════════════════════════════
+// C9: Loss Calculator
+// ═══════════════════════════════════════════════════════════
+function updateLoss() {
+  const conf = parseInt(document.getElementById('c9-conf').value);
+  document.getElementById('c9-conf-val').textContent = conf + '%';
+  const p = conf / 100;
+  const loss = -Math.log(p);
+  document.getElementById('c9-loss').textContent = 'Loss: ' + loss.toFixed(3);
+  const pct = Math.min(loss / 5 * 100, 100);
+  const fill = document.getElementById('c9-bar-fill');
+  fill.style.width = pct + '%';
+  fill.style.background = pct > 60 ? 'var(--red)' : pct > 30 ? 'var(--yellow)' : 'var(--green)';
+}
+
+// ═══════════════════════════════════════════════════════════
+// C10: Training Simulator
+// ═══════════════════════════════════════════════════════════
+let trainEpoch = 0;
+let trainLosses = [];
+function trainSim() {
+  const bars = document.getElementById('c10-bars');
+  const info = document.getElementById('c10-info');
+  if (trainEpoch >= 30) { trainEpoch = 0; trainLosses = []; }
+  for (let i = 0; i < 10; i++) {
+    trainEpoch++;
+    const loss = 4.0 * Math.exp(-trainEpoch * 0.12) + 0.3 + Math.random() * 0.2;
+    trainLosses.push(loss);
+  }
+  bars.innerHTML = '';
+  const maxL = Math.max(...trainLosses, 1);
+  trainLosses.forEach((l, i) => {
+    const h = (l / maxL) * 60;
+    const color = l > 2 ? 'var(--red)' : l > 1 ? 'var(--yellow)' : 'var(--green)';
+    const bar = document.createElement('div');
+    bar.style.cssText = 'flex:1;height:' + h + 'px;background:' + color + ';border-radius:2px 2px 0 0;transition:height .3s;';
+    bars.appendChild(bar);
+  });
+  const lastLoss = trainLosses[trainLosses.length - 1];
+  info.innerHTML = 'Epoch ' + trainEpoch + ' | Loss: <strong style="color:' + (lastLoss > 2 ? 'var(--red)' : lastLoss > 1 ? 'var(--yellow)' : 'var(--green)') + ';">' + lastLoss.toFixed(3) + '</strong>';
+}
+
+// ═══════════════════════════════════════════════════════════
+// C11: BPE Merge Simulator
+// ═══════════════════════════════════════════════════════════
+let bpeTokens = ['l','o','w','e','r','_','l','o','w','e','s','t'];
+let bpeStep = 0;
+const bpeMerges = [['l','o','lo'],['lo','w','low'],['e','r','er'],['e','s','es']];
+
+function bpeMerge() {
+  if (bpeStep >= bpeMerges.length) {
+    document.getElementById('c11-info').textContent = 'All merges complete!';
+    return;
+  }
+  const [a, b, merged] = bpeMerges[bpeStep];
+  const newTokens = [];
+  let i = 0;
+  while (i < bpeTokens.length) {
+    if (i < bpeTokens.length - 1 && bpeTokens[i] === a && bpeTokens[i+1] === b) {
+      newTokens.push(merged);
+      i += 2;
+    } else {
+      newTokens.push(bpeTokens[i]);
+      i++;
+    }
+  }
+  bpeTokens = newTokens;
+  bpeStep++;
+  document.getElementById('c11-tokens').textContent = "['" + bpeTokens.join("','") + "']";
+  document.getElementById('c11-info').textContent = 'Merged "' + a + '" + "' + b + '" → "' + merged + '" (step ' + bpeStep + '/' + bpeMerges.length + ')';
+}
+
+// ═══════════════════════════════════════════════════════════
+// C12: Special Tokens
+// ═══════════════════════════════════════════════════════════
+function updateSpecialTokens() {
+  const text = document.getElementById('c12-input').value || 'hello';
+  const tokens = text.split(' ').filter(t => t);
+  const padLen = Math.max(0, 8 - tokens.length - 2);
+  const result = ['<span style="color:var(--green);font-weight:700;">&lt;BOS&gt;</span>']
+    .concat(tokens.map(t => '<span style="color:var(--text);">' + t + '</span>'))
+    .concat(['<span style="color:var(--red);font-weight:700;">&lt;EOS&gt;</span>'])
+    .concat(Array(padLen).fill('<span style="color:var(--dim);">&lt;PAD&gt;</span>'));
+  document.getElementById('c12-result').innerHTML = result.join(' &nbsp; ');
+}
+
+// ═══════════════════════════════════════════════════════════
+// C13: Dropout Visualizer
+// ═══════════════════════════════════════════════════════════
+function updateDropout() {
+  const rate = parseInt(document.getElementById('c13-rate').value) / 100;
+  document.getElementById('c13-val').textContent = rate.toFixed(2);
+  const grid = document.getElementById('c13-grid');
+  grid.innerHTML = '';
+  for (let i = 0; i < 32; i++) {
+    const dropped = Math.random() < rate;
+    const div = document.createElement('div');
+    div.style.cssText = 'height:28px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;transition:all .3s;' +
+      (dropped ? 'background:rgba(233,69,96,0.2);color:var(--red);' : 'background:rgba(6,214,160,0.2);color:var(--green);');
+    div.textContent = dropped ? '✗' : '✓';
+    grid.appendChild(div);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// C14: ReLU vs GELU Canvas
+// ═══════════════════════════════════════════════════════════
+function drawActivations() {
+  const canvas = document.getElementById('c14-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0, 0, W, H);
+  // Axes
+  ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+  ctx.beginPath(); ctx.moveTo(0, H/2); ctx.lineTo(W, H/2); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(W/2, 0); ctx.lineTo(W/2, H); ctx.stroke();
+  // Functions
+  function relu(x) { return Math.max(0, x); }
+  function gelu(x) { return 0.5 * x * (1 + Math.tanh(Math.sqrt(2/Math.PI) * (x + 0.044715 * x*x*x))); }
+  function drawFn(fn, color) {
+    ctx.beginPath(); ctx.strokeStyle = color; ctx.lineWidth = 2;
+    for (let px = 0; px < W; px++) {
+      const x = (px - W/2) / (W/8);
+      const y = fn(x);
+      const py = H/2 - y * (H/8);
+      if (px === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+    }
+    ctx.stroke();
+  }
+  drawFn(relu, '#00b4d8');
+  drawFn(gelu, '#a855f7');
+  // Labels
+  ctx.font = '10px Fira Code'; ctx.fillStyle = '#6b7294';
+  ctx.fillText('-4', 5, H/2 - 4); ctx.fillText('4', W - 15, H/2 - 4);
+}
+</script>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// C15: KV-Cache Calculator
+// ═══════════════════════════════════════════════════════════
+function updateKVCache() {
+  const n = parseInt(document.getElementById('c15-tokens').value);
+  document.getElementById('c15-val').textContent = n;
+  const noCache = n * (n + 1) / 2; // sum of 1..n
+  const withCache = n;
+  document.getElementById('c15-no').textContent = noCache + ' ops';
+  document.getElementById('c15-yes').textContent = withCache + ' ops';
+}
+
+// ═══════════════════════════════════════════════════════════
+// C16: LR Schedule Visualizer
+// ═══════════════════════════════════════════════════════════
+function drawLRSchedule() {
+  const canvas = document.getElementById('c16-canvas');
+  if (!canvas) return;
+  const warmupPct = parseInt(document.getElementById('c16-warmup').value);
+  document.getElementById('c16-val').textContent = warmupPct + '%';
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  ctx.clearRect(0, 0, W, H);
+  ctx.strokeStyle = 'rgba(255,255,255,0.05)';
+  ctx.beginPath(); ctx.moveTo(0, H-20); ctx.lineTo(W, H-20); ctx.stroke();
+  ctx.beginPath(); ctx.strokeStyle = 'var(--l2)'; ctx.lineWidth = 2.5;
+  const warmup = warmupPct / 100;
+  for (let px = 0; px < W; px++) {
+    const t = px / W;
+    let lr;
+    if (t < warmup) { lr = t / warmup; }
+    else { lr = 0.5 * (1 + Math.cos(Math.PI * (t - warmup) / (1 - warmup))); }
+    const py = (H - 25) - lr * (H - 40) + 10;
+    if (px === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+  }
+  ctx.stroke();
+  ctx.font = '10px Fira Code'; ctx.fillStyle = '#6b7294';
+  ctx.fillText('warmup', 5, H - 5);
+  ctx.fillText('cosine decay', W - 80, H - 5);
+  // Warmup line
+  ctx.strokeStyle = 'rgba(255,255,255,0.1)'; ctx.setLineDash([4,4]);
+  ctx.beginPath(); ctx.moveTo(warmup * W, 0); ctx.lineTo(warmup * W, H); ctx.stroke();
+  ctx.setLineDash([]);
+}
+
+// ═══════════════════════════════════════════════════════════
+// C17: Top-p Sampling
+// ═══════════════════════════════════════════════════════════
+function updateTopP() {
+  const p = parseInt(document.getElementById('c17-p').value) / 100;
+  document.getElementById('c17-val').textContent = p.toFixed(2);
+  const tokens = [
+    { t: 'the', p: 0.35 }, { t: 'a', p: 0.25 }, { t: 'this', p: 0.15 },
+    { t: 'my', p: 0.10 }, { t: 'one', p: 0.05 }, { t: 'that', p: 0.04 },
+    { t: 'some', p: 0.03 }, { t: 'her', p: 0.02 }, { t: 'its', p: 0.01 }
+  ];
+  let cumsum = 0;
+  let included = 0;
+  const bars = document.getElementById('c17-bars');
+  bars.innerHTML = tokens.map(tok => {
+    cumsum += tok.p;
+    const inSet = cumsum - tok.p < p;
+    if (inSet) included++;
+    return '<div style="display:flex;align-items:center;gap:6px;margin:2px 0;">' +
+      '<span style="width:36px;font-family:Fira Code;font-size:11px;font-weight:700;text-align:right;color:' + (inSet ? 'var(--green)' : 'var(--dim)') + ';">' + tok.t + '</span>' +
+      '<div style="flex:1;height:14px;background:var(--bg4);border-radius:3px;overflow:hidden;">' +
+      '<div style="height:100%;width:' + (tok.p * 300) + '%;background:' + (inSet ? 'var(--green)' : 'var(--bg4)') + ';border-radius:3px;border:1px solid ' + (inSet ? 'var(--green)' : 'transparent') + ';"></div></div>' +
+      '<span style="width:32px;font-family:Fira Code;font-size:10px;color:var(--dim);">' + (tok.p * 100).toFixed(0) + '%</span></div>';
+  }).join('');
+  document.getElementById('c17-info').textContent = included + ' tokens included (cumulative prob ≥ ' + p.toFixed(2) + ')';
+}
+
+// ═══════════════════════════════════════════════════════════
+// C18: Perplexity Calculator
+// ═══════════════════════════════════════════════════════════
+function updatePerplexity() {
+  const loss = parseInt(document.getElementById('c18-loss').value) / 10;
+  document.getElementById('c18-loss-val').textContent = loss.toFixed(1);
+  const ppl = Math.exp(loss);
+  document.getElementById('c18-ppl').textContent = 'PPL = ' + ppl.toFixed(1);
+  let desc = '';
+  if (ppl < 5) desc = '🏆 Excellent! Like choosing between ~' + Math.round(ppl) + ' options';
+  else if (ppl < 20) desc = '👍 Good — choosing between ~' + Math.round(ppl) + ' options';
+  else if (ppl < 100) desc = '😐 Mediocre — choosing between ~' + Math.round(ppl) + ' options';
+  else desc = '😵 Very confused — choosing between ~' + Math.round(ppl) + ' options!';
+  document.getElementById('c18-info').textContent = desc;
+}
+
+// ═══════════════════════════════════════════════════════════
+// C19: Overfitting Animation
+// ═══════════════════════════════════════════════════════════
+let overfitAnim = null;
+function animateOverfit() {
+  const canvas = document.getElementById('c19-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  let step = 0;
+  if (overfitAnim) cancelAnimationFrame(overfitAnim);
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    ctx.strokeStyle = 'rgba(255,255,255,0.05)';
+    ctx.beginPath(); ctx.moveTo(0, H-10); ctx.lineTo(W, H-10); ctx.stroke();
+    // Train loss (always decreasing)
+    ctx.beginPath(); ctx.strokeStyle = '#00b4d8'; ctx.lineWidth = 2;
+    for (let i = 0; i <= step; i++) {
+      const x = i / 100 * W;
+      const y = H - 15 - (3.5 * Math.exp(-i * 0.05) + 0.1) / 4 * (H - 30);
+      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+    // Val loss (decreases then increases)
+    ctx.beginPath(); ctx.strokeStyle = '#e94560'; ctx.lineWidth = 2;
+    for (let i = 0; i <= step; i++) {
+      const x = i / 100 * W;
+      const valLoss = 3.5 * Math.exp(-i * 0.04) + 0.3 + Math.max(0, (i - 40) * 0.03);
+      const y = H - 15 - valLoss / 4 * (H - 30);
+      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+    step++;
+    if (step <= 100) overfitAnim = requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+// ═══════════════════════════════════════════════════════════
+// C20: RoPE Rotation Visualizer
+// ═══════════════════════════════════════════════════════════
+function drawRoPE() {
+  const canvas = document.getElementById('c20-canvas');
+  if (!canvas) return;
+  const pos = parseInt(document.getElementById('c20-pos').value);
+  document.getElementById('c20-val').textContent = pos;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  const cx = W / 2, cy = H / 2;
+  const r = Math.min(W, H) * 0.35;
+  ctx.clearRect(0, 0, W, H);
+  // Circle
+  ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2);
+  ctx.strokeStyle = 'rgba(255,255,255,0.1)'; ctx.lineWidth = 1; ctx.stroke();
+  // Position 0 reference
+  ctx.beginPath(); ctx.moveTo(cx, cy);
+  ctx.lineTo(cx + r, cy);
+  ctx.strokeStyle = 'rgba(255,255,255,0.2)'; ctx.stroke();
+  ctx.font = '10px Fira Code'; ctx.fillStyle = '#6b7294';
+  ctx.fillText('pos 0', cx + r + 5, cy + 4);
+  // Current position
+  const angle = pos * 0.2; // radians per position
+  const ex = cx + r * Math.cos(angle);
+  const ey = cy - r * Math.sin(angle);
+  ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(ex, ey);
+  ctx.strokeStyle = '#f97316'; ctx.lineWidth = 2.5; ctx.stroke();
+  ctx.beginPath(); ctx.arc(ex, ey, 6, 0, Math.PI * 2);
+  ctx.fillStyle = '#f97316'; ctx.fill();
+  ctx.fillStyle = '#f97316'; ctx.font = '11px Nunito';
+  ctx.fillText('pos ' + pos + ' (' + (angle * 180 / Math.PI).toFixed(0) + '°)', ex + 10, ey - 5);
+  // Angle arc
+  if (pos > 0) {
+    ctx.beginPath(); ctx.arc(cx, cy, r * 0.3, 0, -angle, true);
+    ctx.strokeStyle = 'rgba(249,115,22,0.4)'; ctx.lineWidth = 2; ctx.stroke();
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// C21: GQA Memory Calculator
+// ═══════════════════════════════════════════════════════════
+function updateGQA() {
+  const kvHeads = parseInt(document.getElementById('c21-kv').value);
+  document.getElementById('c21-val').textContent = kvHeads;
+  const qHeads = 8;
+  const savings = ((1 - kvHeads / qHeads) * 100).toFixed(0);
+  const viz = document.getElementById('c21-viz');
+  viz.innerHTML = '';
+  for (let i = 0; i < qHeads; i++) {
+    const kvIdx = Math.floor(i / (qHeads / kvHeads));
+    const colors = ['#00b4d8','#a855f7','#f97316','#f59e0b','#06d6a0','#e94560','#ff79c6','#50fa7b'];
+    const div = document.createElement('div');
+    div.style.cssText = 'padding:6px 10px;border-radius:6px;font-size:10px;font-weight:700;text-align:center;background:' + colors[kvIdx % colors.length] + '22;border:1px solid ' + colors[kvIdx % colors.length] + '44;color:' + colors[kvIdx % colors.length] + ';';
+    div.innerHTML = 'Q' + i + '<br>KV' + kvIdx;
+    viz.appendChild(div);
+  }
+  document.getElementById('c21-info').innerHTML = kvHeads + ' KV heads for ' + qHeads + ' Q heads | <strong style="color:var(--green);">' + savings + '% KV memory saved</strong>';
+}
+
+// ═══════════════════════════════════════════════════════════
+// C22: SwiGLU Activation Comparison
+// ═══════════════════════════════════════════════════════════
+function updateSwiGLU() {
+  const x = parseInt(document.getElementById('c22-x').value) / 10;
+  document.getElementById('c22-val').textContent = x.toFixed(1);
+  const relu = Math.max(0, x);
+  const gelu = 0.5 * x * (1 + Math.tanh(Math.sqrt(2/Math.PI) * (x + 0.044715 * x*x*x)));
+  const swish = x / (1 + Math.exp(-x));
+  document.getElementById('c22-relu').textContent = relu.toFixed(2);
+  document.getElementById('c22-gelu').textContent = gelu.toFixed(2);
+  document.getElementById('c22-swish').textContent = swish.toFixed(2);
+}
+
+// ═══════════════════════════════════════════════════════════
+// C23: Flash Attention Memory
+// ═══════════════════════════════════════════════════════════
+function updateFlashAttn() {
+  const n = parseInt(document.getElementById('c23-len').value);
+  document.getElementById('c23-val').textContent = n + 'K';
+  const seqLen = n * 1024;
+  const stdMem = (seqLen * seqLen * 2) / (1024 * 1024); // bytes in MB
+  const flashMem = (seqLen * 2) / 1024; // KB
+  document.getElementById('c23-std').textContent = stdMem >= 1024 ? (stdMem/1024).toFixed(1) + ' GB' : stdMem.toFixed(0) + ' MB';
+  document.getElementById('c23-flash').textContent = flashMem.toFixed(0) + ' KB';
+}
+
+// ═══════════════════════════════════════════════════════════
+// C24: Sliding Window Visualizer
+// ═══════════════════════════════════════════════════════════
+function updateSlidingWindow() {
+  const w = parseInt(document.getElementById('c24-win').value);
+  document.getElementById('c24-val').textContent = w;
+  const n = 8;
+  const grid = document.getElementById('c24-grid');
+  grid.style.gridTemplateColumns = 'repeat(' + (n+1) + ', 1fr)';
+  grid.innerHTML = '';
+  // Header row
+  const corner = document.createElement('div');
+  corner.style.cssText = 'font-size:9px;color:var(--dim);text-align:center;';
+  corner.textContent = 'Q\\K';
+  grid.appendChild(corner);
+  for (let j = 0; j < n; j++) {
+    const h = document.createElement('div');
+    h.style.cssText = 'font-size:10px;color:var(--accent);text-align:center;font-weight:700;';
+    h.textContent = j;
+    grid.appendChild(h);
+  }
+  // Data rows
+  for (let i = 0; i < n; i++) {
+    const rh = document.createElement('div');
+    rh.style.cssText = 'font-size:10px;color:var(--accent);text-align:center;font-weight:700;';
+    rh.textContent = i;
+    grid.appendChild(rh);
+    for (let j = 0; j < n; j++) {
+      const cell = document.createElement('div');
+      const inWindow = j <= i && j >= i - w + 1;
+      const causal = j <= i;
+      cell.style.cssText = 'height:22px;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:9px;' +
+        (inWindow ? 'background:rgba(249,115,22,0.3);color:var(--l3);' : causal ? 'background:rgba(255,255,255,0.03);color:var(--dim);' : 'background:transparent;');
+      cell.textContent = inWindow ? '●' : causal ? '·' : '';
+      grid.appendChild(cell);
+    }
+  }
+}
+</script>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// C25: Beam Search Tree
+// ═══════════════════════════════════════════════════════════
+let beamState = [];
+let beamStep = 0;
+const beamWords = {
+  'The': [['cat',0.4],['dog',0.3],['big',0.2],['old',0.1],['red',0.05]],
+  'cat': [['sat',0.5],['ran',0.3],['ate',0.15],['slept',0.05]],
+  'dog': [['barked',0.4],['ran',0.35],['sat',0.2],['ate',0.05]],
+  'big': [['cat',0.4],['dog',0.35],['bird',0.2],['fish',0.05]],
+  'sat': [['on',0.6],['down',0.3],['quietly',0.1]],
+  'ran': [['fast',0.5],['away',0.3],['home',0.2]],
+};
+
+function resetBeam() {
+  beamState = [{ seq: ['The'], score: 0 }];
+  beamStep = 0;
+  document.getElementById('c25-tree').innerHTML = beamState.map(b =>
+    '<div style="margin:2px 0;"><span style="color:var(--green);font-weight:700;">' + b.seq.join(' ') + '</span> <span style="color:var(--dim);">(score: ' + b.score.toFixed(2) + ')</span></div>'
+  ).join('');
+}
+
+function expandBeam() {
+  if (beamStep >= 3) { resetBeam(); return; }
+  const width = parseInt(document.getElementById('c25-beam').value);
+  const candidates = [];
+  beamState.forEach(beam => {
+    const lastWord = beam.seq[beam.seq.length - 1];
+    const nexts = beamWords[lastWord] || [['.',0.5],['!',0.3],['...',0.2]];
+    nexts.forEach(([word, prob]) => {
+      candidates.push({ seq: [...beam.seq, word], score: beam.score + Math.log(prob + 0.01) });
+    });
+  });
+  candidates.sort((a, b) => b.score - a.score);
+  beamState = candidates.slice(0, width);
+  beamStep++;
+  document.getElementById('c25-tree').innerHTML = '<div style="font-size:10px;color:var(--dim);margin-bottom:4px;">Step ' + beamStep + ' — keeping top ' + width + ':</div>' +
+    beamState.map((b, i) =>
+      '<div style="margin:2px 0;"><span style="color:' + (i === 0 ? 'var(--green)' : 'var(--dim)') + ';font-weight:700;">' + b.seq.join(' ') + '</span> <span style="color:var(--dim);">(score: ' + b.score.toFixed(2) + ')</span></div>'
+    ).join('');
+}
+
+// ═══════════════════════════════════════════════════════════
+// C26: Norm Calculator
+// ═══════════════════════════════════════════════════════════
+function calcNorms() {
+  const x = [2.0, -1.0, 0.5, 3.0];
+  // LayerNorm
+  const mean = x.reduce((a,b) => a+b, 0) / x.length;
+  const variance = x.reduce((a,b) => a + (b-mean)**2, 0) / x.length;
+  const lnOut = x.map(v => ((v - mean) / Math.sqrt(variance + 1e-6)).toFixed(3));
+  // RMSNorm
+  const rms = Math.sqrt(x.reduce((a,b) => a + b*b, 0) / x.length + 1e-6);
+  const rmsOut = x.map(v => (v / rms).toFixed(3));
+  document.getElementById('c26-result').innerHTML =
+    '<div style="margin-bottom:6px;"><strong style="color:var(--l1);">LayerNorm:</strong> [' + lnOut.join(', ') + ']</div>' +
+    '<div style="margin-bottom:4px;"><strong style="color:var(--l3);">RMSNorm:</strong>  [' + rmsOut.join(', ') + ']</div>' +
+    '<div style="color:var(--dim);font-size:10px;">Mean=' + mean.toFixed(2) + ', Var=' + variance.toFixed(2) + ', RMS=' + rms.toFixed(2) + '</div>';
+}
+
+// ═══════════════════════════════════════════════════════════
+// C28: RLHF Rater
+// ═══════════════════════════════════════════════════════════
+function rateRLHF(choice) {
+  const a = document.getElementById('c28-a');
+  const b = document.getElementById('c28-b');
+  const info = document.getElementById('c28-info');
+  if (choice === 'A') {
+    a.style.borderColor = 'var(--green)'; b.style.borderColor = 'var(--bg4)';
+    info.innerHTML = '✅ Good choice! Response A is factual and well-structured. The reward model learns: A > B.';
+  } else {
+    b.style.borderColor = 'var(--red)'; a.style.borderColor = 'var(--bg4)';
+    info.innerHTML = '🤔 Response B is uncertain and informal. Most raters prefer A. This is how RLHF collects preference data!';
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// C29: Weight Tying Calculator
+// ═══════════════════════════════════════════════════════════
+function updateWeightTying() {
+  const vocab = parseInt(document.getElementById('c29-vocab').value) * 1000;
+  document.getElementById('c29-val').textContent = (vocab/1000) + 'K';
+  const dim = 4096;
+  const noTie = vocab * dim * 2;
+  const yesTie = vocab * dim;
+  document.getElementById('c29-no').textContent = (noTie / 1e6).toFixed(0) + 'M params';
+  document.getElementById('c29-yes').textContent = (yesTie / 1e6).toFixed(0) + 'M params';
+}
+
+// ═══════════════════════════════════════════════════════════
+// C30: Expert Router
+// ═══════════════════════════════════════════════════════════
+function routeExpert(token) {
+  const routing = {
+    'math': [0.05,0.02,0.6,0.01,0.3,0.01,0.005,0.005],
+    'poetry': [0.5,0.3,0.02,0.1,0.01,0.05,0.01,0.01],
+    'code': [0.01,0.02,0.4,0.01,0.01,0.5,0.03,0.02],
+    'history': [0.1,0.5,0.02,0.3,0.01,0.02,0.03,0.02],
+  };
+  const gates = routing[token] || routing['math'];
+  const sorted = gates.map((g,i) => ({g,i})).sort((a,b) => b.g - a.g);
+  const top2 = new Set([sorted[0].i, sorted[1].i]);
+  const grid = document.getElementById('c30-experts');
+  grid.innerHTML = '';
+  const names = ['Language','Knowledge','Math','History','Logic','Code','Creative','General'];
+  for (let i = 0; i < 8; i++) {
+    const div = document.createElement('div');
+    const active = top2.has(i);
+    div.style.cssText = 'padding:8px;border-radius:6px;text-align:center;font-size:10px;font-weight:700;border:2px solid ' +
+      (active ? 'var(--l4)' : 'transparent') + ';background:' + (active ? 'rgba(245,158,11,0.15)' : 'var(--bg4)') + ';color:' + (active ? 'var(--l4)' : 'var(--dim)') + ';';
+    div.innerHTML = names[i] + '<br>' + (gates[i]*100).toFixed(0) + '%';
+    grid.appendChild(div);
+  }
+  document.getElementById('c30-info').innerHTML = '"' + token + '" → routed to <strong style="color:var(--l4);">' + names[sorted[0].i] + '</strong> (' + (sorted[0].g*100).toFixed(0) + '%) and <strong style="color:var(--l4);">' + names[sorted[1].i] + '</strong> (' + (sorted[1].g*100).toFixed(0) + '%)';
+}
+
+// ═══════════════════════════════════════════════════════════
+// C31: LoRA Calculator
+// ═══════════════════════════════════════════════════════════
+function updateLoRA() {
+  const r = parseInt(document.getElementById('c31-rank').value);
+  document.getElementById('c31-val').textContent = r;
+  const dim = 4096;
+  const full = dim * dim;
+  const lora = 2 * dim * r;
+  const pct = (lora / full * 100).toFixed(2);
+  document.getElementById('c31-lora').textContent = (lora / 1000).toFixed(0) + 'K';
+  document.getElementById('c31-info').textContent = 'LoRA trains ' + pct + '% of parameters (rank=' + r + ')';
+}
+
+// ═══════════════════════════════════════════════════════════
+// C32: Quantization Simulator
+// ═══════════════════════════════════════════════════════════
+function updateQuantization() {
+  const bits = parseInt(document.getElementById('c32-bits').value);
+  document.getElementById('c32-val').textContent = bits;
+  const levels = Math.pow(2, bits);
+  const modelGB = (7e9 * bits / 8) / 1e9;
+  document.getElementById('c32-levels').textContent = levels.toLocaleString();
+  document.getElementById('c32-size').textContent = modelGB.toFixed(1) + ' GB';
+  const original = 3.14159265;
+  const scale = (6.0) / (levels - 1);
+  const quantized = Math.round((original - (-3.0)) / scale) * scale + (-3.0);
+  document.getElementById('c32-info').innerHTML =
+    'Original: <strong>3.14159</strong> → Quantized (' + bits + '-bit): <strong style="color:var(--l4);">' + quantized.toFixed(4) + '</strong> | Error: ' + Math.abs(original - quantized).toFixed(4);
+}
+
+// ═══════════════════════════════════════════════════════════
+// C33: Scaling Laws Calculator
+// ═══════════════════════════════════════════════════════════
+function updateScaling() {
+  const params = parseInt(document.getElementById('c33-params').value);
+  document.getElementById('c33-val').textContent = params + 'B';
+  const tokens = params * 20;
+  const flops = 6 * params * tokens;
+  document.getElementById('c33-info').innerHTML =
+    '<strong>Chinchilla-optimal for ' + params + 'B params:</strong><br>' +
+    '• Tokens needed: <strong style="color:var(--l4);">' + tokens + 'B</strong> (' + (tokens/1000).toFixed(1) + 'T)<br>' +
+    '• Compute (FLOPs): ~' + flops.toExponential(1) + '<br>' +
+    '• Rule: tokens ≈ 20× parameters';
+}
+
+// ═══════════════════════════════════════════════════════════
+// C34: Speculative Decoding Simulator
+// ═══════════════════════════════════════════════════════════
+function simulateSpec() {
+  const tokens = ['The','cat','sat','on','the'];
+  const accepted = [true, true, true, Math.random() > 0.3, Math.random() > 0.4];
+  let result = '<div style="margin-bottom:6px;font-weight:700;">Draft model proposes 5 tokens:</div>';
+  let acceptCount = 0;
+  tokens.forEach((t, i) => {
+    const acc = accepted[i] && (i === 0 || accepted[i-1]);
+    if (acc) acceptCount++;
+    result += '<span style="display:inline-block;padding:3px 8px;margin:2px;border-radius:4px;font-size:12px;font-weight:700;' +
+      (acc ? 'background:rgba(6,214,160,0.2);color:var(--green);border:1px solid var(--green);' : 'background:rgba(233,69,96,0.2);color:var(--red);border:1px solid var(--red);text-decoration:line-through;') +
+      '">' + t + (acc ? ' ✓' : ' ✗') + '</span>';
+  });
+  result += '<div style="margin-top:8px;font-size:11px;color:var(--dim);">' + acceptCount + '/5 accepted → ' + acceptCount + ' tokens for the cost of ~1 forward pass!</div>';
+  document.getElementById('c34-result').innerHTML = result;
+}
+
+// ═══════════════════════════════════════════════════════════
+// C37: Spot the Hallucination
+// ═══════════════════════════════════════════════════════════
+function spotHallucination(choice) {
+  const a = document.getElementById('c37-a');
+  const b = document.getElementById('c37-b');
+  const info = document.getElementById('c37-info');
+  if (choice === 2) {
+    b.style.borderColor = 'var(--red)';
+    a.style.borderColor = 'var(--green)';
+    info.innerHTML = '✅ Correct! Response B is a hallucination — James Gosling created Java, not Python. The model confidently stated false information.';
+  } else {
+    a.style.borderColor = 'var(--yellow)';
+    info.innerHTML = '🤔 Response A is actually correct! Python was created by Guido van Rossum in 1991. Response B confuses Python with Java (James Gosling, 1995).';
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// INITIALIZATION
+// ═══════════════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', function() {
+  // Restore learned checkboxes
+  learnedSet.forEach(id => {
+    const cb = document.getElementById('learn-' + id);
+    if (cb) cb.checked = true;
+  });
+  updateProgress();
+
+  // Initialize interactive elements
+  setTimeout(() => {
+    updateTemp();
+    drawEmbeddingSpace();
+    drawAttnMap();
+    updateBlocks();
+    updateLoss();
+    updateDropout();
+    drawActivations();
+    updateKVCache();
+    drawLRSchedule();
+    updateTopP();
+    updatePerplexity();
+    drawRoPE();
+    updateGQA();
+    updateSwiGLU();
+    updateFlashAttn();
+    updateSlidingWindow();
+    resetBeam();
+    updateWeightTying();
+    updateLoRA();
+    updateQuantization();
+    updateScaling();
+    updateSpecialTokens();
+    routeExpert('math');
+  }, 100);
+
+  // Scroll spy for sidebar
+  const mainContent = document.getElementById('mainContent');
+  const cards = document.querySelectorAll('.concept-card[id^="c"]');
+  const navItems = document.querySelectorAll('.nav-item');
+
+  mainContent.addEventListener('scroll', function() {
+    let current = '';
+    cards.forEach(card => {
+      const rect = card.getBoundingClientRect();
+      if (rect.top < 200) current = card.id;
+    });
+    navItems.forEach(item => {
+      const onclick = item.getAttribute('onclick') || '';
+      const match = onclick.match(/scrollTo_\('(\w+)'\)/);
+      if (match) {
+        item.classList.toggle('active', match[1] === current);
+      }
+    });
+  });
+});
+</script>
+</body>
+</html>

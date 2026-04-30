@@ -1,0 +1,1951 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Baby LLM Interactive - Learn by Playing!</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fira+Code:wght@400;500;600&display=swap');
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --bg:#0a0a14;--bg2:#12121f;--bg3:#1a1a2e;--bg4:#16213e;
+  --accent:#00b4d8;--green:#06d6a0;--red:#e94560;--yellow:#ffd166;--purple:#a855f7;--orange:#f97316;
+  --text:#e8e8f0;--dim:#6b7294;--code-bg:#0d1117;
+}
+body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);overflow:hidden;height:100vh;}
+
+/* ═══ TOP NAV ═══ */
+.topbar{height:52px;background:var(--bg2);display:flex;align-items:center;padding:0 20px;border-bottom:1px solid rgba(255,255,255,0.05);gap:8px;z-index:100;}
+.topbar .logo{font-weight:900;font-size:18px;background:linear-gradient(135deg,var(--accent),var(--green));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-right:16px;}
+.step-tab{padding:6px 14px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;transition:all .3s;background:transparent;border:1px solid transparent;color:var(--dim);}
+.step-tab:hover{color:var(--text);background:var(--bg3);}
+.step-tab.active{background:var(--accent);color:#000;border-color:var(--accent);}
+.step-tab .tab-check{display:none;margin-left:4px;}
+.step-tab.completed .tab-check{display:inline;}
+.score-display{margin-left:auto;font-size:14px;font-weight:700;color:var(--yellow);display:flex;align-items:center;gap:6px;}
+
+/* ═══ MAIN LAYOUT ═══ */
+.main{display:flex;height:calc(100vh - 52px);}
+
+/* LEFT: CODE PANEL */
+.code-panel{width:50%;background:var(--code-bg);border-right:1px solid rgba(255,255,255,0.05);display:flex;flex-direction:column;overflow:hidden;}
+.code-header{padding:12px 20px;background:var(--bg2);border-bottom:1px solid rgba(255,255,255,0.05);display:flex;align-items:center;gap:12px;}
+.code-header .filename{font-family:'Fira Code',monospace;font-size:13px;color:var(--accent);font-weight:600;}
+.code-header .filedesc{font-size:12px;color:var(--dim);}
+.code-scroll{flex:1;overflow-y:auto;padding:0;}
+.code-content{font-family:'Fira Code',monospace;font-size:13px;line-height:1.9;padding:16px 0;counter-reset:line;}
+.code-line{display:flex;padding:0 16px 0 0;min-height:24px;transition:background .3s;}
+.code-line:hover{background:rgba(255,255,255,0.02);}
+.code-line.highlighted{background:rgba(0,180,216,0.08);border-left:3px solid var(--accent);}
+.line-num{min-width:48px;text-align:right;padding-right:16px;color:var(--dim);user-select:none;font-size:12px;}
+.line-text{white-space:pre;flex:1;}
+.kw{color:#ff79c6;} .str{color:#f1fa8c;} .cm{color:#6272a4;font-style:italic;} .fn{color:#50fa7b;} .num{color:#bd93f9;} .op{color:#ff79c6;} .cls{color:#8be9fd;} .dec{color:#ffb86c;}
+
+/* RIGHT: GAME PANEL */
+.game-panel{width:50%;display:flex;flex-direction:column;overflow:hidden;}
+.game-header{padding:14px 24px;background:var(--bg2);border-bottom:1px solid rgba(255,255,255,0.05);}
+.game-header h2{font-size:20px;font-weight:800;}
+.game-header p{font-size:13px;color:var(--dim);margin-top:2px;}
+.game-scroll{flex:1;overflow-y:auto;padding:24px;}
+
+/* ═══ GAME COMPONENTS ═══ */
+.section{margin-bottom:28px;}
+.section h3{font-size:17px;font-weight:800;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.section p,.section li{font-size:15px;line-height:1.7;color:var(--text);}
+.explain-box{background:var(--bg3);border-radius:12px;padding:16px 20px;margin:10px 0;border-left:4px solid var(--accent);}
+.explain-box.green{border-left-color:var(--green);}
+.explain-box.yellow{border-left-color:var(--yellow);}
+.explain-box.red{border-left-color:var(--red);}
+.explain-box.purple{border-left-color:var(--purple);}
+
+/* Quiz */
+.quiz-box{background:var(--bg3);border-radius:14px;padding:20px;margin:14px 0;border:2px solid var(--bg4);}
+.quiz-box.correct{border-color:var(--green);background:rgba(6,214,160,0.05);}
+.quiz-box.wrong{border-color:var(--red);background:rgba(233,69,96,0.05);}
+.quiz-title{font-size:15px;font-weight:800;margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.quiz-options{display:flex;flex-direction:column;gap:8px;}
+.quiz-opt{padding:10px 16px;border-radius:10px;background:var(--bg4);cursor:pointer;font-size:14px;font-weight:600;transition:all .2s;border:2px solid transparent;}
+.quiz-opt:hover{background:rgba(0,180,216,0.1);border-color:var(--accent);}
+.quiz-opt.selected-correct{background:rgba(6,214,160,0.15);border-color:var(--green);color:var(--green);}
+.quiz-opt.selected-wrong{background:rgba(233,69,96,0.15);border-color:var(--red);color:var(--red);}
+.quiz-opt.disabled{pointer-events:none;opacity:0.6;}
+.quiz-opt.show-correct{border-color:var(--green);opacity:1 !important;}
+.quiz-feedback{margin-top:10px;padding:10px 14px;border-radius:8px;font-size:13px;font-weight:600;display:none;}
+.quiz-feedback.show{display:block;}
+.quiz-feedback.correct{background:rgba(6,214,160,0.1);color:var(--green);}
+.quiz-feedback.wrong{background:rgba(233,69,96,0.1);color:var(--red);}
+
+/* Interactive widgets */
+.interactive-area{background:var(--bg3);border-radius:14px;padding:20px;margin:14px 0;border:2px solid var(--bg4);}
+.interactive-area h4{font-size:15px;font-weight:800;margin-bottom:12px;}
+.token-input-row{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0;align-items:center;}
+.char-box{width:44px;height:52px;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:10px;font-family:'Fira Code',monospace;transition:all .3s;cursor:pointer;}
+.char-box .ch{font-size:20px;font-weight:800;}
+.char-box .id{font-size:11px;font-weight:700;margin-top:2px;}
+.drag-item{padding:8px 16px;border-radius:8px;font-size:14px;font-weight:700;cursor:grab;user-select:none;transition:all .2s;}
+.drag-item:active{cursor:grabbing;transform:scale(1.05);}
+.drop-zone{min-height:48px;border:2px dashed var(--dim);border-radius:10px;padding:10px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:center;transition:all .3s;}
+.drop-zone.over{border-color:var(--accent);background:rgba(0,180,216,0.05);}
+.drop-zone.correct-zone{border-color:var(--green);background:rgba(6,214,160,0.05);}
+.btn{padding:10px 20px;border:none;border-radius:10px;font-family:'Nunito',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s;}
+.btn:hover{transform:translateY(-1px);}
+.btn-primary{background:var(--accent);color:#000;}
+.btn-success{background:var(--green);color:#000;}
+.btn-reset{background:var(--bg4);color:var(--text);}
+.slider-row{display:flex;align-items:center;gap:12px;margin:10px 0;}
+.slider-row input[type=range]{flex:1;accent-color:var(--accent);}
+.slider-val{font-family:'Fira Code',monospace;font-size:16px;font-weight:700;color:var(--yellow);min-width:40px;}
+.output-box{background:var(--code-bg);border-radius:10px;padding:14px 18px;font-family:'Fira Code',monospace;font-size:14px;line-height:1.7;margin:10px 0;min-height:40px;border:1px solid rgba(255,255,255,0.05);}
+.badge{display:inline-block;padding:3px 10px;border-radius:6px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;}
+.badge-game{background:rgba(168,85,247,0.15);color:var(--purple);}
+.badge-quiz{background:rgba(249,115,22,0.15);color:var(--orange);}
+.badge-code{background:rgba(0,180,216,0.15);color:var(--accent);}
+
+/* Attention grid game */
+.attn-game-grid{display:grid;gap:3px;margin:10px auto;}
+.attn-game-cell{width:42px;height:42px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;cursor:pointer;transition:all .2s;font-weight:700;}
+.attn-game-cell.header{background:transparent;color:var(--accent);cursor:default;font-family:'Fira Code',monospace;font-size:14px;}
+.attn-game-cell.clickable{background:var(--bg4);border:2px solid transparent;}
+.attn-game-cell.clickable:hover{border-color:var(--accent);}
+.attn-game-cell.marked-yes{background:rgba(6,214,160,0.2);border-color:var(--green);color:var(--green);}
+.attn-game-cell.marked-no{background:rgba(233,69,96,0.2);border-color:var(--red);color:var(--red);}
+.attn-game-cell.revealed-correct{background:rgba(6,214,160,0.3);border-color:var(--green);}
+.attn-game-cell.revealed-wrong{background:rgba(233,69,96,0.3);border-color:var(--red);}
+
+/* Training game */
+.training-viz{display:flex;align-items:flex-end;gap:4px;height:120px;margin:10px 0;padding:10px;background:var(--bg4);border-radius:10px;}
+.train-bar{width:6px;border-radius:3px 3px 0 0;transition:height .3s;background:var(--red);}
+.epoch-counter{font-size:36px;font-weight:900;text-align:center;margin:10px 0;}
+.epoch-counter span{background:linear-gradient(135deg,var(--accent),var(--green));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+
+/* Generation game */
+.gen-display{font-family:'Fira Code',monospace;font-size:16px;background:var(--code-bg);padding:16px 20px;border-radius:10px;min-height:60px;line-height:1.8;border:1px solid rgba(255,255,255,0.05);}
+.gen-cursor{border-right:2px solid var(--accent);animation:blink .8s step-end infinite;padding-right:2px;}
+@keyframes blink{50%{border-color:transparent;}}
+.prob-bar-row{display:flex;align-items:center;gap:8px;margin:3px 0;font-size:13px;}
+.prob-bar-row .char-label{width:30px;font-family:'Fira Code',monospace;font-weight:700;text-align:center;}
+.prob-bar-track{flex:1;height:20px;background:var(--bg4);border-radius:4px;overflow:hidden;}
+.prob-bar-fill{height:100%;border-radius:4px;transition:width .5s;}
+.prob-bar-row .pct{width:40px;text-align:right;font-family:'Fira Code',monospace;font-size:12px;color:var(--dim);}
+
+/* Progress */
+.step-progress{display:flex;align-items:center;gap:6px;margin:16px 0;}
+.progress-dot{width:10px;height:10px;border-radius:50%;background:var(--bg4);transition:all .3s;}
+.progress-dot.done{background:var(--green);}
+.progress-dot.current{background:var(--accent);box-shadow:0 0 8px var(--accent);}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:6px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:3px;}
+::-webkit-scrollbar-thumb:hover{background:var(--dim);}
+</style>
+</head>
+<body>
+<!-- ═══ TOP BAR ═══ -->
+<div class="topbar">
+  <div class="logo">&#x1F37C; Baby LLM Interactive</div>
+  <div class="step-tab active" onclick="goStep(0)">Intro</div>
+  <div class="step-tab" onclick="goStep(1)">1.Data</div>
+  <div class="step-tab" onclick="goStep(2)">2.Tokenizer</div>
+  <div class="step-tab" onclick="goStep(3)">3.Embeddings</div>
+  <div class="step-tab" onclick="goStep(4)">4.Attention</div>
+  <div class="step-tab" onclick="goStep(5)">5.Transformer</div>
+  <div class="step-tab" onclick="goStep(6)">6.Training</div>
+  <div class="step-tab" onclick="goStep(7)">7.Generate</div>
+  <div class="score-display">&#x2B50; Score: <span id="totalScore">0</span> / <span id="maxScore">0</span></div>
+</div>
+
+<!-- ═══ MAIN SPLIT ═══ -->
+<div class="main">
+  <!-- LEFT: CODE -->
+  <div class="code-panel">
+    <div class="code-header">
+      <span class="filename" id="codeFilename">welcome.py</span>
+      <span class="filedesc" id="codeFiledesc">Introduction</span>
+    </div>
+    <div class="code-scroll">
+      <div class="code-content" id="codeContent"></div>
+    </div>
+  </div>
+
+  <!-- RIGHT: GAME -->
+  <div class="game-panel">
+    <div class="game-header" id="gameHeader">
+      <h2 id="gameTitle">Welcome!</h2>
+      <p id="gameSubtitle">Learn by playing</p>
+    </div>
+    <div class="game-scroll">
+      <div id="gameContent"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════
+let currentStep = 0;
+let score = 0;
+let maxScore = 0;
+let answeredQuizzes = {};
+let completedSteps = {};
+
+function addScore(quizId, pts) {
+  if (answeredQuizzes[quizId]) return;
+  answeredQuizzes[quizId] = true;
+  score += pts;
+  document.getElementById('totalScore').textContent = score;
+}
+
+function registerQuiz(quizId, pts) {
+  if (!answeredQuizzes['_reg_' + quizId]) {
+    answeredQuizzes['_reg_' + quizId] = true;
+    maxScore += pts;
+    document.getElementById('maxScore').textContent = maxScore;
+  }
+}
+
+function completeStep(n) {
+  completedSteps[n] = true;
+  const tabs = document.querySelectorAll('.step-tab');
+  tabs[n].classList.add('completed');
+}
+
+// ═══════════════════════════════════════════════════════════
+// STEP DATA
+// ═══════════════════════════════════════════════════════════
+const STEPS = [
+
+// ── STEP 0: INTRO ──
+{
+  filename: 'welcome.py', filedesc: 'What is an LLM?',
+  title: '&#x1F37C; Welcome to Baby LLM!',
+  subtitle: 'Learn how ChatGPT works — by building one yourself',
+  code: `# ============================================
+# Welcome to Baby LLM!
+# ============================================
+# You're about to build a LANGUAGE MODEL
+# from scratch — the same kind of AI that
+# powers ChatGPT, Claude, and Gemini.
+#
+# But ours is tiny — a "Baby" LLM!
+#
+# What does an LLM do?
+# ====================
+# It reads text, learns patterns, and then
+# PREDICTS what comes next.
+#
+# Example:
+#   Input:  "The cat sat on the ___"
+#   Output: "mat" (most likely next word!)
+#
+# That's the ENTIRE idea. Seriously.
+# Everything else is just making this
+# prediction really, really good.
+#
+# ============================================
+# THE 7 STEPS WE'LL BUILD:
+# ============================================
+#
+# Step 1: Training Data    → What it reads
+# Step 2: Tokenizer        → Cut text into pieces
+# Step 3: Embeddings       → Turn pieces into numbers
+# Step 4: Self-Attention   → Find important patterns
+# Step 5: Transformer      → The complete "brain"
+# Step 6: Training         → Practice makes perfect
+# Step 7: Generation       → Write new text!
+#
+# Each step has:
+#   - Code on the LEFT (you're reading it!)
+#   - Interactive game on the RIGHT →→→
+#
+# Let's go! Click "Step 1: Data" above ↑`,
+  game: function(container) {
+    container.innerHTML = `
+      <div class="section">
+        <h3>&#x1F9E0; What is a Language Model?</h3>
+        <div class="explain-box">
+          <p>Imagine a <strong>super smart parrot</strong> &#x1F99C;</p>
+          <p style="margin-top:8px;">It listens to millions of sentences, learns patterns like
+          "after <em>hel</em> usually comes <em>lo</em>", and then it can <strong>predict</strong> what comes next!</p>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3><span class="badge badge-game">GAME</span> Predict the Next Word!</h3>
+        <p>Can YOU predict like an LLM? Fill in the blank:</p>
+
+        <div class="quiz-box" id="intro-q1">
+          <div class="quiz-title">&#x1F914; "The cat sat on the ___"</div>
+          <div class="quiz-options">
+            <div class="quiz-opt" onclick="checkQuiz('intro-q1',this,false)">&#x1F1E6; banana</div>
+            <div class="quiz-opt" onclick="checkQuiz('intro-q1',this,true)">&#x1F1E7; mat</div>
+            <div class="quiz-opt" onclick="checkQuiz('intro-q1',this,false)">&#x1F1E8; rocket</div>
+          </div>
+          <div class="quiz-feedback" id="intro-q1-fb"></div>
+        </div>
+
+        <div class="quiz-box" id="intro-q2">
+          <div class="quiz-title">&#x1F914; "Once upon a ___"</div>
+          <div class="quiz-options">
+            <div class="quiz-opt" onclick="checkQuiz('intro-q2',this,false)">&#x1F1E6; potato</div>
+            <div class="quiz-opt" onclick="checkQuiz('intro-q2',this,false)">&#x1F1E7; Tuesday</div>
+            <div class="quiz-opt" onclick="checkQuiz('intro-q2',this,true)">&#x1F1E8; time</div>
+          </div>
+          <div class="quiz-feedback" id="intro-q2-fb"></div>
+        </div>
+
+        <div class="explain-box green" style="margin-top:16px;">
+          <p>&#x1F3AF; <strong>You just did what an LLM does!</strong> You used your knowledge of language patterns to predict the next word. An LLM does the same thing — but with math!</p>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>&#x1F5FA; The 7 Steps We'll Build</h3>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+          <div class="explain-box" style="border-left-color:var(--yellow);">&#x1F4D6; 1. Training Data</div>
+          <div class="explain-box" style="border-left-color:var(--accent);">&#x1F524; 2. Tokenizer</div>
+          <div class="explain-box" style="border-left-color:var(--green);">&#x1F4CA; 3. Embeddings</div>
+          <div class="explain-box" style="border-left-color:var(--red);">&#x1F440; 4. Self-Attention</div>
+          <div class="explain-box" style="border-left-color:var(--purple);">&#x1F9E0; 5. Transformer</div>
+          <div class="explain-box" style="border-left-color:var(--orange);">&#x1F3CB; 6. Training</div>
+          <div class="explain-box green" style="grid-column:span 2;text-align:center;">&#x270D;&#xFE0F; 7. Generate Text!</div>
+        </div>
+        <p style="margin-top:12px;color:var(--dim);font-size:13px;">Click the step tabs above to begin! &#x2191;</p>
+      </div>`;
+    registerQuiz('intro-q1', 10);
+    registerQuiz('intro-q2', 10);
+  }
+},
+
+// ── STEP 1: TRAINING DATA ──
+{
+  filename: 'step1_data.py', filedesc: 'The text our model learns from',
+  title: '&#x1F4D6; Step 1: Training Data',
+  subtitle: 'The "recipe book" our model reads over and over',
+  code: `# ============================================
+# STEP 1: TRAINING DATA
+# "The Recipe Book for Our Baby LLM"
+# ============================================
+#
+# Training data = the TEXT the model learns from.
+# Think of it like a recipe book:
+#   - Read it over and over
+#   - Learn the patterns
+#   - Then cook (generate) something new!
+
+def get_training_data():
+    """
+    Returns the text our model will learn from.
+    In real LLMs, this would be terabytes of
+    text from the internet!
+    """
+
+    text = """
+    Once upon a time there was a little cat.
+    The little cat loved to play in the garden.
+    Every day the little cat would chase
+    butterflies.
+    The butterflies would fly high in the sky.
+    The little cat would jump and jump.
+    But the butterflies were too high.
+    So the little cat would sit and watch.
+    The garden was full of flowers and trees.
+    The little cat loved the flowers.
+    Every day was a happy day for the cat.
+    """
+
+    return text
+
+# Let's explore our data!
+text = get_training_data()
+
+print(f"Characters: {len(text)}")
+# Output: Characters: 1042
+
+print(f"Words: {len(text.split())}")
+# Output: Words: 186
+
+unique = sorted(set(text))
+print(f"Unique chars: {len(unique)}")
+# Output: Unique chars: 34
+
+# KEY INSIGHT:
+# Our model will learn from just 1042 characters.
+# GPT-4 learned from ~13 TRILLION tokens!
+# But the CONCEPT is identical.`,
+  game: function(container) {
+    container.innerHTML = `
+      <div class="section">
+        <h3>&#x1F4D6; Understanding Training Data</h3>
+        <div class="explain-box yellow">
+          <p><strong>&#x1F373; Cooking Analogy:</strong> Training data is like a recipe book. If you give the model Italian recipes, it learns Italian cooking. If you give it cat stories, it learns to write about cats!</p>
+        </div>
+        <div class="explain-box">
+          <p><strong>&#x1F4A1; Key Rule:</strong> "Garbage in, garbage out" — the quality of training data determines the quality of the model's output!</p>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3><span class="badge badge-game">GAME</span> Data Detective &#x1F50D;</h3>
+        <p>Look at our training text and answer these questions:</p>
+
+        <div class="interactive-area">
+          <h4>Our Training Story:</h4>
+          <div class="output-box" style="font-size:13px;max-height:120px;overflow-y:auto;">Once upon a time there was a little cat.
+The little cat loved to play in the garden.
+Every day the little cat would chase butterflies.
+The butterflies would fly high in the sky.
+The little cat would jump and jump and jump.</div>
+        </div>
+
+        <div class="quiz-box" id="data-q1">
+          <div class="quiz-title">&#x1F50D; What is the MOST repeated phrase in our story?</div>
+          <div class="quiz-options">
+            <div class="quiz-opt" onclick="checkQuiz('data-q1',this,false)">&#x1F1E6; "the garden"</div>
+            <div class="quiz-opt" onclick="checkQuiz('data-q1',this,true)">&#x1F1E7; "the little cat"</div>
+            <div class="quiz-opt" onclick="checkQuiz('data-q1',this,false)">&#x1F1E8; "butterflies"</div>
+          </div>
+          <div class="quiz-feedback" id="data-q1-fb"></div>
+        </div>
+
+        <div class="quiz-box" id="data-q2">
+          <div class="quiz-title">&#x1F914; Why do we use a REPETITIVE story for our tiny model?</div>
+          <div class="quiz-options">
+            <div class="quiz-opt" onclick="checkQuiz('data-q2',this,false)">&#x1F1E6; Because we're lazy</div>
+            <div class="quiz-opt" onclick="checkQuiz('data-q2',this,true)">&#x1F1E7; Small models need simple, repeated patterns to learn</div>
+            <div class="quiz-opt" onclick="checkQuiz('data-q2',this,false)">&#x1F1E8; It doesn't matter what data we use</div>
+          </div>
+          <div class="quiz-feedback" id="data-q2-fb"></div>
+        </div>
+
+        <div class="quiz-box" id="data-q3">
+          <div class="quiz-title">&#x1F4CA; Our data has 1,042 characters. GPT-4 trained on ~13 trillion tokens. How many times bigger is that?</div>
+          <div class="quiz-options">
+            <div class="quiz-opt" onclick="checkQuiz('data-q3',this,false)">&#x1F1E6; About 1,000 times</div>
+            <div class="quiz-opt" onclick="checkQuiz('data-q3',this,false)">&#x1F1E7; About 1 million times</div>
+            <div class="quiz-opt" onclick="checkQuiz('data-q3',this,true)">&#x1F1E8; About 12 BILLION times</div>
+          </div>
+          <div class="quiz-feedback" id="data-q3-fb"></div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3><span class="badge badge-game">GAME</span> Word Frequency Counter</h3>
+        <p>Click words to count them! Which appears most?</p>
+        <div class="interactive-area">
+          <div id="wordClickArea" style="display:flex;flex-wrap:wrap;gap:6px;"></div>
+          <div style="margin-top:12px;display:flex;gap:16px;flex-wrap:wrap;" id="wordCounts"></div>
+        </div>
+      </div>`;
+
+    registerQuiz('data-q1', 10);
+    registerQuiz('data-q2', 10);
+    registerQuiz('data-q3', 10);
+
+    // Word click game
+    const words = ['the','little','cat','would','garden','day','butterflies','in','and','fly'];
+    const counts = {};
+    const area = document.getElementById('wordClickArea');
+    const countsDiv = document.getElementById('wordCounts');
+    words.forEach(w => { counts[w] = 0; });
+
+    const storyWords = 'Once upon a time there was a little cat The little cat loved to play in the garden Every day the little cat would chase butterflies The butterflies would fly high in the sky The little cat would jump and jump'.split(' ');
+    storyWords.forEach(w => {
+      const span = document.createElement('span');
+      span.textContent = w;
+      span.style.cssText = 'padding:4px 8px;border-radius:6px;background:var(--bg4);cursor:pointer;font-size:13px;font-weight:600;transition:all .2s;';
+      span.onclick = function() {
+        const lw = w.toLowerCase();
+        if (counts[lw] !== undefined) {
+          counts[lw]++;
+          this.style.background = 'rgba(0,180,216,0.2)';
+          setTimeout(() => this.style.background = 'var(--bg4)', 300);
+          updateWordCounts();
+        }
+      };
+      area.appendChild(span);
+    });
+
+    function updateWordCounts() {
+      countsDiv.innerHTML = '';
+      Object.entries(counts).filter(([k,v]) => v > 0).sort((a,b) => b[1]-a[1]).forEach(([w,c]) => {
+        countsDiv.innerHTML += '<div style="font-size:13px;"><strong style="color:var(--accent);">' + w + '</strong>: ' + c + '</div>';
+      });
+    }
+  }
+},
+
+// ── STEP 2: TOKENIZER ──
+{
+  filename: 'step2_tokenizer.py', filedesc: 'Breaking text into pieces',
+  title: '&#x1F524; Step 2: Tokenizer',
+  subtitle: 'Cutting text into pieces and giving each a number',
+  code: `# ============================================
+# STEP 2: TOKENIZER
+# "Cutting Text Into Pieces"
+# ============================================
+#
+# Computers don't understand letters!
+# They only understand NUMBERS.
+#
+# A tokenizer does TWO things:
+#   ENCODE: text -> numbers  "cat" -> [13,11,29]
+#   DECODE: numbers -> text  [13,11,29] -> "cat"
+#
+# Types of tokenizers:
+#   Character-level: each LETTER is a token
+#   Word-level:      each WORD is a token
+#   Subword (BPE):   chunks of letters (GPT uses this)
+#
+# We use CHARACTER-LEVEL (simplest!)
+
+class BabyTokenizer:
+    def __init__(self, text):
+        # Find all unique characters
+        self.chars = sorted(set(text))
+        self.vocab_size = len(self.chars)
+
+        # Create lookup tables
+        # char -> number
+        self.char_to_idx = {
+            ch: i for i, ch in enumerate(self.chars)
+        }
+        # number -> char
+        self.idx_to_char = {
+            i: ch for i, ch in enumerate(self.chars)
+        }
+
+    def encode(self, text):
+        """Text -> Numbers"""
+        # "cat" -> [13, 11, 29]
+        return [self.char_to_idx[ch]
+                for ch in text]
+
+    def decode(self, indices):
+        """Numbers -> Text"""
+        # [13, 11, 29] -> "cat"
+        return "".join(
+            [self.idx_to_char[i]
+             for i in indices]
+        )
+
+# Example usage:
+tokenizer = BabyTokenizer(text)
+print(tokenizer.vocab_size)  # 34
+
+encoded = tokenizer.encode("the cat")
+print(encoded)  # [29, 18, 15, 1, 13, 11, 29]
+
+decoded = tokenizer.decode(encoded)
+print(decoded)  # "the cat"  ✅`,
+  game: function(container) {
+    container.innerHTML = `
+      <div class="section">
+        <h3>&#x1F524; Understanding Tokenization</h3>
+        <div class="explain-box">
+          <p><strong>&#x1F355; Pizza Analogy:</strong> You can't eat a whole pizza at once! You cut it into <strong>slices</strong> (tokens). Each slice gets a <strong>number</strong>. Now you can eat it piece by piece!</p>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3><span class="badge badge-game">GAME</span> Be the Tokenizer! &#x1F52A;</h3>
+        <p>Type any word and watch it get tokenized character by character:</p>
+        <div class="interactive-area">
+          <h4>Type a word:</h4>
+          <input type="text" id="tokenInput" placeholder="try: cat, the, garden..."
+            style="width:100%;padding:10px 14px;border-radius:10px;border:2px solid var(--bg4);background:var(--code-bg);color:var(--text);font-family:'Fira Code',monospace;font-size:16px;outline:none;"
+            oninput="tokenizeWord()" maxlength="20">
+          <div id="tokenResult" class="token-input-row" style="min-height:60px;margin-top:12px;"></div>
+          <div id="tokenEncoded" class="output-box" style="display:none;"></div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3><span class="badge badge-quiz">QUIZ</span> Tokenizer Challenge</h3>
+
+        <div class="quiz-box" id="tok-q1">
+          <div class="quiz-title">&#x1F914; If our vocabulary has 34 characters, what is the token ID range?</div>
+          <div class="quiz-options">
+            <div class="quiz-opt" onclick="checkQuiz('tok-q1',this,true)">&#x1F1E6; 0 to 33</div>
+            <div class="quiz-opt" onclick="checkQuiz('tok-q1',this,false)">&#x1F1E7; 1 to 34</div>
+            <div class="quiz-opt" onclick="checkQuiz('tok-q1',this,false)">&#x1F1E8; 0 to 34</div>
+          </div>
+          <div class="quiz-feedback" id="tok-q1-fb"></div>
+        </div>
+
+        <div class="quiz-box" id="tok-q2">
+          <div class="quiz-title">&#x1F914; "cat" encodes to [13, 11, 29]. What does [29, 18, 15] decode to?</div>
+          <div class="quiz-options">
+            <div class="quiz-opt" onclick="checkQuiz('tok-q2',this,false)">&#x1F1E6; "cat"</div>
+            <div class="quiz-opt" onclick="checkQuiz('tok-q2',this,true)">&#x1F1E7; "the"</div>
+            <div class="quiz-opt" onclick="checkQuiz('tok-q2',this,false)">&#x1F1E8; "hat"</div>
+          </div>
+          <div class="quiz-feedback" id="tok-q2-fb"></div>
+        </div>
+
+        <div class="quiz-box" id="tok-q3">
+          <div class="quiz-title">&#x1F914; Why do we use character-level tokenization instead of word-level?</div>
+          <div class="quiz-options">
+            <div class="quiz-opt" onclick="checkQuiz('tok-q3',this,false)">&#x1F1E6; It's more accurate</div>
+            <div class="quiz-opt" onclick="checkQuiz('tok-q3',this,true)">&#x1F1E7; Tiny vocabulary (~34 vs 50,000+), simpler to understand</div>
+            <div class="quiz-opt" onclick="checkQuiz('tok-q3',this,false)">&#x1F1E8; Real LLMs use character-level too</div>
+          </div>
+          <div class="quiz-feedback" id="tok-q3-fb"></div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3><span class="badge badge-game">GAME</span> Decode the Secret Message! &#x1F510;</h3>
+        <p>Given our vocabulary mapping, decode these numbers back to text:</p>
+        <div class="interactive-area">
+          <h4>Vocabulary: a=11 c=13 e=15 h=18 l=22 o=25 space=1 t=29</h4>
+          <p style="margin:8px 0;font-size:14px;">Decode: <strong style="color:var(--yellow);font-family:'Fira Code',monospace;">[18, 15, 22, 22, 25]</strong></p>
+          <input type="text" id="decodeInput" placeholder="type the decoded word..."
+            style="width:100%;padding:10px 14px;border-radius:10px;border:2px solid var(--bg4);background:var(--code-bg);color:var(--text);font-family:'Fira Code',monospace;font-size:16px;outline:none;"
+            oninput="checkDecode()">
+          <div id="decodeFeedback" style="margin-top:8px;font-weight:700;font-size:14px;"></div>
+        </div>
+      </div>`;
+
+    registerQuiz('tok-q1', 10);
+    registerQuiz('tok-q2', 10);
+    registerQuiz('tok-q3', 10);
+    registerQuiz('tok-decode', 15);
+  }
+},
+
+// ── STEP 3: EMBEDDINGS ──
+{
+  filename: 'step3_embeddings.py', filedesc: 'Turning characters into rich number vectors',
+  title: '&#x1F4CA; Step 3: Embeddings',
+  subtitle: 'Giving each character a "personality" in numbers',
+  code: `# ============================================
+# STEP 3: EMBEDDINGS
+# "Giving Characters a Personality"
+# ============================================
+#
+# Token ID "5" is just a label (like a name tag)
+# Embedding [0.2, -0.5, 0.8, ...] is a
+# PERSONALITY PROFILE with 64 numbers!
+#
+# Like RGB for colors:
+#   "Red" = just a word
+#   [255, 0, 0] = exact shade!
+
+import torch
+import torch.nn as nn
+
+class BabyEmbedding(nn.Module):
+    def __init__(self, vocab_size, n_embd, block_size):
+        super().__init__()
+
+        # TOKEN embedding: "What character am I?"
+        # Shape: (vocab_size, n_embd)
+        # e.g., (34, 64) = 34 chars, 64 nums each
+        self.token_embedding = nn.Embedding(
+            vocab_size, n_embd
+        )
+
+        # POSITION embedding: "Where am I?"
+        # Shape: (block_size, n_embd)
+        # e.g., (32, 64) = 32 positions, 64 nums
+        self.position_embedding = nn.Embedding(
+            block_size, n_embd
+        )
+
+    def forward(self, token_indices):
+        B, T = token_indices.shape
+
+        # Look up token embeddings
+        tok_emb = self.token_embedding(token_indices)
+
+        # Create position indices [0, 1, 2, ...]
+        positions = torch.arange(T)
+
+        # Look up position embeddings
+        pos_emb = self.position_embedding(positions)
+
+        # ADD them together!
+        # "What I am" + "Where I am"
+        x = tok_emb + pos_emb
+
+        return x  # Shape: (B, T, n_embd)
+
+# Each character is now a RICH vector of 64
+# numbers instead of just a single ID!
+# These numbers are LEARNED during training.
+# Similar characters get similar embeddings.`,
+  game: function(container) {
+    container.innerHTML = `
+      <div class="section">
+        <h3>&#x1F4CA; Understanding Embeddings</h3>
+        <div class="explain-box green">
+          <p><strong>&#x1F3A8; Color Analogy:</strong> "Red" is just a label. But <strong>[255, 0, 0]</strong> tells you the EXACT shade. Embeddings are like RGB values for characters — rich number profiles!</p>
+        </div>
+        <div class="explain-box">
+          <p><strong>Two types combined:</strong></p>
+          <p>&#x1F194; <strong>Token Embedding</strong> = "WHAT character am I?" (identity)</p>
+          <p>&#x1F4CD; <strong>Position Embedding</strong> = "WHERE am I in the sentence?" (location)</p>
+          <p style="margin-top:6px;">Final = Token + Position (added together!)</p>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3><span class="badge badge-game">GAME</span> Build an Embedding! &#x1F3A8;</h3>
+        <p>Drag the sliders to create an embedding vector for the letter "a". See how changing numbers changes the "personality"!</p>
+        <div class="interactive-area">
+          <h4>Embedding for character "a" (4 dimensions shown):</h4>
+          <div class="slider-row">
+            <span style="width:80px;font-size:13px;">Dim 1:</span>
+            <input type="range" min="-100" max="100" value="20" oninput="updateEmbedViz()">
+            <span class="slider-val" id="emb-d1">0.20</span>
+          </div>
+          <div class="slider-row">
+            <span style="width:80px;font-size:13px;">Dim 2:</span>
+            <input type="range" min="-100" max="100" value="-50" oninput="updateEmbedViz()">
+            <span class="slider-val" id="emb-d2">-0.50</span>
+          </div>
+          <div class="slider-row">
+            <span style="width:80px;font-size:13px;">Dim 3:</span>
+            <input type="range" min="-100" max="100" value="80" oninput="updateEmbedViz()">
+            <span class="slider-val" id="emb-d3">0.80</span>
+          </div>
+          <div class="slider-row">
+            <span style="width:80px;font-size:13px;">Dim 4:</span>
+            <input type="range" min="-100" max="100" value="10" oninput="updateEmbedViz()">
+            <span class="slider-val" id="emb-d4">0.10</span>
+          </div>
+          <div id="embVizResult" class="output-box" style="text-align:center;font-size:15px;"></div>
+          <p style="font-size:12px;color:var(--dim);margin-top:6px;">Our real model uses 64 dimensions. GPT-3 uses 12,288!</p>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3><span class="badge badge-quiz">QUIZ</span> Embedding Challenge</h3>
+
+        <div class="quiz-box" id="emb-q1">
+          <div class="quiz-title">&#x1F914; Why do we need POSITION embeddings?</div>
+          <div class="quiz-options">
+            <div class="quiz-opt" onclick="checkQuiz('emb-q1',this,false)">&#x1F1E6; To make the model faster</div>
+            <div class="quiz-opt" onclick="checkQuiz('emb-q1',this,true)">&#x1F1E7; Because "cat the" and "the cat" mean different things — order matters!</div>
+            <div class="quiz-opt" onclick="checkQuiz('emb-q1',this,false)">&#x1F1E8; They're optional, not really needed</div>
+          </div>
+          <div class="quiz-feedback" id="emb-q1-fb"></div>
+        </div>
+
+        <div class="quiz-box" id="emb-q2">
+          <div class="quiz-title">&#x1F914; Our embedding dimension is 64. What does that mean?</div>
+          <div class="quiz-options">
+            <div class="quiz-opt" onclick="checkQuiz('emb-q2',this,false)">&#x1F1E6; We have 64 characters</div>
+            <div class="quiz-opt" onclick="checkQuiz('emb-q2',this,true)">&#x1F1E7; Each character is represented by a list of 64 numbers</div>
+            <div class="quiz-opt" onclick="checkQuiz('emb-q2',this,false)">&#x1F1E8; The model has 64 layers</div>
+          </div>
+          <div class="quiz-feedback" id="emb-q2-fb"></div>
+        </div>
+
+        <div class="quiz-box" id="emb-q3">
+          <div class="quiz-title">&#x1F914; How is the final embedding calculated?</div>
+          <div class="quiz-options">
+            <div class="quiz-opt" onclick="checkQuiz('emb-q3',this,true)">&#x1F1E6; Token Embedding + Position Embedding (added together)</div>
+            <div class="quiz-opt" onclick="checkQuiz('emb-q3',this,false)">&#x1F1E7; Token Embedding x Position Embedding (multiplied)</div>
+            <div class="quiz-opt" onclick="checkQuiz('emb-q3',this,false)">&#x1F1E8; Only Token Embedding is used</div>
+          </div>
+          <div class="quiz-feedback" id="emb-q3-fb"></div>
+        </div>
+      </div>`;
+
+    registerQuiz('emb-q1', 10);
+    registerQuiz('emb-q2', 10);
+    registerQuiz('emb-q3', 10);
+    updateEmbedViz();
+  }
+},
+
+// ── STEP 4: ATTENTION ──
+{
+  filename: 'step4_attention.py', filedesc: 'The secret sauce of Transformers',
+  title: '&#x1F440; Step 4: Self-Attention',
+  subtitle: 'How characters "look at" each other to find patterns',
+  code: `# ============================================
+# STEP 4: SELF-ATTENTION
+# "The Secret Sauce of Transformers"
+# ============================================
+#
+# Each character LOOKS AT other characters
+# and decides which ones are IMPORTANT.
+#
+# Like a classroom:
+#   "Alice knows math - high attention!"
+#   "Bob is sleeping - low attention..."
+#
+# KEY IDEA: Query, Key, Value (Q, K, V)
+#   Q = "What am I looking for?"
+#   K = "What does each book contain?"
+#   V = "What's actually in the book?"
+
+class SingleAttentionHead(nn.Module):
+    def __init__(self, n_embd, head_size, block_size):
+        super().__init__()
+        # Q, K, V projections
+        self.query = nn.Linear(n_embd, head_size,
+                               bias=False)
+        self.key   = nn.Linear(n_embd, head_size,
+                               bias=False)
+        self.value = nn.Linear(n_embd, head_size,
+                               bias=False)
+
+        # Causal mask: can't look at future!
+        # Lower triangular matrix:
+        # [[1, 0, 0, 0],
+        #  [1, 1, 0, 0],
+        #  [1, 1, 1, 0],
+        #  [1, 1, 1, 1]]
+        self.register_buffer("mask",
+            torch.tril(torch.ones(block_size,
+                                  block_size)))
+
+    def forward(self, x):
+        B, T, C = x.shape
+
+        q = self.query(x)  # "What am I looking for?"
+        k = self.key(x)    # "What do I contain?"
+        v = self.value(x)  # "My actual info"
+
+        # Attention scores: Q @ K^T
+        scores = q @ k.transpose(-2, -1)
+
+        # Scale by sqrt(head_size)
+        scores = scores / math.sqrt(k.shape[-1])
+
+        # Mask future positions (set to -infinity)
+        scores = scores.masked_fill(
+            self.mask[:T, :T] == 0, float("-inf")
+        )
+
+        # Softmax -> probabilities (0 to 1)
+        weights = F.softmax(scores, dim=-1)
+
+        # Weighted sum of values
+        out = weights @ v
+        return out
+
+# MULTI-HEAD: Run 4 heads in parallel!
+# Each head looks for different patterns.
+# Then combine their findings.`,
+  game: function(container) {
+    container.innerHTML = `
+      <div class="section">
+        <h3>&#x1F440; Understanding Self-Attention</h3>
+        <div class="explain-box red">
+          <p><strong>&#x1F3EB; Classroom Analogy:</strong> You're in class and the teacher asks a question. You look around at classmates — some are helpful (high attention), some aren't (low attention). Each character does the same!</p>
+        </div>
+        <div class="explain-box purple">
+          <p><strong>&#x1F4DA; Library Analogy (Q, K, V):</strong></p>
+          <p>&#x1F50D; <strong>Query</strong> = Your question ("What am I looking for?")</p>
+          <p>&#x1F3F7; <strong>Key</strong> = Book labels ("What does each book contain?")</p>
+          <p>&#x1F4D6; <strong>Value</strong> = Book contents ("The actual information")</p>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3><span class="badge badge-game">GAME</span> Build the Causal Mask! &#x1F3AD;</h3>
+        <p>Click cells to mark which positions can attend to which. Remember: <strong>you can only look BACKWARDS</strong> (at previous characters), never at the future!</p>
+        <div class="interactive-area">
+          <h4>Can position (row) see position (column)?</h4>
+          <p style="font-size:12px;color:var(--dim);margin-bottom:8px;">Click: &#x2705; = can see, &#x274C; = blocked. Green = correct!</p>
+          <div class="attn-game-grid" id="maskGame" style="grid-template-columns:repeat(6,42px);justify-content:center;"></div>
+          <div style="margin-top:12px;display:flex;gap:8px;align-items:center;">
+            <button class="btn btn-primary" onclick="checkMaskGame()">Check My Mask!</button>
+            <button class="btn btn-reset" onclick="resetMaskGame()">Reset</button>
+            <span id="maskFeedback" style="font-size:14px;font-weight:700;"></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3><span class="badge badge-quiz">QUIZ</span> Attention Challenge</h3>
+
+        <div class="quiz-box" id="attn-q1">
+          <div class="quiz-title">&#x1F914; Why do we SCALE the attention scores by sqrt(head_size)?</div>
+          <div class="quiz-options">
+            <div class="quiz-opt" onclick="checkQuiz('attn-q1',this,false)">&#x1F1E6; To make the model faster</div>
+            <div class="quiz-opt" onclick="checkQuiz('attn-q1',this,true)">&#x1F1E7; Without scaling, dot products get too large and softmax becomes too "peaked"</div>
+            <div class="quiz-opt" onclick="checkQuiz('attn-q1',this,false)">&#x1F1E8; It's just a convention, doesn't matter</div>
+          </div>
+          <div class="quiz-feedback" id="attn-q1-fb"></div>
+        </div>
+
+        <div class="quiz-box" id="attn-q2">
+          <div class="quiz-title">&#x1F914; Why use MULTIPLE attention heads instead of one big one?</div>
+          <div class="quiz-options">
+            <div class="quiz-opt" onclick="checkQuiz('attn-q2',this,true)">&#x1F1E6; Each head can focus on different patterns (grammar, meaning, position...)</div>
+            <div class="quiz-opt" onclick="checkQuiz('attn-q2',this,false)">&#x1F1E7; One head would be too slow</div>
+            <div class="quiz-opt" onclick="checkQuiz('attn-q2',this,false)">&#x1F1E8; Multiple heads use less memory</div>
+          </div>
+          <div class="quiz-feedback" id="attn-q2-fb"></div>
+        </div>
+
+        <div class="quiz-box" id="attn-q3">
+          <div class="quiz-title">&#x1F914; In the causal mask, position 2 can see positions:</div>
+          <div class="quiz-options">
+            <div class="quiz-opt" onclick="checkQuiz('attn-q3',this,true)">&#x1F1E6; 0, 1, and 2 (itself and everything before)</div>
+            <div class="quiz-opt" onclick="checkQuiz('attn-q3',this,false)">&#x1F1E7; 0, 1, 2, 3, 4 (everything)</div>
+            <div class="quiz-opt" onclick="checkQuiz('attn-q3',this,false)">&#x1F1E8; Only position 2 (just itself)</div>
+          </div>
+          <div class="quiz-feedback" id="attn-q3-fb"></div>
+        </div>
+      </div>`;
+
+    registerQuiz('attn-q1', 10);
+    registerQuiz('attn-q2', 10);
+    registerQuiz('attn-q3', 10);
+    registerQuiz('mask-game', 20);
+    initMaskGame();
+  }
+},
+
+// ── STEP 5: TRANSFORMER ──
+{
+  filename: 'step5_transformer.py', filedesc: 'The complete brain',
+  title: '&#x1F9E0; Step 5: Transformer',
+  subtitle: 'Stacking blocks to build the complete model',
+  code: `# ============================================
+# STEP 5: THE TRANSFORMER
+# "Putting It All Together - The Brain!"
+# ============================================
+#
+# A Transformer is a FACTORY with identical
+# floors (layers). Each floor has:
+#   1. Self-Attention  (gather info)
+#   2. Feed-Forward    (think about it)
+#   3. Layer Norm      (stay stable)
+#   4. Residual Conn   (don't forget!)
+
+class FeedForward(nn.Module):
+    """Think about gathered information"""
+    def __init__(self, n_embd):
+        super().__init__()
+        self.net = nn.Sequential(
+            # Expand: 64 -> 256 (more room to think)
+            nn.Linear(n_embd, 4 * n_embd),
+            # ReLU: non-linearity (the magic!)
+            nn.ReLU(),
+            # Compress: 256 -> 64 (back to size)
+            nn.Linear(4 * n_embd, n_embd),
+        )
+
+class TransformerBlock(nn.Module):
+    """One floor of the factory"""
+    def __init__(self, n_embd, n_heads, block_size):
+        super().__init__()
+        self.ln1 = nn.LayerNorm(n_embd)
+        self.ln2 = nn.LayerNorm(n_embd)
+        self.attention = MultiHeadAttention(...)
+        self.feed_forward = FeedForward(n_embd)
+
+    def forward(self, x):
+        # Attention + residual connection
+        x = x + self.attention(self.ln1(x))
+        # Feed-forward + residual connection
+        x = x + self.feed_forward(self.ln2(x))
+        return x
+
+class BabyLLM(nn.Module):
+    """The complete Baby LLM!"""
+    def __init__(self, vocab_size, n_embd=64,
+                 n_heads=4, n_layers=4,
+                 block_size=32):
+        super().__init__()
+        self.embeddings = BabyEmbedding(...)
+        self.blocks = nn.Sequential(*[
+            TransformerBlock(...)
+            for _ in range(n_layers)  # 4 blocks
+        ])
+        self.ln_final = nn.LayerNorm(n_embd)
+        self.output_head = nn.Linear(
+            n_embd, vocab_size  # 64 -> 34
+        )
+
+    def forward(self, idx, targets=None):
+        x = self.embeddings(idx)    # (B,T,64)
+        x = self.blocks(x)          # (B,T,64)
+        x = self.ln_final(x)        # (B,T,64)
+        logits = self.output_head(x) # (B,T,34)
+
+        loss = None
+        if targets is not None:
+            loss = F.cross_entropy(
+                logits.view(-1, vocab_size),
+                targets.view(-1)
+            )
+        return logits, loss
+
+# Total parameters: ~205,730
+# GPT-3: 175,000,000,000 (175 BILLION!)`,
+  game: function(container) {
+    container.innerHTML = `
+      <div class="section">
+        <h3>&#x1F9E0; Understanding the Transformer</h3>
+        <div class="explain-box purple">
+          <p><strong>&#x1F3ED; Factory Analogy:</strong> The Transformer is a factory with identical floors. Each floor (block) does the same job: gather info (attention), think about it (feed-forward), and pass it up!</p>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3><span class="badge badge-game">GAME</span> Build the Pipeline! &#x1F3D7;</h3>
+        <p>Put the Transformer components in the correct order by clicking them:</p>
+        <div class="interactive-area">
+          <h4>Click in the correct order (top to bottom):</h4>
+          <div id="pipelineOptions" style="display:flex;flex-wrap:wrap;gap:8px;margin:10px 0;"></div>
+          <h4 style="margin-top:16px;">Your Pipeline:</h4>
+          <div id="pipelineResult" style="display:flex;flex-direction:column;gap:4px;min-height:200px;"></div>
+          <div style="margin-top:12px;display:flex;gap:8px;">
+            <button class="btn btn-primary" onclick="checkPipeline()">Check Order!</button>
+            <button class="btn btn-reset" onclick="resetPipeline()">Reset</button>
+          </div>
+          <div id="pipelineFeedback" style="margin-top:8px;font-weight:700;font-size:14px;"></div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3><span class="badge badge-quiz">QUIZ</span> Transformer Challenge</h3>
+
+        <div class="quiz-box" id="trans-q1">
+          <div class="quiz-title">&#x1F914; What does the Feed-Forward network do?</div>
+          <div class="quiz-options">
+            <div class="quiz-opt" onclick="checkQuiz('trans-q1',this,false)">&#x1F1E6; It connects to the internet</div>
+            <div class="quiz-opt" onclick="checkQuiz('trans-q1',this,true)">&#x1F1E7; It processes/thinks about the information gathered by attention</div>
+            <div class="quiz-opt" onclick="checkQuiz('trans-q1',this,false)">&#x1F1E8; It feeds data forward to the next model</div>
+          </div>
+          <div class="quiz-feedback" id="trans-q1-fb"></div>
+        </div>
+
+        <div class="quiz-box" id="trans-q2">
+          <div class="quiz-title">&#x1F914; What is a residual connection (x = x + f(x))?</div>
+          <div class="quiz-options">
+            <div class="quiz-opt" onclick="checkQuiz('trans-q2',this,false)">&#x1F1E6; It removes old information</div>
+            <div class="quiz-opt" onclick="checkQuiz('trans-q2',this,false)">&#x1F1E7; It doubles the information</div>
+            <div class="quiz-opt" onclick="checkQuiz('trans-q2',this,true)">&#x1F1E8; It keeps original info AND adds new insights (like keeping old notes + adding new ones)</div>
+          </div>
+          <div class="quiz-feedback" id="trans-q2-fb"></div>
+        </div>
+
+        <div class="quiz-box" id="trans-q3">
+          <div class="quiz-title">&#x1F914; Our model has 205,730 parameters. What ARE parameters?</div>
+          <div class="quiz-options">
+            <div class="quiz-opt" onclick="checkQuiz('trans-q3',this,true)">&#x1F1E6; The numbers (weights) the model adjusts during training to learn patterns</div>
+            <div class="quiz-opt" onclick="checkQuiz('trans-q3',this,false)">&#x1F1E7; The number of characters in the training data</div>
+            <div class="quiz-opt" onclick="checkQuiz('trans-q3',this,false)">&#x1F1E8; The settings you choose before training (like learning rate)</div>
+          </div>
+          <div class="quiz-feedback" id="trans-q3-fb"></div>
+        </div>
+      </div>`;
+
+    registerQuiz('trans-q1', 10);
+    registerQuiz('trans-q2', 10);
+    registerQuiz('trans-q3', 10);
+    registerQuiz('pipeline-game', 20);
+    initPipelineGame();
+  }
+},
+
+// ── STEP 6: TRAINING ──
+{
+  filename: 'step6_training.py', filedesc: 'Teaching the model to learn',
+  title: '&#x1F3CB; Step 6: Training',
+  subtitle: 'Practice makes perfect — the training loop!',
+  code: `# ============================================
+# STEP 6: TRAINING
+# "Practice Makes Perfect!"
+# ============================================
+#
+# Training loop:
+#   1. Forward pass  -> make predictions
+#   2. Compute loss  -> how wrong are we?
+#   3. Backward pass -> which weights caused it?
+#   4. Update weights -> nudge them right
+#   5. Repeat 2000 times!
+#
+# Like basketball:
+#   Shoot -> see where it landed ->
+#   adjust technique -> shoot again!
+
+def get_batch(data, block_size, batch_size):
+    """Get random chunks of text for training"""
+    # Pick random starting positions
+    max_start = len(data) - block_size - 1
+    starts = torch.randint(0, max_start,
+                           (batch_size,))
+
+    # Input: characters [0..block_size-1]
+    x = torch.stack(
+        [data[s:s+block_size] for s in starts]
+    )
+    # Target: characters [1..block_size]
+    # (shifted by 1 - predict NEXT char!)
+    y = torch.stack(
+        [data[s+1:s+block_size+1] for s in starts]
+    )
+    return x, y
+
+# Create optimizer (the "coach")
+# AdamW: smart coach that adapts learning speed
+optimizer = torch.optim.AdamW(
+    model.parameters(),
+    lr=3e-4  # learning rate
+)
+
+# THE TRAINING LOOP
+for step in range(2000):
+
+    # 1. Get random batch
+    x_batch, y_batch = get_batch(
+        data, block_size=32, batch_size=16
+    )
+
+    # 2. Forward pass: get predictions + loss
+    logits, loss = model(x_batch, y_batch)
+
+    # 3. Backward pass: compute gradients
+    optimizer.zero_grad()  # clear old
+    loss.backward()        # compute new
+
+    # 4. Update weights
+    optimizer.step()
+
+    # Loss: 3.65 -> 1.29 -> 0.30 -> 0.17 ✅
+    # From random guessing to understanding!`,
+  game: function(container) {
+    container.innerHTML = `
+      <div class="section">
+        <h3>&#x1F3CB; Understanding Training</h3>
+        <div class="explain-box yellow">
+          <p><strong>&#x1F3C0; Basketball Analogy:</strong></p>
+          <p>1. <strong>Shoot</strong> the ball (forward pass)</p>
+          <p>2. See where it landed — too far left? (compute loss)</p>
+          <p>3. Figure out what to adjust (backpropagation)</p>
+          <p>4. Adjust your technique slightly (update weights)</p>
+          <p>5. Shoot again! (next iteration)</p>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3><span class="badge badge-game">GAME</span> Train the Model! &#x1F3CB;</h3>
+        <p>Click "Train Step" to run training iterations. Watch the loss go down!</p>
+        <div class="interactive-area">
+          <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+            <button class="btn btn-primary" id="trainBtn" onclick="doTrainStep()">&#x25B6; Train Step</button>
+            <button class="btn btn-success" id="trainAutoBtn" onclick="autoTrain()">&#x23E9; Auto Train (x50)</button>
+            <button class="btn btn-reset" onclick="resetTraining()">&#x1F504; Reset</button>
+          </div>
+          <div class="epoch-counter">Step: <span id="trainStepNum">0</span> / 2000</div>
+          <div style="display:flex;align-items:center;gap:12px;margin:8px 0;">
+            <span style="font-size:14px;">Loss:</span>
+            <div style="flex:1;height:24px;background:var(--bg4);border-radius:12px;overflow:hidden;">
+              <div id="trainLossBar" style="height:100%;width:91%;background:linear-gradient(90deg,var(--red),var(--orange));border-radius:12px;transition:all .3s;display:flex;align-items:center;justify-content:flex-end;padding-right:8px;font-size:11px;font-weight:700;">3.65</div>
+            </div>
+            <span id="trainLossVal" style="font-family:'Fira Code',monospace;font-weight:700;color:var(--yellow);min-width:50px;">3.65</span>
+          </div>
+          <h4 style="margin-top:12px;">Loss History:</h4>
+          <div class="training-viz" id="trainViz"></div>
+          <div id="trainMessage" style="margin-top:8px;font-size:14px;font-weight:600;"></div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3><span class="badge badge-quiz">QUIZ</span> Training Challenge</h3>
+
+        <div class="quiz-box" id="train-q1">
+          <div class="quiz-title">&#x1F914; What does "loss" measure?</div>
+          <div class="quiz-options">
+            <div class="quiz-opt" onclick="checkQuiz('train-q1',this,true)">&#x1F1E6; How WRONG the model's predictions are (lower = better)</div>
+            <div class="quiz-opt" onclick="checkQuiz('train-q1',this,false)">&#x1F1E7; How much data was lost during training</div>
+            <div class="quiz-opt" onclick="checkQuiz('train-q1',this,false)">&#x1F1E8; How fast the model is running</div>
+          </div>
+          <div class="quiz-feedback" id="train-q1-fb"></div>
+        </div>
+
+        <div class="quiz-box" id="train-q2">
+          <div class="quiz-title">&#x1F914; Why is the target shifted by 1 position from the input?</div>
+          <div class="quiz-options">
+            <div class="quiz-opt" onclick="checkQuiz('train-q2',this,false)">&#x1F1E6; It's a bug in the code</div>
+            <div class="quiz-opt" onclick="checkQuiz('train-q2',this,true)">&#x1F1E7; Because we're predicting the NEXT character — target is always one step ahead</div>
+            <div class="quiz-opt" onclick="checkQuiz('train-q2',this,false)">&#x1F1E8; To make training harder</div>
+          </div>
+          <div class="quiz-feedback" id="train-q2-fb"></div>
+        </div>
+
+        <div class="quiz-box" id="train-q3">
+          <div class="quiz-title">&#x1F914; What does backpropagation (loss.backward()) do?</div>
+          <div class="quiz-options">
+            <div class="quiz-opt" onclick="checkQuiz('train-q3',this,false)">&#x1F1E6; Runs the model backwards</div>
+            <div class="quiz-opt" onclick="checkQuiz('train-q3',this,false)">&#x1F1E7; Deletes the loss</div>
+            <div class="quiz-opt" onclick="checkQuiz('train-q3',this,true)">&#x1F1E8; Calculates how much each weight contributed to the error (gradients)</div>
+          </div>
+          <div class="quiz-feedback" id="train-q3-fb"></div>
+        </div>
+      </div>`;
+
+    registerQuiz('train-q1', 10);
+    registerQuiz('train-q2', 10);
+    registerQuiz('train-q3', 10);
+    resetTraining();
+  }
+},
+
+// ── STEP 7: GENERATION ──
+{
+  filename: 'step7_generate.py', filedesc: 'The model writes its own story!',
+  title: '&#x270D;&#xFE0F; Step 7: Text Generation',
+  subtitle: 'The model writes new text, one character at a time!',
+  code: `# ============================================
+# STEP 7: TEXT GENERATION
+# "The Model Writes Its Own Story!"
+# ============================================
+#
+# Generate one character at a time:
+#   1. Start with some text (prompt)
+#   2. Model predicts next character
+#   3. Add it to the text
+#   4. Repeat!
+#
+# This is "AUTOREGRESSIVE" generation.
+
+@torch.no_grad()  # No gradients needed!
+def generate(model, tokenizer,
+             start_text="The ",
+             max_new_chars=200,
+             temperature=0.8,
+             top_k=None):
+
+    model.eval()  # Evaluation mode
+
+    # Encode starting text
+    tokens = tokenizer.encode(start_text)
+    tokens = torch.tensor([tokens])
+
+    for _ in range(max_new_chars):
+        # Crop to last block_size chars
+        context = tokens[:, -model.block_size:]
+
+        # Get predictions
+        logits, _ = model(context)
+
+        # Only care about LAST position
+        logits = logits[:, -1, :]
+
+        # Apply temperature
+        # Low  (0.3) = safe, predictable
+        # Med  (0.8) = balanced
+        # High (1.5) = creative, wild
+        logits = logits / temperature
+
+        # Apply top-k (optional)
+        if top_k is not None:
+            top_vals, _ = torch.topk(logits, top_k)
+            logits[logits < top_vals[:, [-1]]] = \\
+                float("-inf")
+
+        # Softmax -> probabilities
+        probs = F.softmax(logits, dim=-1)
+
+        # Sample next character
+        next_token = torch.multinomial(
+            probs, num_samples=1
+        )
+
+        # Append to sequence
+        tokens = torch.cat(
+            [tokens, next_token], dim=1
+        )
+
+    return tokenizer.decode(tokens[0].tolist())
+
+# Temperature = 0.8 (balanced):
+# "The little cat loved to play in the
+#  garden. Every day the little cat would
+#  chase butterflies."
+#
+# Temperature = 1.5 (creative/wild):
+# "The lgveday woulit d slevereay..."
+# (creative but messy!)`,
+  game: function(container) {
+    container.innerHTML = `
+      <div class="section">
+        <h3>&#x270D;&#xFE0F; Understanding Generation</h3>
+        <div class="explain-box green">
+          <p><strong>&#x1F4DD; How it works:</strong> The model generates ONE character at a time. It looks at everything so far, predicts the most likely next character, adds it, and repeats. This is called <strong>autoregressive generation</strong>.</p>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3><span class="badge badge-game">GAME</span> Be the Language Model! &#x1F9E0;</h3>
+        <p>Given the start text, pick what the model would predict next. Think about what patterns it learned from the cat story!</p>
+        <div class="interactive-area">
+          <h4>Predict the next character:</h4>
+          <div id="genGameDisplay" class="gen-display"></div>
+          <div id="genGameOptions" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;"></div>
+          <div id="genGameFeedback" style="margin-top:8px;font-weight:700;font-size:14px;"></div>
+          <div id="genGameScore" style="margin-top:4px;font-size:13px;color:var(--dim);"></div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3><span class="badge badge-game">GAME</span> Temperature Playground &#x1F321;</h3>
+        <p>Adjust the temperature and see how it changes the probability distribution!</p>
+        <div class="interactive-area">
+          <div class="slider-row">
+            <span style="width:100px;">Temperature:</span>
+            <input type="range" id="tempSlider" min="1" max="30" value="8" oninput="updateTempDemo()">
+            <span class="slider-val" id="tempVal">0.8</span>
+          </div>
+          <h4 style="margin-top:12px;">Probability of each next character:</h4>
+          <div id="tempProbBars"></div>
+          <div id="tempExplain" class="output-box" style="margin-top:10px;font-size:13px;"></div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3><span class="badge badge-quiz">QUIZ</span> Generation Challenge</h3>
+
+        <div class="quiz-box" id="gen-q1">
+          <div class="quiz-title">&#x1F914; What does LOW temperature (0.1) do?</div>
+          <div class="quiz-options">
+            <div class="quiz-opt" onclick="checkQuiz('gen-q1',this,true)">&#x1F1E6; Makes output very predictable — always picks the most likely character</div>
+            <div class="quiz-opt" onclick="checkQuiz('gen-q1',this,false)">&#x1F1E7; Makes output very creative and random</div>
+            <div class="quiz-opt" onclick="checkQuiz('gen-q1',this,false)">&#x1F1E8; Makes the model run slower</div>
+          </div>
+          <div class="quiz-feedback" id="gen-q1-fb"></div>
+        </div>
+
+        <div class="quiz-box" id="gen-q2">
+          <div class="quiz-title">&#x1F914; What is "autoregressive" generation?</div>
+          <div class="quiz-options">
+            <div class="quiz-opt" onclick="checkQuiz('gen-q2',this,false)">&#x1F1E6; Generating all characters at once</div>
+            <div class="quiz-opt" onclick="checkQuiz('gen-q2',this,true)">&#x1F1E7; Generating one character at a time, each depending on all previous ones</div>
+            <div class="quiz-opt" onclick="checkQuiz('gen-q2',this,false)">&#x1F1E8; Automatically regressing to simpler text</div>
+          </div>
+          <div class="quiz-feedback" id="gen-q2-fb"></div>
+        </div>
+
+        <div class="quiz-box" id="gen-q3">
+          <div class="quiz-title">&#x1F914; What does top-k sampling do?</div>
+          <div class="quiz-options">
+            <div class="quiz-opt" onclick="checkQuiz('gen-q3',this,false)">&#x1F1E6; Picks the top character every time</div>
+            <div class="quiz-opt" onclick="checkQuiz('gen-q3',this,true)">&#x1F1E7; Only considers the K most likely characters, ignoring very unlikely ones</div>
+            <div class="quiz-opt" onclick="checkQuiz('gen-q3',this,false)">&#x1F1E8; Generates K characters at once</div>
+          </div>
+          <div class="quiz-feedback" id="gen-q3-fb"></div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="explain-box green" style="text-align:center;">
+          <h3 style="color:var(--green);">&#x1F389; Congratulations!</h3>
+          <p style="margin-top:8px;">You've learned ALL 7 steps of how a Language Model works! These are the <strong>exact same concepts</strong> used in ChatGPT, Claude, and Gemini — just at a much larger scale.</p>
+          <p style="margin-top:8px;">Run <code style="background:var(--code-bg);padding:2px 8px;border-radius:4px;">python run_all.py</code> to see the real model in action!</p>
+        </div>
+      </div>`;
+
+    registerQuiz('gen-q1', 10);
+    registerQuiz('gen-q2', 10);
+    registerQuiz('gen-q3', 10);
+    registerQuiz('gen-predict', 20);
+    initGenGame();
+    updateTempDemo();
+  }
+}
+];
+
+
+// ═══════════════════════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════════════════════
+function goStep(n) {
+  currentStep = n;
+  const step = STEPS[n];
+
+  // Update tabs
+  document.querySelectorAll('.step-tab').forEach((t, i) => {
+    t.classList.toggle('active', i === n);
+  });
+
+  // Update code panel
+  document.getElementById('codeFilename').textContent = step.filename;
+  document.getElementById('codeFiledesc').textContent = step.filedesc;
+  renderCode(step.code);
+
+  // Update game panel
+  document.getElementById('gameTitle').innerHTML = step.title;
+  document.getElementById('gameSubtitle').textContent = step.subtitle;
+  const gc = document.getElementById('gameContent');
+  gc.innerHTML = '';
+  step.game(gc);
+
+  // Scroll to top
+  document.querySelector('.game-scroll').scrollTop = 0;
+  document.querySelector('.code-scroll').scrollTop = 0;
+}
+
+// ═══════════════════════════════════════════════════════════
+// CODE RENDERER with syntax highlighting
+// ═══════════════════════════════════════════════════════════
+function renderCode(code) {
+  const container = document.getElementById('codeContent');
+  const lines = code.split('\n');
+  container.innerHTML = '';
+
+  lines.forEach((line, i) => {
+    const div = document.createElement('div');
+    div.className = 'code-line';
+    const highlighted = highlightSyntax(escapeHtml(line));
+    div.innerHTML = `<span class="line-num">${i + 1}</span><span class="line-text">${highlighted}</span>`;
+    container.appendChild(div);
+  });
+}
+
+function escapeHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function highlightSyntax(line) {
+  // Comments
+  if (line.trimStart().startsWith('#')) return `<span class="cm">${line}</span>`;
+
+  // Strings
+  line = line.replace(/(""".*?"""|".*?"|'.*?'|f".*?")/g, '<span class="str">$1</span>');
+
+  // Keywords
+  const kws = ['def','class','return','for','in','if','import','from','self','None','True','False','super','not','and','or','range','print','with','as','else','elif','while','break','continue','lambda','yield','try','except','finally','raise','pass'];
+  kws.forEach(kw => {
+    const re = new RegExp('\\b(' + kw + ')\\b', 'g');
+    line = line.replace(re, '<span class="kw">$1</span>');
+  });
+
+  // Numbers
+  line = line.replace(/\b(\d+\.?\d*)\b/g, '<span class="num">$1</span>');
+
+  // Decorators
+  line = line.replace(/(@\w+)/g, '<span class="dec">$1</span>');
+
+  return line;
+}
+
+// ═══════════════════════════════════════════════════════════
+// QUIZ SYSTEM
+// ═══════════════════════════════════════════════════════════
+function checkQuiz(quizId, el, isCorrect) {
+  const box = document.getElementById(quizId);
+  if (box.classList.contains('correct') || box.classList.contains('wrong')) return;
+
+  const fb = document.getElementById(quizId + '-fb');
+  const opts = box.querySelectorAll('.quiz-opt');
+
+  if (isCorrect) {
+    el.classList.add('selected-correct');
+    box.classList.add('correct');
+    fb.className = 'quiz-feedback show correct';
+    fb.textContent = '✅ Correct! +10 points';
+    addScore(quizId, 10);
+  } else {
+    el.classList.add('selected-wrong');
+    box.classList.add('wrong');
+    fb.className = 'quiz-feedback show wrong';
+    fb.textContent = '❌ Not quite! The correct answer is highlighted.';
+  }
+
+  opts.forEach(o => {
+    o.classList.add('disabled');
+    if (o !== el && o.onclick) {
+      // Find the correct one
+      const onclickStr = o.getAttribute('onclick');
+      if (onclickStr && onclickStr.includes('true')) {
+        o.classList.add('show-correct');
+      }
+    }
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+// TOKENIZER GAME (Step 2)
+// ═══════════════════════════════════════════════════════════
+const VOCAB = {'\n':0,' ':1,'.':2,'A':3,'B':4,'E':5,'H':6,'O':7,'S':8,'T':9,'W':10,'a':11,'b':12,'c':13,'d':14,'e':15,'f':16,'g':17,'h':18,'i':19,'j':20,'k':21,'l':22,'m':23,'n':24,'o':25,'p':26,'r':27,'s':28,'t':29,'u':30,'v':31,'w':32,'y':33};
+const VOCAB_REV = {};
+Object.entries(VOCAB).forEach(([k,v]) => VOCAB_REV[v] = k);
+
+const TOKEN_COLORS = ['#e94560','#ff6b6b','#ffd166','#48cae4','#06d6a0','#a855f7','#f97316','#ec4899'];
+
+function tokenizeWord() {
+  const input = document.getElementById('tokenInput').value;
+  const result = document.getElementById('tokenResult');
+  const encoded = document.getElementById('tokenEncoded');
+  result.innerHTML = '';
+
+  if (!input) { encoded.style.display = 'none'; return; }
+
+  const ids = [];
+  let valid = true;
+
+  input.split('').forEach((ch, i) => {
+    const id = VOCAB[ch];
+    const color = TOKEN_COLORS[i % TOKEN_COLORS.length];
+    const box = document.createElement('div');
+    box.className = 'char-box';
+
+    if (id !== undefined) {
+      ids.push(id);
+      box.style.cssText = `background:${color}15;border:2px solid ${color};`;
+      box.innerHTML = `<span class="ch" style="color:${color};">${ch === ' ' ? '&#x2423;' : escapeHtml(ch)}</span><span class="id" style="color:${color};">${id}</span>`;
+    } else {
+      valid = false;
+      box.style.cssText = 'background:rgba(233,69,96,0.1);border:2px solid var(--red);';
+      box.innerHTML = `<span class="ch" style="color:var(--red);">${escapeHtml(ch)}</span><span class="id" style="color:var(--red);">?</span>`;
+    }
+    result.appendChild(box);
+  });
+
+  encoded.style.display = 'block';
+  if (valid) {
+    encoded.innerHTML = `<span style="color:var(--dim);">Encoded:</span> <span style="color:var(--yellow);">[${ids.join(', ')}]</span>`;
+  } else {
+    encoded.innerHTML = `<span style="color:var(--red);">&#x26A0; Some characters not in our vocabulary! Our model only knows 34 characters from the training text.</span>`;
+  }
+}
+
+function checkDecode() {
+  const input = document.getElementById('decodeInput').value.toLowerCase();
+  const fb = document.getElementById('decodeFeedback');
+  if (input === 'hello') {
+    fb.innerHTML = '&#x2705; Correct! [18,15,22,22,25] = h,e,l,l,o = "hello"! +15 points';
+    fb.style.color = 'var(--green)';
+    addScore('tok-decode', 15);
+  } else if (input.length >= 3) {
+    fb.innerHTML = '&#x1F914; Not quite... Hint: 18=h, 15=e, 22=l, 25=o';
+    fb.style.color = 'var(--yellow)';
+  } else {
+    fb.innerHTML = '';
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// EMBEDDING VIZ (Step 3)
+// ═══════════════════════════════════════════════════════════
+function updateEmbedViz() {
+  const sliders = document.querySelectorAll('.slider-row input[type=range]');
+  if (sliders.length < 4) return;
+
+  const vals = [];
+  sliders.forEach((s, i) => {
+    const v = (parseInt(s.value) / 100).toFixed(2);
+    vals.push(parseFloat(v));
+    const label = document.getElementById('emb-d' + (i + 1));
+    if (label) label.textContent = v;
+  });
+
+  const result = document.getElementById('embVizResult');
+  if (!result) return;
+
+  const magnitude = Math.sqrt(vals.reduce((a, v) => a + v * v, 0)).toFixed(2);
+  const hue = Math.abs(Math.round((vals[0] + 1) * 180));
+  const sat = Math.abs(Math.round((vals[1] + 1) * 50));
+  const light = Math.round(40 + (vals[2] + 1) * 20);
+
+  result.innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:center;gap:16px;">
+      <div style="width:50px;height:50px;border-radius:12px;background:hsl(${hue},${sat}%,${light}%);"></div>
+      <div style="text-align:left;">
+        <div style="font-family:'Fira Code',monospace;color:var(--accent);">[${vals.join(', ')}]</div>
+        <div style="font-size:12px;color:var(--dim);">Magnitude: ${magnitude}</div>
+        <div style="font-size:12px;color:var(--dim);">This is the "personality" of character "a"!</div>
+      </div>
+    </div>`;
+}
+
+// ═══════════════════════════════════════════════════════════
+// MASK GAME (Step 4)
+// ═══════════════════════════════════════════════════════════
+let maskState = [];
+const MASK_SIZE = 5;
+const MASK_LABELS = ['t','h','e',' ','c'];
+
+function initMaskGame() {
+  const grid = document.getElementById('maskGame');
+  if (!grid) return;
+  grid.innerHTML = '';
+  grid.style.gridTemplateColumns = `repeat(${MASK_SIZE + 1}, 42px)`;
+  maskState = Array.from({length: MASK_SIZE}, () => Array(MASK_SIZE).fill(0));
+
+  // Corner
+  const corner = document.createElement('div');
+  corner.className = 'attn-game-cell header';
+  grid.appendChild(corner);
+
+  // Column headers
+  MASK_LABELS.forEach(l => {
+    const h = document.createElement('div');
+    h.className = 'attn-game-cell header';
+    h.textContent = l;
+    grid.appendChild(h);
+  });
+
+  // Rows
+  for (let i = 0; i < MASK_SIZE; i++) {
+    const rh = document.createElement('div');
+    rh.className = 'attn-game-cell header';
+    rh.textContent = MASK_LABELS[i];
+    grid.appendChild(rh);
+
+    for (let j = 0; j < MASK_SIZE; j++) {
+      const cell = document.createElement('div');
+      cell.className = 'attn-game-cell clickable';
+      cell.dataset.row = i;
+      cell.dataset.col = j;
+      cell.textContent = '?';
+      cell.onclick = function() {
+        const r = parseInt(this.dataset.row);
+        const c = parseInt(this.dataset.col);
+        maskState[r][c] = maskState[r][c] === 0 ? 1 : (maskState[r][c] === 1 ? -1 : 0);
+        if (maskState[r][c] === 1) {
+          this.className = 'attn-game-cell clickable marked-yes';
+          this.textContent = '✓';
+        } else if (maskState[r][c] === -1) {
+          this.className = 'attn-game-cell clickable marked-no';
+          this.textContent = '✗';
+        } else {
+          this.className = 'attn-game-cell clickable';
+          this.textContent = '?';
+        }
+      };
+      grid.appendChild(cell);
+    }
+  }
+}
+
+function checkMaskGame() {
+  let correct = 0;
+  const total = MASK_SIZE * MASK_SIZE;
+  const grid = document.getElementById('maskGame');
+  const cells = grid.querySelectorAll('.clickable');
+
+  cells.forEach(cell => {
+    const r = parseInt(cell.dataset.row);
+    const c = parseInt(cell.dataset.col);
+    const shouldBe = c <= r; // lower triangular
+    const userSays = maskState[r][c] === 1;
+    const userBlocked = maskState[r][c] === -1;
+
+    if ((shouldBe && userSays) || (!shouldBe && userBlocked)) {
+      correct++;
+      cell.classList.add('revealed-correct');
+    } else {
+      cell.classList.add('revealed-wrong');
+      cell.textContent = shouldBe ? '✓' : '✗';
+    }
+    cell.onclick = null;
+  });
+
+  const fb = document.getElementById('maskFeedback');
+  if (correct === total) {
+    fb.innerHTML = '&#x2705; Perfect! You built the causal mask correctly! +20 points';
+    fb.style.color = 'var(--green)';
+    addScore('mask-game', 20);
+  } else {
+    fb.innerHTML = `Got ${correct}/${total}. The lower triangle should be ✓ (can see), upper triangle ✗ (blocked).`;
+    fb.style.color = 'var(--yellow)';
+  }
+}
+
+function resetMaskGame() {
+  document.getElementById('maskFeedback').innerHTML = '';
+  initMaskGame();
+}
+
+// ═══════════════════════════════════════════════════════════
+// PIPELINE GAME (Step 5)
+// ═══════════════════════════════════════════════════════════
+const PIPELINE_CORRECT = [
+  {label: '&#x1F524; Token + Position Embeddings', id: 'emb'},
+  {label: '&#x1F440; Self-Attention (Multi-Head)', id: 'attn'},
+  {label: '&#x2795; Residual Connection + LayerNorm', id: 'res1'},
+  {label: '&#x1F9E0; Feed-Forward Network', id: 'ff'},
+  {label: '&#x2795; Residual Connection + LayerNorm', id: 'res2'},
+  {label: '&#x1F504; Repeat x4 (Transformer Blocks)', id: 'repeat'},
+  {label: '&#x1F3AF; Output Head (predict next char)', id: 'out'},
+];
+let pipelineOrder = [];
+
+function initPipelineGame() {
+  const opts = document.getElementById('pipelineOptions');
+  const result = document.getElementById('pipelineResult');
+  if (!opts) return;
+  opts.innerHTML = '';
+  result.innerHTML = '<div style="color:var(--dim);font-size:13px;text-align:center;padding:20px;">Click components above to add them here...</div>';
+  pipelineOrder = [];
+
+  const shuffled = [...PIPELINE_CORRECT].sort(() => Math.random() - 0.5);
+  shuffled.forEach((item, i) => {
+    const btn = document.createElement('div');
+    btn.className = 'drag-item';
+    btn.style.cssText = `background:var(--bg4);color:var(--text);border:2px solid var(--bg4);`;
+    btn.innerHTML = item.label;
+    btn.dataset.id = item.id;
+    btn.onclick = function() {
+      if (this.classList.contains('used')) return;
+      this.classList.add('used');
+      this.style.opacity = '0.3';
+      pipelineOrder.push(item.id);
+
+      const entry = document.createElement('div');
+      entry.style.cssText = 'padding:8px 14px;background:var(--bg4);border-radius:8px;font-size:14px;font-weight:600;display:flex;align-items:center;gap:8px;';
+      entry.innerHTML = `<span style="color:var(--accent);font-weight:800;">${pipelineOrder.length}.</span> ${item.label}`;
+      if (result.querySelector('div[style*="text-align:center"]')) result.innerHTML = '';
+      result.appendChild(entry);
+    };
+    opts.appendChild(btn);
+  });
+}
+
+function checkPipeline() {
+  const fb = document.getElementById('pipelineFeedback');
+  if (pipelineOrder.length < PIPELINE_CORRECT.length) {
+    fb.innerHTML = '&#x26A0; Place all components first!';
+    fb.style.color = 'var(--yellow)';
+    return;
+  }
+
+  let correct = 0;
+  const entries = document.getElementById('pipelineResult').children;
+  for (let i = 0; i < PIPELINE_CORRECT.length; i++) {
+    if (pipelineOrder[i] === PIPELINE_CORRECT[i].id) {
+      correct++;
+      entries[i].style.borderLeft = '3px solid var(--green)';
+    } else {
+      entries[i].style.borderLeft = '3px solid var(--red)';
+    }
+  }
+
+  if (correct === PIPELINE_CORRECT.length) {
+    fb.innerHTML = '&#x2705; Perfect order! You understand the Transformer pipeline! +20 points';
+    fb.style.color = 'var(--green)';
+    addScore('pipeline-game', 20);
+  } else {
+    fb.innerHTML = `${correct}/${PIPELINE_CORRECT.length} correct. The correct order starts with Embeddings, then Attention, Residual, Feed-Forward...`;
+    fb.style.color = 'var(--yellow)';
+  }
+}
+
+function resetPipeline() {
+  document.getElementById('pipelineFeedback').innerHTML = '';
+  initPipelineGame();
+}
+
+// ═══════════════════════════════════════════════════════════
+// TRAINING GAME (Step 6)
+// ═══════════════════════════════════════════════════════════
+let trainStep = 0;
+let trainLoss = 3.65;
+let trainHistory = [];
+let trainAutoInterval = null;
+
+function resetTraining() {
+  trainStep = 0;
+  trainLoss = 3.65;
+  trainHistory = [3.65];
+  if (trainAutoInterval) { clearInterval(trainAutoInterval); trainAutoInterval = null; }
+  updateTrainUI();
+  renderTrainViz();
+}
+
+function doTrainStep() {
+  if (trainStep >= 2000) return;
+  trainStep += 10;
+  // Simulate loss curve: exponential decay with noise
+  const progress = trainStep / 2000;
+  trainLoss = 3.65 * Math.exp(-4.5 * progress) + 0.15 + (Math.random() - 0.5) * 0.05 * (1 - progress);
+  trainLoss = Math.max(0.12, trainLoss);
+  trainHistory.push(trainLoss);
+  updateTrainUI();
+  renderTrainViz();
+}
+
+function autoTrain() {
+  if (trainAutoInterval) { clearInterval(trainAutoInterval); trainAutoInterval = null; return; }
+  let count = 0;
+  trainAutoInterval = setInterval(() => {
+    doTrainStep();
+    count++;
+    if (count >= 50 || trainStep >= 2000) {
+      clearInterval(trainAutoInterval);
+      trainAutoInterval = null;
+    }
+  }, 80);
+}
+
+function updateTrainUI() {
+  document.getElementById('trainStepNum').textContent = trainStep;
+  const pct = Math.min(91, (trainLoss / 4) * 100);
+  const bar = document.getElementById('trainLossBar');
+  bar.style.width = pct + '%';
+  bar.textContent = trainLoss.toFixed(2);
+
+  // Color gradient based on loss
+  const r = Math.round(233 * (trainLoss / 3.65));
+  const g = Math.round(214 * (1 - trainLoss / 3.65));
+  bar.style.background = `linear-gradient(90deg, rgb(${r},${Math.round(g*0.5)},50), rgb(${r},${g},80))`;
+
+  document.getElementById('trainLossVal').textContent = trainLoss.toFixed(2);
+
+  const msg = document.getElementById('trainMessage');
+  if (trainStep === 0) msg.innerHTML = '&#x1F449; Click "Train Step" to begin!';
+  else if (trainLoss > 2.5) msg.innerHTML = '&#x1F914; Model is still guessing randomly...';
+  else if (trainLoss > 1.5) msg.innerHTML = '&#x1F4C8; Starting to learn some patterns!';
+  else if (trainLoss > 0.5) msg.innerHTML = '&#x1F525; Getting much better! Patterns emerging!';
+  else if (trainLoss > 0.25) msg.innerHTML = '&#x1F31F; Almost there! Loss is very low!';
+  else msg.innerHTML = '&#x1F389; Excellent! Model has learned the patterns! Loss: ' + trainLoss.toFixed(2);
+}
+
+function renderTrainViz() {
+  const viz = document.getElementById('trainViz');
+  if (!viz) return;
+  viz.innerHTML = '';
+  const maxBars = 80;
+  const data = trainHistory.slice(-maxBars);
+  data.forEach((loss, i) => {
+    const bar = document.createElement('div');
+    bar.className = 'train-bar';
+    const h = Math.max(4, (loss / 4) * 110);
+    bar.style.height = h + 'px';
+    const ratio = loss / 3.65;
+    const r = Math.round(233 * ratio);
+    const g = Math.round(214 * (1 - ratio));
+    bar.style.background = `rgb(${r},${g},80)`;
+    viz.appendChild(bar);
+  });
+}
+
+// ═══════════════════════════════════════════════════════════
+// GENERATION GAME (Step 7)
+// ═══════════════════════════════════════════════════════════
+const GEN_SEQUENCE = [
+  {context: 'The little ', choices: ['c','d','b','w'], correct: 'c', explain: 'In our story, "The little c" starts "The little cat" — the most common phrase!'},
+  {context: 'The little c', choices: ['a','o','e','u'], correct: 'a', explain: '"ca" is the start of "cat" — the model learned this pattern!'},
+  {context: 'The little ca', choices: ['t','r','n','s'], correct: 't', explain: '"cat" is complete! The model knows "ca" is followed by "t".'},
+  {context: 'The little cat ', choices: ['w','l','s','i'], correct: 'w', explain: '"The little cat w..." — "would" is the most common next word in our story!'},
+  {context: 'The little cat w', choices: ['o','a','e','i'], correct: 'o', explain: '"wo" starts "would" — the model learned this from many repetitions!'},
+];
+let genGameIdx = 0;
+let genGameCorrect = 0;
+
+function initGenGame() {
+  genGameIdx = 0;
+  genGameCorrect = 0;
+  showGenGameStep();
+}
+
+function showGenGameStep() {
+  if (genGameIdx >= GEN_SEQUENCE.length) {
+    const fb = document.getElementById('genGameFeedback');
+    fb.innerHTML = `&#x1F389; Done! You predicted ${genGameCorrect}/${GEN_SEQUENCE.length} correctly!`;
+    fb.style.color = 'var(--green)';
+    if (genGameCorrect >= 3) addScore('gen-predict', 20);
+    document.getElementById('genGameOptions').innerHTML = '';
+    document.getElementById('genGameScore').textContent = `Score: ${genGameCorrect}/${GEN_SEQUENCE.length}`;
+    return;
+  }
+
+  const step = GEN_SEQUENCE[genGameIdx];
+  const display = document.getElementById('genGameDisplay');
+  display.innerHTML = `<span style="color:var(--green);">${escapeHtml(step.context)}</span><span class="gen-cursor"></span>`;
+
+  const opts = document.getElementById('genGameOptions');
+  opts.innerHTML = '';
+  step.choices.forEach(ch => {
+    const btn = document.createElement('button');
+    btn.className = 'btn';
+    btn.style.cssText = 'background:var(--bg4);color:var(--text);min-width:50px;font-family:"Fira Code",monospace;font-size:18px;';
+    btn.textContent = ch === ' ' ? '␣' : ch;
+    btn.onclick = function() {
+      const isCorrect = ch === step.correct;
+      if (isCorrect) {
+        genGameCorrect++;
+        btn.style.background = 'rgba(6,214,160,0.2)';
+        btn.style.color = 'var(--green)';
+      } else {
+        btn.style.background = 'rgba(233,69,96,0.2)';
+        btn.style.color = 'var(--red)';
+      }
+      document.getElementById('genGameFeedback').innerHTML = (isCorrect ? '&#x2705; ' : '&#x274C; ') + step.explain;
+      document.getElementById('genGameFeedback').style.color = isCorrect ? 'var(--green)' : 'var(--yellow)';
+      opts.querySelectorAll('button').forEach(b => b.disabled = true);
+
+      setTimeout(() => {
+        genGameIdx++;
+        document.getElementById('genGameFeedback').innerHTML = '';
+        showGenGameStep();
+      }, 2000);
+    };
+    opts.appendChild(btn);
+  });
+
+  document.getElementById('genGameScore').textContent = `Progress: ${genGameIdx + 1}/${GEN_SEQUENCE.length} | Correct: ${genGameCorrect}`;
+}
+
+// ═══════════════════════════════════════════════════════════
+// TEMPERATURE DEMO (Step 7)
+// ═══════════════════════════════════════════════════════════
+function updateTempDemo() {
+  const slider = document.getElementById('tempSlider');
+  if (!slider) return;
+  const temp = parseInt(slider.value) / 10;
+  document.getElementById('tempVal').textContent = temp.toFixed(1);
+
+  // Simulate logits for next char after "The little ca"
+  const rawLogits = {t: 4.5, s: 1.2, n: 0.8, r: 0.5, b: 0.2};
+  const chars = Object.keys(rawLogits);
+  const logits = chars.map(c => rawLogits[c] / temp);
+
+  // Softmax
+  const maxL = Math.max(...logits);
+  const exps = logits.map(l => Math.exp(l - maxL));
+  const sumExp = exps.reduce((a, b) => a + b, 0);
+  const probs = exps.map(e => e / sumExp);
+
+  const container = document.getElementById('tempProbBars');
+  if (!container) return;
+  container.innerHTML = '';
+
+  const colors = ['var(--green)', 'var(--accent)', 'var(--yellow)', 'var(--orange)', 'var(--red)'];
+  chars.forEach((ch, i) => {
+    const pct = (probs[i] * 100).toFixed(1);
+    container.innerHTML += `
+      <div class="prob-bar-row">
+        <span class="char-label" style="color:${colors[i]};">"${ch}"</span>
+        <div class="prob-bar-track">
+          <div class="prob-bar-fill" style="width:${pct}%;background:${colors[i]};"></div>
+        </div>
+        <span class="pct">${pct}%</span>
+      </div>`;
+  });
+
+  const explain = document.getElementById('tempExplain');
+  if (!explain) return;
+  if (temp <= 0.3) {
+    explain.innerHTML = '&#x1F9CA; <strong>Very cold:</strong> Almost always picks "t" (the most likely). Output is predictable and repetitive.';
+  } else if (temp <= 0.8) {
+    explain.innerHTML = '&#x2600;&#xFE0F; <strong>Balanced:</strong> Usually picks "t" but sometimes tries other characters. Natural-sounding output.';
+  } else if (temp <= 1.2) {
+    explain.innerHTML = '&#x1F321; <strong>Warm:</strong> More variety in choices. Output gets more creative but still mostly coherent.';
+  } else {
+    explain.innerHTML = '&#x1F525; <strong>Hot:</strong> All characters become nearly equally likely. Output gets wild and often nonsensical!';
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════
+goStep(0);
+</script>
+</body>
+</html>

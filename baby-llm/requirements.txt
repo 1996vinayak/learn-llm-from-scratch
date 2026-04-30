@@ -1,0 +1,3 @@
+# Baby LLM Dependencies
+# We only need PyTorch - the deep learning library
+torch>=2.0.0
